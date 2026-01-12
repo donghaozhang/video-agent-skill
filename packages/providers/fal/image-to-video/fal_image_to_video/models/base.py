@@ -148,11 +148,11 @@ class BaseVideoModel(ABC):
                 self.model_key
             )
 
-            # Calculate cost estimate
+            # Calculate cost estimate using model-specific estimate_cost method
             duration = validated_params.get("duration", 5)
             if isinstance(duration, str):
                 duration = int(duration.replace("s", ""))
-            cost_estimate = self.price_per_second * duration
+            cost_estimate = self.estimate_cost(duration, **validated_params)
 
             return {
                 "success": True,
