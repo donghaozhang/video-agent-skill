@@ -122,7 +122,7 @@ steps:
     type: "image-to-video"
     model: "veo_3_1_fast"
     params:
-      image: "{{input.image_url}}"
+      image_url: "{{input.image_url}}"
       prompt: "The scene slowly comes alive with subtle camera movement"
       duration: "8s"
       aspect_ratio: "auto"
