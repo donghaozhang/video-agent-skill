@@ -554,14 +554,14 @@ def save_base64_image(data_url: str, output_dir: Path, index: int) -> Path:
 
 ### Phase 4: Cost & Documentation (Recommended)
 - [x] Update cost calculator with resolution-aware pricing
-- [ ] Add warning when 4K resolution selected (double cost)
+- [x] Add warning when 4K resolution selected (double cost)
 - [x] Update MODEL_INFO with accurate capabilities
-- [ ] Add unit tests for validators
+- [x] Add unit tests for validators
 
 ### Phase 5: CLI & YAML Support (Future)
-- [ ] Add `--resolution` option to CLI
-- [ ] Add `--aspect-ratio` option to CLI
-- [ ] Document YAML pipeline usage
+- [x] Add `--resolution` option to CLI
+- [x] Add `--aspect-ratio` option to CLI (already existed, enhanced help text)
+- [x] Document YAML pipeline usage (created `image_nano_banana_edit.yaml`)
 - [ ] Add integration tests
 
 ---

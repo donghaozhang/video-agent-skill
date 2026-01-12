@@ -62,6 +62,14 @@ class NanoBananaProEditModel(BaseModel):
         validated_output_format = validate_output_format(output_format)
         validated_num_images = validate_num_images(num_images, max_images=4)
 
+        # Warn about 4K resolution cost
+        if validated_resolution == "4K":
+            print("⚠️  Warning: 4K resolution costs $0.030/image (double the 1K/2K rate)")
+
+        # Warn about web search cost
+        if enable_web_search:
+            print("ℹ️  Web search enabled: +$0.015 per request")
+
         return {
             "aspect_ratio": validated_aspect_ratio,
             "resolution": validated_resolution,

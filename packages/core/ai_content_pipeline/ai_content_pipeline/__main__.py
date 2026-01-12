@@ -281,14 +281,21 @@ def generate_image(args):
     """Handle generate-image command."""
     try:
         manager = AIPipelineManager(args.base_dir)
-        
+
+        # Build generation parameters
+        gen_params = {
+            "prompt": args.text,
+            "model": args.model,
+            "aspect_ratio": args.aspect_ratio,
+            "output_dir": args.output_dir or "output"
+        }
+
+        # Add resolution if specified (for models that support it)
+        if hasattr(args, 'resolution') and args.resolution:
+            gen_params["resolution"] = args.resolution
+
         # Generate image
-        result = manager.text_to_image.generate(
-            prompt=args.text,
-            model=args.model,
-            aspect_ratio=args.aspect_ratio,
-            output_dir=args.output_dir or "output"
-        )
+        result = manager.text_to_image.generate(**gen_params)
         
         # Display results
         if result.success:
@@ -381,7 +388,10 @@ Examples:
     image_parser = subparsers.add_parser("generate-image", help="Generate image from text")
     image_parser.add_argument("--text", required=True, help="Text prompt for image generation")
     image_parser.add_argument("--model", default="auto", help="Model to use (default: auto)")
-    image_parser.add_argument("--aspect-ratio", default="16:9", help="Aspect ratio (default: 16:9)")
+    image_parser.add_argument("--aspect-ratio", default="16:9",
+                              help="Aspect ratio (default: 16:9). For nano_banana_pro: auto, 21:9, 16:9, 3:2, 4:3, 5:4, 1:1, 4:5, 3:4, 2:3, 9:16")
+    image_parser.add_argument("--resolution", default="1K",
+                              help="Resolution for supported models (default: 1K). Options: 1K, 2K, 4K. Note: 4K costs double.")
     image_parser.add_argument("--output-dir", help="Output directory")
     image_parser.add_argument("--save-json", help="Save result as JSON")
     
