@@ -176,22 +176,52 @@ class BaseVideoModel(ABC):
                 "prompt": prompt
             }
 
-    def _generate_async(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle async generation with polling."""
+    def _generate_async(
+        self,
+        arguments: Dict[str, Any],
+        timeout: int = 600,
+        poll_interval: int = 5
+    ) -> Dict[str, Any]:
+        """
+        Handle async generation with polling.
+
+        Args:
+            arguments: API arguments for generation
+            timeout: Maximum wait time in seconds (default: 600 = 10 minutes)
+            poll_interval: Time between status checks in seconds (default: 5)
+
+        Returns:
+            API result dictionary
+
+        Raises:
+            TimeoutError: If generation exceeds timeout
+            Exception: If generation fails
+        """
         handler = fal_client.submit(self.endpoint, arguments=arguments)
         request_id = handler.request_id
         print(f"📤 Request submitted: {request_id}")
 
-        while True:
+        start_time = time.time()
+        max_iterations = timeout // poll_interval
+
+        for iteration in range(max_iterations):
+            elapsed = time.time() - start_time
             status = fal_client.status(self.endpoint, request_id, with_logs=True)
-            print(f"   Status: {status.status}")
+            print(f"   Status: {status.status} ({elapsed:.0f}s elapsed)")
 
             if status.status == "COMPLETED":
                 return fal_client.result(self.endpoint, request_id)
             elif status.status == "FAILED":
                 raise Exception(f"Generation failed: {status}")
 
-            time.sleep(5)
+            time.sleep(poll_interval)
+
+        # Timeout reached
+        elapsed = time.time() - start_time
+        raise TimeoutError(
+            f"Generation timed out after {elapsed:.0f}s (request_id: {request_id}). "
+            f"The request may still be processing - check FAL dashboard."
+        )
 
     def _log_generation_start(self, prompt: str, image_url: str, **params):
         """Log generation start with parameters."""
