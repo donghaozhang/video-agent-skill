@@ -175,25 +175,38 @@ class FALTextToImageGenerator:
                 # Get output folder from kwargs or use default
                 output_folder = kwargs.get('output_folder', 'output')
                 
+                # Get the raw URL from the API response
+                raw_url = image_data['url']
+                is_base64_url = raw_url.startswith('data:')
+
                 response = {
                     'success': True,
                     'model': model,
                     'endpoint': endpoint,
-                    'image_url': image_data['url'],
+                    'image_url': raw_url,  # Will be replaced with local path if base64
                     'image_size': str(image_data.get('width', 'unknown')) + 'x' + str(image_data.get('height', 'unknown')) if 'width' in image_data else 'unknown',
                     'prompt': prompt,
                     'negative_prompt': negative_prompt,
                     'parameters': payload,
                     'full_result': result
                 }
-                
+
                 print(f"✅ Image generated successfully!")
-                print(f"🔗 Image URL: {response['image_url']}")
-                
-                # Automatically download the image
+                if is_base64_url:
+                    print(f"📦 Received base64 image data ({len(raw_url) / 1024:.1f} KB)")
+                else:
+                    print(f"🔗 Image URL: {response['image_url']}")
+
+                # Automatically download/save the image
                 try:
-                    local_path = self.download_image(image_data['url'], output_folder)
+                    local_path = self.download_image(raw_url, output_folder)
                     response['local_path'] = local_path
+
+                    # Replace base64 data URL with local path to prevent huge strings
+                    if is_base64_url:
+                        response['image_url'] = local_path
+                        response['original_was_base64'] = True
+
                     print(f"📥 Image saved to: {local_path}")
                 except Exception as e:
                     print(f"⚠️  Warning: Could not download image: {e}")
@@ -347,42 +360,85 @@ class FALTextToImageGenerator:
     def download_image(self, image_url: str, output_folder: str = "output", filename: Optional[str] = None) -> str:
         """
         Download an image from URL to local folder.
-        
+
+        Supports both HTTP/HTTPS URLs and base64 data URLs.
+
         Args:
-            image_url: URL of the image to download
+            image_url: URL of the image to download (HTTP URL or data: URL)
             output_folder: Local folder to save the image
             filename: Custom filename (optional)
-            
+
         Returns:
             Path to the downloaded image
         """
+        import base64
+
         try:
             # Create output folder if it doesn't exist
             os.makedirs(output_folder, exist_ok=True)
-            
+
             # Generate filename if not provided
             if not filename:
                 timestamp = int(time.time())
                 filename = f"generated_image_{timestamp}.png"
-            
+
+            # Handle base64 data URLs (e.g., "data:image/png;base64,...")
+            if image_url.startswith('data:'):
+                # Parse the data URL
+                # Format: data:[<mediatype>][;base64],<data>
+                try:
+                    header, encoded_data = image_url.split(',', 1)
+
+                    # Determine file extension from MIME type
+                    if 'image/png' in header:
+                        ext = '.png'
+                    elif 'image/jpeg' in header or 'image/jpg' in header:
+                        ext = '.jpg'
+                    elif 'image/webp' in header:
+                        ext = '.webp'
+                    elif 'image/gif' in header:
+                        ext = '.gif'
+                    else:
+                        ext = '.png'  # Default to PNG
+
+                    # Ensure filename has correct extension
+                    if not filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.gif')):
+                        filename += ext
+
+                    filepath = os.path.join(output_folder, filename)
+
+                    # Decode and save
+                    print(f"💾 Saving base64 image to: {filepath}")
+                    image_data = base64.b64decode(encoded_data)
+
+                    with open(filepath, 'wb') as f:
+                        f.write(image_data)
+
+                    print(f"✅ Image saved successfully! ({len(image_data) / 1024:.1f} KB)")
+                    return filepath
+
+                except Exception as e:
+                    raise ValueError(f"Failed to decode base64 image: {e}")
+
+            # Handle regular HTTP/HTTPS URLs
             # Ensure filename has extension
             if not filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
                 filename += '.png'
-            
+
             filepath = os.path.join(output_folder, filename)
-            
+
             # Download the image
             print(f"⬇️ Downloading image to: {filepath}")
             response = requests.get(image_url, stream=True)
             response.raise_for_status()
-            
+
             with open(filepath, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
-            
+
             print(f"✅ Image downloaded successfully!")
             return filepath
-            
+
         except Exception as e:
             print(f"❌ Error downloading image: {str(e)}")
             raise
