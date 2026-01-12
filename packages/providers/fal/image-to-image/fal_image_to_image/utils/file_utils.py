@@ -8,6 +8,7 @@ import base64
 import requests
 from pathlib import Path
 from typing import List, Optional
+from urllib.parse import urlparse
 import fal_client
 
 
@@ -163,16 +164,24 @@ def get_extension_from_url(url: str) -> str:
         else:
             return ".png"  # Default
     else:
-        # Try to get extension from URL path
-        url_lower = url.lower()
-        if ".jpg" in url_lower or ".jpeg" in url_lower:
-            return ".jpg"
-        elif ".webp" in url_lower:
-            return ".webp"
-        elif ".gif" in url_lower:
-            return ".gif"
-        else:
-            return ".png"  # Default
+        # Parse URL and extract extension from path component
+        try:
+            parsed = urlparse(url)
+            path = parsed.path.lower()
+            # Use os.path.splitext to properly extract extension
+            _, ext = os.path.splitext(path)
+            if ext in [".jpg", ".jpeg"]:
+                return ".jpg"
+            elif ext == ".webp":
+                return ".webp"
+            elif ext == ".gif":
+                return ".gif"
+            elif ext == ".png":
+                return ".png"
+            else:
+                return ".png"  # Default for unknown extensions
+        except Exception:
+            return ".png"  # Default on parse failure
 
 
 def ensure_output_directory(output_dir: Optional[str] = None) -> Path:
