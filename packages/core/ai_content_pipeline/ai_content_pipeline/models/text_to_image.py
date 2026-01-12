@@ -77,9 +77,9 @@ class UnifiedTextToImageGenerator(BaseContentModel):
                 print(f"🤖 Auto-selected model: {model}")
             
             # Route to appropriate generator
-            if self._unified_generator and model in ["flux_dev", "flux_schnell", "imagen4", "seedream_v3", "seedream3", "gen4"]:
+            if self._unified_generator and model in ["flux_dev", "flux_schnell", "imagen4", "seedream_v3", "seedream3", "gen4", "nano_banana_pro", "gpt_image_1_5"]:
                 return self._generate_with_unified(prompt, model, **kwargs)
-            elif self._fal_generator and model in ["flux_dev", "flux_schnell", "imagen4", "seedream_v3"]:
+            elif self._fal_generator and model in ["flux_dev", "flux_schnell", "imagen4", "seedream_v3", "nano_banana_pro", "gpt_image_1_5"]:
                 return self._generate_with_fal(prompt, model, **kwargs)
             elif model == "dalle3":
                 return self._generate_with_openai(prompt, model, **kwargs)
@@ -185,13 +185,16 @@ class UnifiedTextToImageGenerator(BaseContentModel):
     def get_available_models(self) -> List[str]:
         """Get list of available text-to-image models."""
         available = []
-        
-        # Check FAL models
-        if self._fal_generator:
-            available.extend(["flux_dev", "flux_schnell", "imagen4", "seedream_v3"])
-        
+
+        # Check unified generator first (supports more models)
+        if self._unified_generator:
+            available.extend(["flux_dev", "flux_schnell", "imagen4", "seedream_v3", "nano_banana_pro", "gpt_image_1_5"])
+        # Fallback to FAL generator
+        elif self._fal_generator:
+            available.extend(["flux_dev", "flux_schnell", "imagen4", "seedream_v3", "nano_banana_pro", "gpt_image_1_5"])
+
         # TODO: Check other providers when implemented
-        
+
         return available
     
     def estimate_cost(self, model: str, **kwargs) -> float:
@@ -203,17 +206,23 @@ class UnifiedTextToImageGenerator(BaseContentModel):
         """Validate input parameters."""
         if not isinstance(prompt, str) or len(prompt.strip()) == 0:
             return False
-        
+
         if model != "auto" and model not in SUPPORTED_MODELS.get("text_to_image", []):
             return False
-        
+
         # Validate aspect ratio if provided
         aspect_ratio = kwargs.get("aspect_ratio")
         if aspect_ratio:
-            valid_ratios = ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9", "9:21"]
-            if aspect_ratio not in valid_ratios:
+            # nano_banana_pro supports more aspect ratios
+            nano_banana_ratios = ["auto", "21:9", "16:9", "3:2", "4:3", "5:4", "1:1", "4:5", "3:4", "2:3", "9:16"]
+            standard_ratios = ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9", "9:21"]
+
+            if model in ["nano_banana_pro", "gpt_image_1_5"]:
+                if aspect_ratio not in nano_banana_ratios:
+                    return False
+            elif aspect_ratio not in standard_ratios:
                 return False
-        
+
         return True
     
     def get_model_info(self, model: str) -> Dict[str, Any]:
