@@ -87,11 +87,10 @@ class FALTextToImageGenerator:
                 "enable_safety_checker": True
             },
             "nano_banana_pro": {
-                "image_size": "landscape_4_3",
-                "num_inference_steps": 4,
+                "aspect_ratio": "16:9",
                 "num_images": 1,
                 "sync_mode": True,
-                "enable_safety_checker": True
+                "output_format": "png"
             },
             "gpt_image_1_5": {
                 "image_size": "landscape_4_3",
@@ -791,8 +790,7 @@ class FALTextToImageGenerator:
                 "num_images", "enable_safety_checker", "negative_prompt"
             },
             "nano_banana_pro": {
-                "image_size", "num_inference_steps", "num_images",
-                "sync_mode", "enable_safety_checker"
+                "aspect_ratio", "num_images", "sync_mode", "output_format"
             },
             "gpt_image_1_5": {
                 "image_size", "num_images", "sync_mode"
