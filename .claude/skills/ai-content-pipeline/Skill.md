@@ -23,9 +23,15 @@ test -f venv/bin/python && echo "venv exists" || echo "venv NOT found - run setu
 **If venv does NOT exist, run this setup first:**
 
 ```bash
-# Windows Setup
+# Windows Setup (cmd)
 python -m venv venv
-venv\Scripts\pip install -e .
+venv\Scripts\activate
+pip install -e .
+
+# Windows Setup (PowerShell)
+python -m venv venv
+venv\Scripts\Activate.ps1
+pip install -e .
 
 # Linux/Mac Setup
 python3 -m venv venv
