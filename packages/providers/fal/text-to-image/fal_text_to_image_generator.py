@@ -93,7 +93,7 @@ class FALTextToImageGenerator:
                 "output_format": "png"
             },
             "gpt_image_1_5": {
-                "image_size": "landscape_4_3",
+                "image_size": "1536x1024",  # Options: 1024x1024, 1536x1024, 1024x1536
                 "num_images": 1,
                 "sync_mode": True
             }
