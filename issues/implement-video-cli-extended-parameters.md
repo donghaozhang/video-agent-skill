@@ -695,9 +695,9 @@ Unit tests for extended video parameters.
 
 import pytest
 from pathlib import Path
+import sys
 
 # Add package to path
-import sys
 _package_path = Path(__file__).parent.parent / "fal_image_to_video"
 sys.path.insert(0, str(_package_path.parent))
 
@@ -728,6 +728,11 @@ class TestFileUtilities:
         assert is_url("/path/to/file.jpg") is False
         assert is_url("C:\\path\\to\\file.jpg") is False
 
+    def test_is_url_with_relative_path(self):
+        """Relative paths should not be URLs."""
+        assert is_url("images/test.png") is False
+        assert is_url("./test.png") is False
+
     def test_validate_image_format_valid(self):
         """Valid image formats should pass."""
         for fmt in SUPPORTED_IMAGE_FORMATS:
@@ -744,10 +749,27 @@ class TestFileUtilities:
         for fmt in SUPPORTED_AUDIO_FORMATS:
             validate_file_format(f"test{fmt}", SUPPORTED_AUDIO_FORMATS, "audio")
 
+    def test_validate_audio_format_invalid(self):
+        """Invalid audio formats should raise error."""
+        with pytest.raises(ValueError) as exc_info:
+            validate_file_format("test.xyz", SUPPORTED_AUDIO_FORMATS, "audio")
+        assert "Unsupported audio format" in str(exc_info.value)
+
     def test_validate_video_format_valid(self):
         """Valid video formats should pass."""
         for fmt in SUPPORTED_VIDEO_FORMATS:
             validate_file_format(f"test{fmt}", SUPPORTED_VIDEO_FORMATS, "video")
+
+    def test_validate_video_format_invalid(self):
+        """Invalid video formats should raise error."""
+        with pytest.raises(ValueError) as exc_info:
+            validate_file_format("test.xyz", SUPPORTED_VIDEO_FORMATS, "video")
+        assert "Unsupported video format" in str(exc_info.value)
+
+    def test_validate_url_skips_validation(self):
+        """URLs should skip format validation."""
+        # Should not raise even with weird extension
+        validate_file_format("https://example.com/file.xyz", SUPPORTED_IMAGE_FORMATS, "image")
 
 
 class TestKlingEndFrame:
@@ -784,6 +806,21 @@ class TestKlingEndFrame:
             duration="5"
         )
         assert args.get("tail_image_url") == "http://example.com/end.jpg"
+
+    def test_kling_validate_with_end_frame(self):
+        """Kling validation should accept and pass through end_frame."""
+        model = KlingModel()
+        params = model.validate_parameters(
+            duration="5",
+            end_frame="http://example.com/end.jpg"
+        )
+        assert params["end_frame"] == "http://example.com/end.jpg"
+
+    def test_kling_validate_without_end_frame(self):
+        """Kling validation should work without end_frame."""
+        model = KlingModel()
+        params = model.validate_parameters(duration="5")
+        assert params.get("end_frame") is None
 
 
 class TestModelFeatureMatrix:
@@ -823,24 +860,36 @@ class TestModelFeatureMatrix:
         for model in non_kling:
             assert MODEL_EXTENDED_FEATURES[model]["end_frame"] is False
 
+    def test_all_models_support_start_frame(self):
+        """All models should support start_frame."""
+        for model, features in MODEL_EXTENDED_FEATURES.items():
+            assert features["start_frame"] is True, f"{model} should support start_frame"
 
-class TestValidateParameters:
-    """Tests for parameter validation with extended params."""
+    def test_no_models_support_ref_video_yet(self):
+        """No models should support ref_video (future feature)."""
+        for model, features in MODEL_EXTENDED_FEATURES.items():
+            assert features["ref_video"] is False, f"{model} ref_video should be False"
 
-    def test_kling_validate_with_end_frame(self):
-        """Kling validation should accept end_frame."""
-        model = KlingModel()
-        params = model.validate_parameters(
-            duration="5",
-            end_frame="http://example.com/end.jpg"
-        )
-        assert params["end_frame"] == "http://example.com/end.jpg"
 
-    def test_kling_validate_without_end_frame(self):
-        """Kling validation should work without end_frame."""
-        model = KlingModel()
-        params = model.validate_parameters(duration="5")
-        assert params.get("end_frame") is None
+class TestSupportedFormats:
+    """Tests for supported file format lists."""
+
+    def test_image_formats_include_common_types(self):
+        """Image formats should include common types."""
+        assert '.jpg' in SUPPORTED_IMAGE_FORMATS
+        assert '.jpeg' in SUPPORTED_IMAGE_FORMATS
+        assert '.png' in SUPPORTED_IMAGE_FORMATS
+        assert '.webp' in SUPPORTED_IMAGE_FORMATS
+
+    def test_audio_formats_include_common_types(self):
+        """Audio formats should include common types."""
+        assert '.mp3' in SUPPORTED_AUDIO_FORMATS
+        assert '.wav' in SUPPORTED_AUDIO_FORMATS
+
+    def test_video_formats_include_common_types(self):
+        """Video formats should include common types."""
+        assert '.mp4' in SUPPORTED_VIDEO_FORMATS
+        assert '.mov' in SUPPORTED_VIDEO_FORMATS
 
 
 if __name__ == "__main__":
