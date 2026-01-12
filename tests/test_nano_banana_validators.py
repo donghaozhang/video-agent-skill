@@ -9,10 +9,12 @@ import pytest
 import sys
 from pathlib import Path
 
-# Add the package to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add the fal_image_to_image package to path
+# Note: Directory uses hyphens (image-to-image) which can't be imported via dot notation
+_package_path = Path(__file__).parent.parent / "packages" / "providers" / "fal" / "image-to-image"
+sys.path.insert(0, str(_package_path))
 
-from packages.providers.fal.image_to_image.fal_image_to_image.utils.validators import (
+from fal_image_to_image.utils.validators import (
     validate_nano_banana_aspect_ratio,
     validate_resolution,
     validate_image_urls,
