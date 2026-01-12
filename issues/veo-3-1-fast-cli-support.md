@@ -165,7 +165,7 @@ steps:
 ## Limitations
 
 - Maximum duration: 8 seconds
-- Supported aspect ratios: 16:9, 9:16 only
+- Supported aspect ratios: auto, 16:9, 9:16
 - Input image requirements: Valid image URL accessible by FAL servers
 - Audio generation adds processing time and cost
 
