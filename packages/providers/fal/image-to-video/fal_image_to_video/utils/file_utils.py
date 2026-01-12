@@ -56,8 +56,8 @@ def download_video(
             timestamp = int(time.time())
             filename = f"{model_key}_video_{timestamp}.mp4"
 
-        print(f"📥 Downloading video...")
-        response = requests.get(video_url, stream=True)
+        print("📥 Downloading video...")
+        response = requests.get(video_url, stream=True, timeout=300)
         response.raise_for_status()
 
         local_path = output_dir / filename
