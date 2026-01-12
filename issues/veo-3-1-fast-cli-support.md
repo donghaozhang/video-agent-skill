@@ -27,6 +27,7 @@ Veo 3.1 Fast is Google's fast image-to-video model available through FAL AI. It 
 ## Enum Values
 
 ### AspectRatioEnum
+
 | Value | Description |
 |-------|-------------|
 | `auto` | Automatically determine aspect ratio from input image |
@@ -34,6 +35,7 @@ Veo 3.1 Fast is Google's fast image-to-video model available through FAL AI. It 
 | `9:16` | Portrait/vertical format (mobile-friendly) |
 
 ### DurationEnum
+
 | Value | Description |
 |-------|-------------|
 | `4s` | 4 seconds - shortest, fastest generation |
@@ -41,6 +43,7 @@ Veo 3.1 Fast is Google's fast image-to-video model available through FAL AI. It 
 | `8s` | 8 seconds - longest duration |
 
 ### ResolutionEnum
+
 | Value | Description |
 |-------|-------------|
 | `720p` | 1280x720 - HD resolution |
