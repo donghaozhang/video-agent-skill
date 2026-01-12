@@ -436,7 +436,7 @@ class FALTextToImageGenerator:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
 
-            print(f"✅ Image downloaded successfully!")
+            print("✅ Image downloaded successfully!")
             return filepath
 
         except Exception as e:
