@@ -11,6 +11,8 @@ SUPPORTED_MODELS = {
         "seedream_v3",        # Seedream v3 (bilingual) - FAL
         "seedream3",          # Seedream-3 (high-res) - Replicate
         "gen4",               # Runway Gen-4 (multi-reference guided) - Replicate
+        "nano_banana_pro",    # Nano Banana Pro (fast, high-quality) - FAL
+        "gpt_image_1_5",      # GPT Image 1.5 (GPT-powered) - FAL
         "dalle3",             # OpenAI DALL-E 3 (planned)
         "stable_diffusion",   # Stability AI (planned)
     ],
@@ -36,12 +38,14 @@ SUPPORTED_MODELS = {
         "openrouter_video_dramatic",   # Dramatic style video prompts
     ],
     "image_to_image": [
-        "photon_flash",       # Luma Photon Flash (creative, fast)
-        "photon_base",        # Luma Photon Base (high quality)
-        "flux_kontext",       # FLUX Kontext Dev (contextual editing)
-        "flux_kontext_multi", # FLUX Kontext Multi (multi-image)
-        "seededit_v3",        # ByteDance SeedEdit v3 (precise editing)
-        "clarity_upscaler",   # Clarity AI upscaler
+        "photon_flash",           # Luma Photon Flash (creative, fast)
+        "photon_base",            # Luma Photon Base (high quality)
+        "flux_kontext",           # FLUX Kontext Dev (contextual editing)
+        "flux_kontext_multi",     # FLUX Kontext Multi (multi-image)
+        "seededit_v3",            # ByteDance SeedEdit v3 (precise editing)
+        "clarity_upscaler",       # Clarity AI upscaler
+        "nano_banana_pro_edit",   # Nano Banana Pro Edit (fast editing) - FAL
+        "gpt_image_1_5_edit",     # GPT Image 1.5 Edit (GPT-powered editing) - FAL
     ],
     "image_to_video": [
         "veo3",               # Google Veo 3.0
@@ -129,6 +133,8 @@ COST_ESTIMATES = {
         "seedream_v3": 0.002,
         "seedream3": 0.003,
         "gen4": 0.08,
+        "nano_banana_pro": 0.002,
+        "gpt_image_1_5": 0.003,
     },
     "text_to_speech": {
         "elevenlabs": 0.05,
@@ -158,6 +164,8 @@ COST_ESTIMATES = {
         "flux_kontext_multi": 0.04,
         "seededit_v3": 0.02,
         "clarity_upscaler": 0.05,
+        "nano_banana_pro_edit": 0.015,
+        "gpt_image_1_5_edit": 0.02,
     },
     "image_to_video": {
         "veo3": 3.00,

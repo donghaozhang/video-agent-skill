@@ -113,6 +113,9 @@ test_env/
 # IDE files
 .vscode/
 .idea/
+
+# Claude Code local settings (contains machine-specific permissions)
+.claude/settings.local.json
 *.swp
 *.swo
 *~
@@ -157,3 +160,4 @@ images
 
 # Video agent input folder
 fal_image_to_image/input/video_agent/input/images/processed/
+tmpclaude-*

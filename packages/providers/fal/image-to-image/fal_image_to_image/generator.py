@@ -10,7 +10,7 @@ from pathlib import Path
 import fal_client
 from dotenv import load_dotenv
 
-from .models import PhotonModel, PhotonBaseModel, KontextModel, KontextMultiModel, SeedEditModel, ClarityModel
+from .models import PhotonModel, PhotonBaseModel, KontextModel, KontextMultiModel, SeedEditModel, ClarityModel, NanoBananaProEditModel, GPTImage15EditModel
 from .utils.file_utils import upload_local_image, ensure_output_directory
 from .config.constants import SUPPORTED_MODELS, MODEL_INFO, ModelType
 
@@ -61,7 +61,9 @@ class FALImageToImageGenerator:
             "kontext": KontextModel(),
             "kontext_multi": KontextMultiModel(),
             "seededit": SeedEditModel(),
-            "clarity": ClarityModel()
+            "clarity": ClarityModel(),
+            "nano_banana_pro_edit": NanoBananaProEditModel(),
+            "gpt_image_1_5_edit": GPTImage15EditModel()
         }
         
         # Create output directories

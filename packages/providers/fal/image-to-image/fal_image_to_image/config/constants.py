@@ -5,11 +5,11 @@ Constants and configuration for FAL Image-to-Image models
 from typing import Dict, List, Literal
 
 # Model type definitions
-ModelType = Literal["photon", "photon_base", "kontext", "kontext_multi", "seededit", "clarity"]
+ModelType = Literal["photon", "photon_base", "kontext", "kontext_multi", "seededit", "clarity", "nano_banana_pro_edit", "gpt_image_1_5_edit"]
 AspectRatio = Literal["1:1", "16:9", "9:16", "4:3", "3:4", "21:9", "9:21"]
 
 # Supported models
-SUPPORTED_MODELS = ["photon", "photon_base", "kontext", "kontext_multi", "seededit", "clarity"]
+SUPPORTED_MODELS = ["photon", "photon_base", "kontext", "kontext_multi", "seededit", "clarity", "nano_banana_pro_edit", "gpt_image_1_5_edit"]
 
 # Model endpoints mapping
 MODEL_ENDPOINTS = {
@@ -18,7 +18,9 @@ MODEL_ENDPOINTS = {
     "kontext": "fal-ai/flux-kontext/dev",
     "kontext_multi": "fal-ai/flux-pro/kontext/max/multi",
     "seededit": "fal-ai/bytedance/seededit/v3/edit-image",
-    "clarity": "fal-ai/clarity-upscaler"
+    "clarity": "fal-ai/clarity-upscaler",
+    "nano_banana_pro_edit": "fal-ai/nano-banana-pro/edit",
+    "gpt_image_1_5_edit": "fal-ai/gpt-image-1.5/edit"
 }
 
 # Reframe endpoints for aspect ratio changes
@@ -54,17 +56,26 @@ DEFAULT_VALUES = {
     "clarity": {
         "scale": 2,
         "enable_enhancement": True
+    },
+    "nano_banana_pro_edit": {
+        "strength": 0.75,
+        "num_inference_steps": 4
+    },
+    "gpt_image_1_5_edit": {
+        "strength": 0.75
     }
 }
 
 # Model display names
 MODEL_DISPLAY_NAMES = {
     "photon": "Luma Photon Flash",
-    "photon_base": "Luma Photon Base", 
+    "photon_base": "Luma Photon Base",
     "kontext": "FLUX Kontext Dev",
     "kontext_multi": "FLUX Kontext [max] Multi",
     "seededit": "ByteDance SeedEdit v3",
-    "clarity": "Clarity Upscaler"
+    "clarity": "Clarity Upscaler",
+    "nano_banana_pro_edit": "Nano Banana Pro Edit",
+    "gpt_image_1_5_edit": "GPT Image 1.5 Edit"
 }
 
 # Model features and descriptions
@@ -151,6 +162,31 @@ MODEL_INFO = {
             "Fast processing",
             "Commercial use ready",
             "Prompt-based enhancement"
+        ]
+    },
+    "nano_banana_pro_edit": {
+        "model_name": "Nano Banana Pro Edit",
+        "description": "Fast image editing with Nano Banana Pro model",
+        "strength_range": "0.0 - 1.0 (default: 0.75)",
+        "num_inference_steps_range": "1 - 8 (default: 4)",
+        "features": [
+            "Fast processing",
+            "High-quality edits",
+            "Cost-effective",
+            "Simple parameter set",
+            "Commercial use ready"
+        ]
+    },
+    "gpt_image_1_5_edit": {
+        "model_name": "GPT Image 1.5 Edit",
+        "description": "GPT-powered image editing with natural language understanding",
+        "strength_range": "0.0 - 1.0 (default: 0.75)",
+        "features": [
+            "GPT-powered editing",
+            "Natural language understanding",
+            "High-quality results",
+            "Creative modifications",
+            "Commercial use ready"
         ]
     }
 }

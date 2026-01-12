@@ -250,6 +250,22 @@ class UnifiedTextToImageGenerator(BaseContentModel):
                 "best_for": "Multilingual prompts, cost-effective",
                 "cost_per_image": "$0.002",
                 "avg_time": "10 seconds"
+            },
+            "nano_banana_pro": {
+                "name": "Nano Banana Pro",
+                "provider": "FAL AI",
+                "description": "Fast, high-quality image generation",
+                "best_for": "Speed, cost-effective, quality",
+                "cost_per_image": "$0.002",
+                "avg_time": "5 seconds"
+            },
+            "gpt_image_1_5": {
+                "name": "GPT Image 1.5",
+                "provider": "FAL AI",
+                "description": "GPT-powered image generation",
+                "best_for": "Natural language understanding, creative prompts",
+                "cost_per_image": "$0.003",
+                "avg_time": "8 seconds"
             }
         }
         

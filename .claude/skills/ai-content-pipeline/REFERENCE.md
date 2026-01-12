@@ -26,6 +26,17 @@
 - **Provider**: FAL AI
 - **Best for**: Multilingual prompts, artistic styles
 
+#### Nano Banana Pro (`nano_banana_pro`)
+- **Provider**: FAL AI
+- **Best for**: Fast, high-quality generation
+- **Cost**: ~$0.002 per image
+- **Speed**: Optimized for quick inference
+
+#### GPT Image 1.5 (`gpt_image_1_5`)
+- **Provider**: FAL AI
+- **Best for**: Natural language understanding, creative prompts
+- **Cost**: ~$0.003 per image
+
 ### Image-to-Video Models
 
 #### Veo 3 (`veo_3`)
@@ -63,6 +74,17 @@
 #### Clarity Upscaler (`clarity_upscaler`)
 - **Best for**: 2x-4x resolution enhancement
 - **Preserves**: Original image details
+
+#### Nano Banana Pro Edit (`nano_banana_pro_edit`)
+- **Provider**: FAL AI
+- **Best for**: Fast image editing
+- **Cost**: ~$0.015 per image
+- **Strength**: 0.0-1.0
+
+#### GPT Image 1.5 Edit (`gpt_image_1_5_edit`)
+- **Provider**: FAL AI
+- **Best for**: GPT-powered image editing, natural language
+- **Cost**: ~$0.02 per image
 
 ### Image Understanding Models
 

@@ -19,7 +19,7 @@ This is the **AI Content Pipeline** - a unified Python package for multi-modal A
 - **Unified Interface**: Single package with console commands `ai-content-pipeline` and `aicp`
 - **YAML Configuration**: Multi-step content generation workflows
 - **Parallel Execution**: 2-3x speedup with thread-based parallel processing
-- **Multi-Model Support**: 28 AI models across 7 categories
+- **Multi-Model Support**: 32 AI models across 7 categories
 - **Cost Management**: Built-in cost estimation and tracking
 - **Organized Output**: Structured output directories with proper file management
 
@@ -111,7 +111,7 @@ ai-content-pipeline/
 - **Unified Package**: Single installable package with console commands
 - **YAML Configuration**: Multi-step workflow definitions
 - **Parallel Execution**: Thread-based processing with `PIPELINE_PARALLEL_ENABLED=true`
-- **Multi-Model Support**: 28 AI models across 7 categories
+- **Multi-Model Support**: 32 AI models across 7 categories
 - **Cost Management**: Built-in estimation and tracking
 - **Organized Output**: Structured file management
 
@@ -198,17 +198,21 @@ python tests/run_all_tests.py --quick
 
 ## Available AI Models
 
-### 📦 Text-to-Image (4 models)
+### 📦 Text-to-Image (6 models)
 - **FLUX.1 Dev** - Highest quality, 12B parameter model
 - **FLUX.1 Schnell** - Fastest inference speed
 - **Imagen 4** - Google's photorealistic model
 - **Seedream v3** - Multilingual support
+- **Nano Banana Pro** - Fast, high-quality generation
+- **GPT Image 1.5** - GPT-powered image generation
 
-### 📦 Image-to-Image (6 models)
+### 📦 Image-to-Image (8 models)
 - **Photon Flash** - Creative modifications
 - **Photon Base** - Standard transformations
 - **FLUX variants** - Advanced image editing
 - **Clarity Upscaler** - Resolution enhancement
+- **Nano Banana Pro Edit** - Fast image editing
+- **GPT Image 1.5 Edit** - GPT-powered image editing
 
 ### 📦 Image-to-Video (4 models)
 - **Veo 3** - Google's latest video model

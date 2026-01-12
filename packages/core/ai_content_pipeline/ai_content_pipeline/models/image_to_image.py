@@ -55,11 +55,13 @@ class UnifiedImageToImageGenerator:
         """Get list of available models."""
         return [
             "photon_flash",
-            "photon_base", 
+            "photon_base",
             "flux_kontext",
             "flux_kontext_multi",
             "seededit_v3",
-            "clarity_upscaler"
+            "clarity_upscaler",
+            "nano_banana_pro_edit",
+            "gpt_image_1_5_edit"
         ]
     
     def generate(self, 
@@ -98,10 +100,12 @@ class UnifiedImageToImageGenerator:
             model_mapping = {
                 "photon_flash": "photon",
                 "photon_base": "photon_base",
-                "flux_kontext": "kontext", 
+                "flux_kontext": "kontext",
                 "flux_kontext_multi": "kontext_multi",
                 "seededit_v3": "seededit",
-                "clarity_upscaler": "clarity"
+                "clarity_upscaler": "clarity",
+                "nano_banana_pro_edit": "nano_banana_pro_edit",
+                "gpt_image_1_5_edit": "gpt_image_1_5_edit"
             }
             
             if model not in model_mapping:
@@ -207,7 +211,19 @@ class UnifiedImageToImageGenerator:
                 "provider": "Clarity AI",
                 "best_for": "Image upscaling and enhancement",
                 "cost_per_image": "$0.05"
+            },
+            "nano_banana_pro_edit": {
+                "name": "Nano Banana Pro Edit",
+                "provider": "FAL AI",
+                "best_for": "Fast image editing, cost-effective",
+                "cost_per_image": "$0.015"
+            },
+            "gpt_image_1_5_edit": {
+                "name": "GPT Image 1.5 Edit",
+                "provider": "FAL AI",
+                "best_for": "GPT-powered editing, natural language",
+                "cost_per_image": "$0.02"
             }
         }
-        
+
         return model_info.get(model)

@@ -49,10 +49,14 @@ class CostCalculator:
                 "seedream-v3": 0.003,
                 "flux-1-schnell": 0.001,
                 "flux-1-dev": 0.002,
+                "nano_banana_pro": 0.002,
+                "gpt_image_1_5": 0.003,
                 "default": 0.003
             },
             StepType.IMAGE_TO_IMAGE: {
                 "luma-photon-flash": 0.01,
+                "nano_banana_pro_edit": 0.015,
+                "gpt_image_1_5_edit": 0.02,
                 "default": 0.01
             },
             StepType.TEXT_TO_VIDEO: {

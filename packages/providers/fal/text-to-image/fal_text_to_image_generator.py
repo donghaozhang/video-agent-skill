@@ -37,8 +37,10 @@ class FALTextToImageGenerator:
     MODEL_ENDPOINTS = {
         "imagen4": "fal-ai/imagen4/preview/fast",
         "seedream": "fal-ai/bytedance/seedream/v3/text-to-image",
-        "flux_schnell": "fal-ai/flux-1/schnell", 
-        "flux_dev": "fal-ai/flux-1/dev"
+        "flux_schnell": "fal-ai/flux-1/schnell",
+        "flux_dev": "fal-ai/flux-1/dev",
+        "nano_banana_pro": "fal-ai/nano-banana-pro",
+        "gpt_image_1_5": "fal-ai/gpt-image-1.5"
     }
     
     def __init__(self, api_key: Optional[str] = None):
@@ -78,11 +80,22 @@ class FALTextToImageGenerator:
                 "enable_safety_checker": True
             },
             "flux_dev": {
-                "image_size": "landscape_4_3",  # Options: square_hd, square, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9  
+                "image_size": "landscape_4_3",  # Options: square_hd, square, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9
                 "num_inference_steps": 28,  # Dev typically uses more steps for quality
                 "guidance_scale": 3.5,
                 "num_images": 1,
                 "enable_safety_checker": True
+            },
+            "nano_banana_pro": {
+                "aspect_ratio": "16:9",
+                "num_images": 1,
+                "sync_mode": True,
+                "output_format": "png"
+            },
+            "gpt_image_1_5": {
+                "image_size": "landscape_4_3",
+                "num_images": 1,
+                "sync_mode": True
             }
         }
     
@@ -161,25 +174,38 @@ class FALTextToImageGenerator:
                 # Get output folder from kwargs or use default
                 output_folder = kwargs.get('output_folder', 'output')
                 
+                # Get the raw URL from the API response
+                raw_url = image_data['url']
+                is_base64_url = raw_url.startswith('data:')
+
                 response = {
                     'success': True,
                     'model': model,
                     'endpoint': endpoint,
-                    'image_url': image_data['url'],
+                    'image_url': raw_url,  # Will be replaced with local path if base64
                     'image_size': str(image_data.get('width', 'unknown')) + 'x' + str(image_data.get('height', 'unknown')) if 'width' in image_data else 'unknown',
                     'prompt': prompt,
                     'negative_prompt': negative_prompt,
                     'parameters': payload,
                     'full_result': result
                 }
-                
-                print(f"✅ Image generated successfully!")
-                print(f"🔗 Image URL: {response['image_url']}")
-                
-                # Automatically download the image
+
+                print("✅ Image generated successfully!")
+                if is_base64_url:
+                    print(f"📦 Received base64 image data ({len(raw_url) / 1024:.1f} KB)")
+                else:
+                    print(f"🔗 Image URL: {response['image_url']}")
+
+                # Automatically download/save the image
                 try:
-                    local_path = self.download_image(image_data['url'], output_folder)
+                    local_path = self.download_image(raw_url, output_folder)
                     response['local_path'] = local_path
+
+                    # Replace base64 data URL with local path to prevent huge strings
+                    if is_base64_url:
+                        response['image_url'] = local_path
+                        response['original_was_base64'] = True
+
                     print(f"📥 Image saved to: {local_path}")
                 except Exception as e:
                     print(f"⚠️  Warning: Could not download image: {e}")
@@ -333,42 +359,85 @@ class FALTextToImageGenerator:
     def download_image(self, image_url: str, output_folder: str = "output", filename: Optional[str] = None) -> str:
         """
         Download an image from URL to local folder.
-        
+
+        Supports both HTTP/HTTPS URLs and base64 data URLs.
+
         Args:
-            image_url: URL of the image to download
+            image_url: URL of the image to download (HTTP URL or data: URL)
             output_folder: Local folder to save the image
             filename: Custom filename (optional)
-            
+
         Returns:
             Path to the downloaded image
         """
+        import base64
+
         try:
             # Create output folder if it doesn't exist
             os.makedirs(output_folder, exist_ok=True)
-            
+
             # Generate filename if not provided
             if not filename:
                 timestamp = int(time.time())
                 filename = f"generated_image_{timestamp}.png"
-            
+
+            # Handle base64 data URLs (e.g., "data:image/png;base64,...")
+            if image_url.startswith('data:'):
+                # Parse the data URL
+                # Format: data:[<mediatype>][;base64],<data>
+                try:
+                    header, encoded_data = image_url.split(',', 1)
+
+                    # Determine file extension from MIME type
+                    if 'image/png' in header:
+                        ext = '.png'
+                    elif 'image/jpeg' in header or 'image/jpg' in header:
+                        ext = '.jpg'
+                    elif 'image/webp' in header:
+                        ext = '.webp'
+                    elif 'image/gif' in header:
+                        ext = '.gif'
+                    else:
+                        ext = '.png'  # Default to PNG
+
+                    # Ensure filename has correct extension
+                    if not filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.gif')):
+                        filename += ext
+
+                    filepath = os.path.join(output_folder, filename)
+
+                    # Decode and save
+                    print(f"💾 Saving base64 image to: {filepath}")
+                    image_data = base64.b64decode(encoded_data)
+
+                    with open(filepath, 'wb') as f:
+                        f.write(image_data)
+
+                    print(f"✅ Image saved successfully! ({len(image_data) / 1024:.1f} KB)")
+                    return filepath
+
+                except Exception as e:
+                    raise ValueError(f"Failed to decode base64 image: {e}")
+
+            # Handle regular HTTP/HTTPS URLs
             # Ensure filename has extension
             if not filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
                 filename += '.png'
-            
+
             filepath = os.path.join(output_folder, filename)
-            
+
             # Download the image
             print(f"⬇️ Downloading image to: {filepath}")
-            response = requests.get(image_url, stream=True)
+            response = requests.get(image_url, stream=True, timeout=30)
             response.raise_for_status()
-            
+
             with open(filepath, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
-            
-            print(f"✅ Image downloaded successfully!")
+
+            print("✅ Image downloaded successfully!")
             return filepath
-            
+
         except Exception as e:
             print(f"❌ Error downloading image: {str(e)}")
             raise
@@ -571,6 +640,24 @@ class FALTextToImageGenerator:
                 "supported_features": ["Negative prompts", "Guidance scale", "Safety checker"],
                 "max_steps": 50,
                 "supports_negative_prompt": True
+            },
+            "nano_banana_pro": {
+                "name": "Nano Banana Pro",
+                "endpoint": self.MODEL_ENDPOINTS["nano_banana_pro"],
+                "description": "Fast, high-quality image generation model",
+                "strengths": ["Fast generation", "High quality", "Cost-effective"],
+                "supported_features": ["Safety checker", "Multiple aspect ratios"],
+                "max_steps": 4,
+                "supports_negative_prompt": False
+            },
+            "gpt_image_1_5": {
+                "name": "GPT Image 1.5",
+                "endpoint": self.MODEL_ENDPOINTS["gpt_image_1_5"],
+                "description": "GPT-powered image generation model",
+                "strengths": ["GPT-powered", "Natural language understanding", "High quality"],
+                "supported_features": ["Multiple aspect ratios", "Sync mode"],
+                "max_steps": 1,
+                "supports_negative_prompt": False
             }
         }
     
@@ -687,7 +774,7 @@ class FALTextToImageGenerator:
         # Define valid parameters for each model
         valid_params = {
             "imagen4": {
-                "image_size", "num_inference_steps", "guidance_scale", 
+                "image_size", "num_inference_steps", "guidance_scale",
                 "num_images", "enable_safety_checker"
             },
             "seedream": {
@@ -695,12 +782,18 @@ class FALTextToImageGenerator:
                 "num_images", "seed", "negative_prompt"
             },
             "flux_schnell": {
-                "image_size", "num_inference_steps", "num_images", 
+                "image_size", "num_inference_steps", "num_images",
                 "enable_safety_checker"
             },
             "flux_dev": {
                 "image_size", "num_inference_steps", "guidance_scale",
                 "num_images", "enable_safety_checker", "negative_prompt"
+            },
+            "nano_banana_pro": {
+                "aspect_ratio", "num_images", "sync_mode", "output_format"
+            },
+            "gpt_image_1_5": {
+                "image_size", "num_images", "sync_mode"
             }
         }
         
