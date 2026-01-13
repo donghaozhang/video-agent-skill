@@ -12,7 +12,8 @@ ModelType = Literal[
     "seedance_1_5_pro",
     "sora_2",
     "sora_2_pro",
-    "veo_3_1_fast"
+    "veo_3_1_fast",
+    "wan_2_6"
 ]
 
 SUPPORTED_MODELS: List[str] = [
@@ -22,7 +23,8 @@ SUPPORTED_MODELS: List[str] = [
     "seedance_1_5_pro",
     "sora_2",
     "sora_2_pro",
-    "veo_3_1_fast"
+    "veo_3_1_fast",
+    "wan_2_6"
 ]
 
 # Model endpoints
@@ -33,7 +35,8 @@ MODEL_ENDPOINTS = {
     "seedance_1_5_pro": "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
     "sora_2": "fal-ai/sora-2/image-to-video",
     "sora_2_pro": "fal-ai/sora-2/image-to-video/pro",
-    "veo_3_1_fast": "fal-ai/veo3.1/fast/image-to-video"
+    "veo_3_1_fast": "fal-ai/veo3.1/fast/image-to-video",
+    "wan_2_6": "wan/v2.6/image-to-video"
 }
 
 # Display names
@@ -44,7 +47,8 @@ MODEL_DISPLAY_NAMES = {
     "seedance_1_5_pro": "ByteDance Seedance v1.5 Pro",
     "sora_2": "Sora 2",
     "sora_2_pro": "Sora 2 Pro",
-    "veo_3_1_fast": "Veo 3.1 Fast"
+    "veo_3_1_fast": "Veo 3.1 Fast",
+    "wan_2_6": "Wan v2.6"
 }
 
 # Pricing per second (USD)
@@ -55,7 +59,8 @@ MODEL_PRICING = {
     "seedance_1_5_pro": 0.08,
     "sora_2": 0.10,
     "sora_2_pro": 0.30,
-    "veo_3_1_fast": 0.10
+    "veo_3_1_fast": 0.10,
+    "wan_2_6": 0.10  # Base price, 1080p is 0.15/s
 }
 
 # Duration options per model
@@ -66,7 +71,8 @@ DURATION_OPTIONS = {
     "seedance_1_5_pro": ["5", "10"],
     "sora_2": [4, 8, 12],
     "sora_2_pro": [4, 8, 12],
-    "veo_3_1_fast": ["4s", "6s", "8s"]
+    "veo_3_1_fast": ["4s", "6s", "8s"],
+    "wan_2_6": ["5", "10", "15"]
 }
 
 # Resolution options per model
@@ -77,14 +83,16 @@ RESOLUTION_OPTIONS = {
     "seedance_1_5_pro": ["720p", "1080p"],
     "sora_2": ["auto", "720p"],
     "sora_2_pro": ["auto", "720p", "1080p"],
-    "veo_3_1_fast": ["720p", "1080p"]
+    "veo_3_1_fast": ["720p", "1080p"],
+    "wan_2_6": ["720p", "1080p"]
 }
 
 # Aspect ratio options
 ASPECT_RATIO_OPTIONS = {
     "sora_2": ["auto", "9:16", "16:9"],
     "sora_2_pro": ["auto", "9:16", "16:9"],
-    "veo_3_1_fast": ["auto", "16:9", "9:16"]
+    "veo_3_1_fast": ["auto", "16:9", "9:16"],
+    "wan_2_6": ["16:9", "9:16", "1:1"]
 }
 
 # Default values per model
@@ -125,6 +133,15 @@ DEFAULT_VALUES = {
         "aspect_ratio": "auto",
         "generate_audio": True,
         "auto_fix": False
+    },
+    "wan_2_6": {
+        "duration": "5",
+        "resolution": "1080p",
+        "negative_prompt": "",
+        "enable_prompt_expansion": True,
+        "multi_shots": False,
+        "seed": None,
+        "enable_safety_checker": True
     }
 }
 
@@ -185,6 +202,14 @@ MODEL_INFO = {
         "max_duration": 8,
         "features": ["audio_generation", "auto_fix", "fast_processing"],
         "extended_params": ["start_frame", "audio_generate"]
+    },
+    "wan_2_6": {
+        "name": "Wan v2.6",
+        "provider": "Wan",
+        "description": "High-quality image-to-video with multi-shot support",
+        "max_duration": 15,
+        "features": ["prompt_expansion", "multi_shots", "audio_input", "seed_control", "safety_checker"],
+        "extended_params": ["start_frame", "audio_input"]
     }
 }
 
@@ -245,6 +270,14 @@ MODEL_EXTENDED_FEATURES = {
         "ref_images": False,
         "audio_input": False,
         "audio_generate": True,  # generate_audio parameter
+        "ref_video": False,
+    },
+    "wan_2_6": {
+        "start_frame": True,
+        "end_frame": False,
+        "ref_images": False,
+        "audio_input": True,  # Supports audio_url
+        "audio_generate": False,
         "ref_video": False,
     },
 }

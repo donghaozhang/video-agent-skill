@@ -16,7 +16,8 @@ from .models import (
     SeedanceModel,
     Sora2Model,
     Sora2ProModel,
-    Veo31FastModel
+    Veo31FastModel,
+    Wan26Model
 )
 from .utils.file_utils import (
     upload_image,
@@ -79,7 +80,8 @@ class FALImageToVideoGenerator:
             "seedance_1_5_pro": SeedanceModel(),
             "sora_2": Sora2Model(),
             "sora_2_pro": Sora2ProModel(),
-            "veo_3_1_fast": Veo31FastModel()
+            "veo_3_1_fast": Veo31FastModel(),
+            "wan_2_6": Wan26Model()
         }
 
         self.output_dir = ensure_output_directory("output")

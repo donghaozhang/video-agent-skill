@@ -1,7 +1,11 @@
 # Implementation Plan: Add New Text-to-Video Models
 
+## Implementation Status: COMPLETED
+
 **Created:** 2026-01-13
-**Branch:** `feat/add-text-to-video-models`
+**Implemented:** 2026-01-13
+**Branch:** `feat/nano-banana-pro-edit`
+**Tests:** 30 passing (19 text-to-video + 11 Wan image-to-video)
 **Priority:** Long-term maintainability over short-term gains
 
 ---
@@ -12,7 +16,7 @@ This document outlines the implementation of 4 new FAL AI video generation model
 
 | Model | Type | Endpoint | Pricing |
 |-------|------|----------|---------|
-| Kling v2.6 Pro | Text-to-Video | `fal-ai/kling-video/v2.6/pro/text-to-video` | ~$0.10/s |
+| Kling v2.6 Pro | Text-to-Video | `fal-ai/kling-video/v2.6/pro/text-to-video` | $0.07/s (no audio), $0.14/s (with audio) |
 | Wan v2.6 | Image-to-Video | `wan/v2.6/image-to-video` | $0.10/s (720p), $0.15/s (1080p) |
 | Sora 2 | Text-to-Video | `fal-ai/sora-2/text-to-video` | $0.10/s |
 | Sora 2 Pro | Text-to-Video | `fal-ai/sora-2/text-to-video/pro` | $0.30/s (720p), $0.50/s (1080p) |
@@ -201,7 +205,8 @@ MODEL_PRICING = {
     },
     "kling_2_6_pro": {
         "type": "per_second",
-        "cost": 0.10
+        "cost_no_audio": 0.07,
+        "cost_with_audio": 0.14
     },
     "sora_2": {
         "type": "per_second",
@@ -586,7 +591,7 @@ class Kling26ProModel(BaseTextToVideoModel):
         - cfg_scale: Guidance scale (0-1)
         - generate_audio: Enable audio generation
 
-    Pricing: ~$0.10/second
+    Pricing: $0.07/second (no audio), $0.14/second (with audio)
     """
 
     def __init__(self):
@@ -649,10 +654,11 @@ class Kling26ProModel(BaseTextToVideoModel):
             "pricing": self.pricing
         }
 
-    def estimate_cost(self, duration: str = "5", **kwargs) -> float:
-        """Estimate cost based on duration."""
+    def estimate_cost(self, duration: str = "5", generate_audio: bool = True, **kwargs) -> float:
+        """Estimate cost based on duration and audio setting."""
         duration_seconds = int(duration)
-        return 0.10 * duration_seconds
+        cost_per_second = 0.14 if generate_audio else 0.07
+        return cost_per_second * duration_seconds
 ```
 
 ---
@@ -1177,8 +1183,12 @@ class TestKling26ProModel:
     def test_estimate_cost(self):
         """Test cost estimation."""
         model = Kling26ProModel()
-        assert model.estimate_cost(duration="5") == 0.50
-        assert model.estimate_cost(duration="10") == 1.00
+        # With audio (default)
+        assert model.estimate_cost(duration="5", generate_audio=True) == 0.70
+        assert model.estimate_cost(duration="10", generate_audio=True) == 1.40
+        # Without audio
+        assert model.estimate_cost(duration="5", generate_audio=False) == 0.35
+        assert model.estimate_cost(duration="10", generate_audio=False) == 0.70
 
 
 class TestSora2Model:
