@@ -110,20 +110,21 @@ class BaseTextToVideoModel(ABC):
             Dict with generation results
         """
         output_dir = output_dir or Path("output")
-        output_dir.mkdir(exist_ok=True)
-
-        # Validate parameters
-        validated_params = self.validate_parameters(**kwargs)
-
-        # Estimate cost
-        cost = self.estimate_cost(**validated_params)
-
-        if verbose:
-            print(f"Generating video with {self.display_name}...")
-            print(f"Prompt: {prompt[:100]}{'...' if len(prompt) > 100 else ''}")
-            print(f"Estimated cost: ${cost:.2f}")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        cost = 0.0  # Initialize to handle errors before cost assignment
 
         try:
+            # Validate parameters
+            validated_params = self.validate_parameters(**kwargs)
+
+            # Estimate cost
+            cost = self.estimate_cost(**validated_params)
+
+            if verbose:
+                print(f"Generating video with {self.display_name}...")
+                print(f"Prompt: {prompt[:100]}{'...' if len(prompt) > 100 else ''}")
+                print(f"Estimated cost: ${cost:.2f}")
+
             # Prepare API arguments
             arguments = self.prepare_arguments(prompt, **validated_params)
 
