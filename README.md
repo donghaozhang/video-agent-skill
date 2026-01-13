@@ -20,22 +20,26 @@ A comprehensive AI content generation package with multiple providers and servic
 ### Text-to-Image Models
 | Model Name | Provider | Cost per Image | Resolution | Special Features |
 |------------|----------|----------------|------------|------------------|
+| `nano_banana_pro` | FAL AI | $0.002 | 1024x1024 | **Fast & high-quality, recommended** |
 | `flux_dev` | FAL AI | $0.003 | 1024x1024 | High quality, FLUX.1 Dev |
 | `flux_schnell` | FAL AI | $0.001 | 1024x1024 | Fast generation, FLUX.1 Schnell |
 | `imagen4` | FAL AI | $0.004 | 1024x1024 | Google Imagen 4, photorealistic |
 | `seedream_v3` | FAL AI | $0.002 | 1024x1024 | Seedream v3, bilingual support |
 | `seedream3` | Replicate | $0.003 | Up to 2048px | ByteDance Seedream-3, high-res |
 | `gen4` | Replicate | $0.08 | 720p/1080p | **Runway Gen-4, multi-reference guidance** |
+| `gpt_image_1_5` | FAL AI | $0.003 | 1024x1024 | GPT-powered image generation |
 
-### Image-to-Image Models  
+### Image-to-Image Models
 | Model Name | Provider | Cost per Image | Special Features |
 |------------|----------|----------------|------------------|
+| `nano_banana_pro_edit` | FAL AI | $0.015 | **Fast editing, recommended** |
 | `photon_flash` | FAL AI | $0.02 | Luma Photon Flash, creative & fast |
 | `photon_base` | FAL AI | $0.03 | Luma Photon Base, high quality |
 | `flux_kontext` | FAL AI | $0.025 | FLUX Kontext Dev, contextual editing |
 | `flux_kontext_multi` | FAL AI | $0.04 | FLUX Kontext Multi, multi-image |
 | `seededit_v3` | FAL AI | $0.02 | ByteDance SeedEdit v3, precise editing |
 | `clarity_upscaler` | FAL AI | $0.05 | Clarity AI upscaler |
+| `gpt_image_1_5_edit` | FAL AI | $0.02 | GPT-powered image editing |
 
 ### Image-to-Video Models
 | Model Name | Provider | Cost per Video | Resolution | Special Features |
