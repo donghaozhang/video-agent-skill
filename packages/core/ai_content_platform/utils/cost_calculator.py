@@ -55,7 +55,8 @@ class CostCalculator:
             },
             StepType.IMAGE_TO_IMAGE: {
                 "luma-photon-flash": 0.01,
-                "nano_banana_pro_edit": 0.015,
+                "nano_banana_pro_edit": 0.015,      # 1K/2K resolution
+                "nano_banana_pro_edit_4k": 0.030,   # 4K resolution (double rate)
                 "gpt_image_1_5_edit": 0.02,
                 "default": 0.01
             },
@@ -125,6 +126,13 @@ class CostCalculator:
             
             # Get model-specific cost or default
             model = step.parameters.get("model", "default")
+
+            # Handle resolution-based pricing for nano_banana_pro_edit
+            if model == "nano_banana_pro_edit":
+                resolution = step.parameters.get("resolution", "1K")
+                if resolution == "4K":
+                    model = "nano_banana_pro_edit_4k"  # Use 4K pricing key
+
             base_cost = cost_data.get(model, cost_data.get("default", 0.0))
             
             # Apply step-specific multipliers

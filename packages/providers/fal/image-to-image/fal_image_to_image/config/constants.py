@@ -33,6 +33,18 @@ REFRAME_ENDPOINTS = {
 ASPECT_RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9", "9:21"]
 KONTEXT_MULTI_ASPECT_RATIOS = ["21:9", "16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16", "9:21"]
 
+# Nano Banana Pro Edit specific aspect ratios (11 options)
+NANO_BANANA_ASPECT_RATIOS = [
+    "auto", "21:9", "16:9", "3:2", "4:3", "5:4",
+    "1:1", "4:5", "3:4", "2:3", "9:16"
+]
+
+# Resolution options for models that support it
+RESOLUTIONS = ["1K", "2K", "4K"]
+
+# Output format options
+OUTPUT_FORMATS = ["jpeg", "png", "webp"]
+
 # Parameter ranges
 PHOTON_STRENGTH_RANGE = (0.0, 1.0)
 KONTEXT_INFERENCE_STEPS_RANGE = (1, 50)
@@ -58,8 +70,11 @@ DEFAULT_VALUES = {
         "enable_enhancement": True
     },
     "nano_banana_pro_edit": {
-        "strength": 0.75,
-        "num_inference_steps": 4
+        "aspect_ratio": "auto",
+        "resolution": "1K",
+        "output_format": "png",
+        "num_images": 1,
+        "sync_mode": True
     },
     "gpt_image_1_5_edit": {
         "strength": 0.75
@@ -166,14 +181,18 @@ MODEL_INFO = {
     },
     "nano_banana_pro_edit": {
         "model_name": "Nano Banana Pro Edit",
-        "description": "Fast image editing with Nano Banana Pro model",
-        "strength_range": "0.0 - 1.0 (default: 0.75)",
-        "num_inference_steps_range": "1 - 8 (default: 4)",
+        "description": "Multi-image editing and composition model with resolution control",
+        "supported_aspect_ratios": NANO_BANANA_ASPECT_RATIOS,
+        "supported_resolutions": RESOLUTIONS,
+        "max_input_images": 4,
+        "cost_1k_2k": "$0.015/image",
+        "cost_4k": "$0.030/image",
         "features": [
+            "Multi-image input (up to 4)",
+            "11 aspect ratio options",
+            "Up to 4K resolution",
+            "Optional web search enhancement",
             "Fast processing",
-            "High-quality edits",
-            "Cost-effective",
-            "Simple parameter set",
             "Commercial use ready"
         ]
     },

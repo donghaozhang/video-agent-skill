@@ -124,6 +124,26 @@ class UnifiedTextToImageGenerator:
             "speed": "fast",
             "use_case": "Bilingual support"
         },
+        "nano_banana_pro": {
+            "provider": Provider.FAL,
+            "model_key": "nano_banana_pro",
+            "name": "Nano Banana Pro",
+            "resolution": "1024x1024",
+            "cost_per_image": 0.002,  # Text-to-image generation cost
+            "quality": "high",
+            "speed": "fast",
+            "use_case": "Fast high-quality generation"
+        },
+        "gpt_image_1_5": {
+            "provider": Provider.FAL,
+            "model_key": "gpt_image_1_5",
+            "name": "GPT Image 1.5",
+            "resolution": "1024x1024",
+            "cost_per_image": 0.003,  # Text-to-image generation cost
+            "quality": "high",
+            "speed": "medium",
+            "use_case": "GPT-powered generation"
+        },
         # Replicate Models
         "seedream3": {
             "provider": Provider.REPLICATE,

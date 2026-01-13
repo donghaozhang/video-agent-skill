@@ -2,11 +2,12 @@
 Parameter validation utilities for FAL Image-to-Image models
 """
 
-from typing import Union
+from typing import Union, List
 from ..config.constants import (
     SUPPORTED_MODELS, ASPECT_RATIOS, KONTEXT_MULTI_ASPECT_RATIOS,
-    PHOTON_STRENGTH_RANGE, KONTEXT_INFERENCE_STEPS_RANGE, 
-    KONTEXT_GUIDANCE_SCALE_RANGE, SEEDEDIT_GUIDANCE_SCALE_RANGE
+    PHOTON_STRENGTH_RANGE, KONTEXT_INFERENCE_STEPS_RANGE,
+    KONTEXT_GUIDANCE_SCALE_RANGE, SEEDEDIT_GUIDANCE_SCALE_RANGE,
+    NANO_BANANA_ASPECT_RATIOS, RESOLUTIONS, OUTPUT_FORMATS
 )
 
 
@@ -159,20 +160,94 @@ def validate_safety_tolerance(tolerance: int) -> int:
 def validate_output_format(format_str: str) -> str:
     """
     Validate output format.
-    
+
     Args:
-        format_str: Output format ("jpeg" or "png")
-        
+        format_str: Output format ("jpeg", "png", or "webp")
+
     Returns:
         Validated format string
-        
+
     Raises:
         ValueError: If format is not supported
     """
-    valid_formats = ["jpeg", "png"]
-    if format_str not in valid_formats:
-        raise ValueError(f"Output format must be one of {valid_formats}, got: {format_str}")
+    if format_str not in OUTPUT_FORMATS:
+        raise ValueError(f"Output format must be one of {OUTPUT_FORMATS}, got: {format_str}")
     return format_str
+
+
+def validate_nano_banana_aspect_ratio(aspect_ratio: str) -> str:
+    """
+    Validate aspect ratio for Nano Banana Pro Edit model.
+
+    Args:
+        aspect_ratio: Aspect ratio string
+
+    Returns:
+        Validated aspect ratio
+
+    Raises:
+        ValueError: If aspect ratio is not supported
+    """
+    if aspect_ratio not in NANO_BANANA_ASPECT_RATIOS:
+        raise ValueError(
+            f"Invalid aspect_ratio: {aspect_ratio}. "
+            f"Valid options: {NANO_BANANA_ASPECT_RATIOS}"
+        )
+    return aspect_ratio
+
+
+def validate_resolution(resolution: str) -> str:
+    """
+    Validate resolution for models that support 1K/2K/4K.
+
+    Args:
+        resolution: Resolution string (1K, 2K, 4K)
+
+    Returns:
+        Validated resolution
+
+    Raises:
+        ValueError: If resolution is not supported
+    """
+    if resolution not in RESOLUTIONS:
+        raise ValueError(
+            f"Invalid resolution: {resolution}. "
+            f"Valid options: {RESOLUTIONS}"
+        )
+    return resolution
+
+
+def validate_image_urls(
+    image_urls: List[str],
+    min_count: int = 1,
+    max_count: int = 4
+) -> List[str]:
+    """
+    Validate list of image URLs for multi-image models.
+
+    Args:
+        image_urls: List of image URLs
+        min_count: Minimum required images
+        max_count: Maximum allowed images
+
+    Returns:
+        Validated list of URLs
+
+    Raises:
+        ValueError: If count is outside valid range
+    """
+    if not image_urls:
+        raise ValueError("At least one image URL is required")
+
+    if len(image_urls) < min_count:
+        raise ValueError(f"At least {min_count} image URL(s) required")
+
+    if len(image_urls) > max_count:
+        raise ValueError(
+            f"Maximum {max_count} image URLs allowed, got {len(image_urls)}"
+        )
+
+    return image_urls
 
 
 def validate_reframing_coordinates(

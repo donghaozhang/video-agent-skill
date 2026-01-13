@@ -1,6 +1,6 @@
 ---
 name: AI Content Pipeline
-description: Generate AI content (images, videos, audio) using YAML pipelines with 32+ models. Run tests, estimate costs, and manage outputs.
+description: Generate AI content (images, videos, audio) using YAML pipelines with 37+ models. Run tests, estimate costs, and manage outputs.
 dependencies: python>=3.10
 ---
 
@@ -85,25 +85,32 @@ venv\Scripts\ai-content-pipeline list-models
 ./venv/bin/ai-content-pipeline list-models
 ```
 
-## Available AI Models (32 Total)
+## Available AI Models (37 Total)
 
-### Text-to-Image (6 models)
+### Text-to-Image (8 models)
 | Model | Key | Description |
 |-------|-----|-------------|
+| Nano Banana Pro | `nano_banana_pro` | Fast, high-quality generation |
+| GPT Image 1.5 | `gpt_image_1_5` | GPT-powered image generation |
 | FLUX.1 Dev | `flux_dev` | Highest quality, 12B parameters |
 | FLUX.1 Schnell | `flux_schnell` | Fastest inference |
 | Imagen 4 | `imagen_4` | Google's photorealistic model |
 | Seedream v3 | `seedream_v3` | Multilingual support |
-| Nano Banana Pro | `nano_banana_pro` | Fast, high-quality generation |
-| GPT Image 1.5 | `gpt_image_1_5` | GPT-powered image generation |
+| Seedream 3 | `seedream3` | High-resolution generation |
+| Runway Gen-4 | `gen4` | Multi-reference guided generation |
 
-### Image-to-Video (4 models)
+### Image-to-Video (9 models)
 | Model | Key | Description |
 |-------|-----|-------------|
 | Veo 3 | `veo_3` | Google's latest video model |
 | Veo 2 | `veo_2` | Previous generation Veo |
+| Veo 3.1 Fast | `veo_3_1_fast` | Google's fast model with audio |
+| Sora 2 | `sora_2` | OpenAI's image-to-video |
+| Sora 2 Pro | `sora_2_pro` | Professional Sora with 1080p |
 | Hailuo | `hailuo` | MiniMax video generation |
-| Kling | `kling` | High-quality video synthesis |
+| Kling v2.1 | `kling_2_1` | High-quality video synthesis |
+| Kling v2.6 Pro | `kling_2_6_pro` | Professional tier Kling |
+| Seedance v1.5 Pro | `seedance_1_5_pro` | ByteDance with seed control |
 
 ### Image-to-Image (8 models)
 - Photon Flash, Photon Base, FLUX variants, Clarity Upscaler

@@ -52,15 +52,59 @@
 - **Best for**: Budget-conscious high-quality video
 - **Cost**: ~$0.30-2.00 per video
 
+#### Veo 3.1 Fast (`veo_3_1_fast`)
+- **Provider**: FAL AI (Google)
+- **Best for**: Fast video generation with optional audio
+- **Cost**: ~$0.10/s without audio, ~$0.15/s with audio
+- **Duration**: 6s, 8s
+- **Features**: Native audio generation support
+- **Options**: duration, generate_audio
+
+#### Sora 2 (`sora_2`)
+- **Provider**: FAL AI (OpenAI)
+- **Best for**: High-quality video from images
+- **Cost**: ~$0.30 per second
+- **Duration**: 4, 8 seconds
+- **Resolution**: auto, 720p
+- **Options**: duration, resolution, aspect_ratio
+
+#### Sora 2 Pro (`sora_2_pro`)
+- **Provider**: FAL AI (OpenAI)
+- **Best for**: Professional-tier video, 1080p support
+- **Cost**: ~$0.30/s (720p), ~$0.50/s (1080p)
+- **Duration**: 4, 8 seconds
+- **Resolution**: auto, 720p, 1080p
+- **Features**: Higher resolution, better quality
+
 #### Hailuo (`hailuo`)
 - **Provider**: FAL AI (MiniMax)
 - **Best for**: Consistent motion, character animation
-- **Cost**: ~$0.08-0.15 per video
+- **Cost**: ~$0.05 per second
+- **Duration**: 6, 10 seconds
+- **Options**: prompt_optimizer (enabled by default)
 
-#### Kling (`kling`)
+#### Kling v2.1 (`kling_2_1`)
 - **Provider**: FAL AI
-- **Best for**: Creative video effects
-- **Cost**: ~$0.10-0.20 per video
+- **Best for**: Creative video effects, controllable generation
+- **Cost**: ~$0.05 per second
+- **Duration**: 5, 10 seconds
+- **Options**: negative_prompt, cfg_scale (0-1)
+
+#### Kling v2.6 Pro (`kling_2_6_pro`)
+- **Provider**: FAL AI
+- **Best for**: Professional video production
+- **Cost**: ~$0.10 per second
+- **Duration**: 5, 10 seconds
+- **Features**: Professional tier, higher quality
+- **Options**: negative_prompt, cfg_scale (0-1)
+
+#### Seedance v1.5 Pro (`seedance_1_5_pro`)
+- **Provider**: FAL AI (ByteDance)
+- **Best for**: Reproducible video generation with seed control
+- **Cost**: ~$0.08 per second
+- **Duration**: 5, 10 seconds
+- **Features**: Seed control for reproducibility
+- **Options**: seed (optional), duration
 
 ### Image-to-Image Models
 
