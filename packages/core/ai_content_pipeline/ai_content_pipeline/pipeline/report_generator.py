@@ -53,6 +53,9 @@ class ReportGenerator:
         # Create step details with status and download links
         step_details = []
         for i, step_result in enumerate(step_results):
+            # Safety check for index bounds
+            if i >= len(enabled_steps):
+                break
             step = enabled_steps[i]
 
             step_detail = {
@@ -77,6 +80,9 @@ class ReportGenerator:
                 step_detail["download_links"]["direct_url"] = step_result["output_url"]
 
             # Add step-specific details
+            # Helper to safely get previous step's output URL
+            prev_output_url = step_results[i-1].get("output_url") if i > 0 else None
+
             if step.step_type == StepType.TEXT_TO_IMAGE:
                 step_detail["input_prompt"] = input_data
                 step_detail["generation_params"] = step.params
@@ -84,9 +90,9 @@ class ReportGenerator:
                 step_detail["optimized_prompt"] = step_result.get("extracted_prompt")
                 step_detail["full_analysis"] = step_result.get("output_text")
                 step_detail["generation_params"] = step.params
-                step_detail["input_image_url"] = step_results[i-1].get("output_url") if i > 0 else None
+                step_detail["input_image_url"] = prev_output_url
             elif step.step_type == StepType.IMAGE_TO_VIDEO:
-                step_detail["input_image_url"] = step_results[i-1].get("output_url") if i > 0 else None
+                step_detail["input_image_url"] = prev_output_url
                 step_detail["video_params"] = step.params
 
             step_details.append(step_detail)

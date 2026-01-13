@@ -169,7 +169,7 @@ class UpscaleVideoExecutor(BaseStepExecutor):
             print(f"Upscale factor: {upscale_factor}x")
 
             # Check if video file exists
-            if not os.path.exists(input_data):
+            if not input_data or not os.path.exists(input_data):
                 return self._create_error_result(
                     f"Video file not found: {input_data}",
                     step.model
@@ -268,7 +268,7 @@ class GenerateSubtitlesExecutor(BaseStepExecutor):
             print(f"Format: {format_type.upper()}")
 
             # Check if video file exists
-            if not os.path.exists(input_data):
+            if not input_data or not os.path.exists(input_data):
                 return self._create_error_result(
                     f"Video file not found: {input_data}",
                     step.model
