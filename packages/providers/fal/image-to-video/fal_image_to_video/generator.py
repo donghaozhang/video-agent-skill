@@ -172,7 +172,14 @@ class FALImageToVideoGenerator:
             if not features.get("ref_images"):
                 print(f"⚠️ Model {model} does not support ref_images parameter, ignoring")
             else:
-                kwargs["ref_images"] = upload_images(ref_images)
+                try:
+                    kwargs["ref_images"] = upload_images(ref_images)
+                except ValueError as e:
+                    return {
+                        "success": False,
+                        "error": str(e),
+                        "model": model
+                    }
 
         # Process audio if supported (future)
         if audio:
