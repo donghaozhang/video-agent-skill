@@ -59,6 +59,15 @@ SUPPORTED_MODELS = {
     ],
     "upscale_video": [
         "topaz",              # Topaz Video Upscale
+    ],
+    "avatar": [
+        "omnihuman_v1_5",       # ByteDance OmniHuman - audio-driven animation
+        "fabric_1_0",           # VEED Fabric - lipsync (image + audio)
+        "fabric_1_0_fast",      # VEED Fabric Fast - faster lipsync
+        "fabric_1_0_text",      # VEED Fabric - text-to-speech avatar
+        "kling_ref_to_video",   # Kling O1 - reference image consistency
+        "kling_v2v_reference",  # Kling O1 - style-guided video
+        "kling_v2v_edit",       # Kling O1 - targeted video modifications
     ]
 }
 
@@ -69,9 +78,10 @@ PIPELINE_STEPS = [
     "prompt_generation",
     "image_to_image",
     "image_to_video",
-    "text_to_speech", 
+    "text_to_speech",
     "add_audio",
-    "upscale_video"
+    "upscale_video",
+    "avatar"
 ]
 
 # Model recommendations based on use case
@@ -121,6 +131,16 @@ MODEL_RECOMMENDATIONS = {
         "cost_effective": "hailuo",
         "balanced": "veo3_fast",
         "cinematic": "veo3"
+    },
+    "avatar": {
+        "quality": "omnihuman_v1_5",
+        "speed": "fabric_1_0_fast",
+        "cost_effective": "fabric_1_0",
+        "lipsync": "omnihuman_v1_5",
+        "text_to_avatar": "fabric_1_0_text",
+        "character_consistency": "kling_ref_to_video",
+        "style_transfer": "kling_v2v_reference",
+        "video_editing": "kling_v2v_edit"
     }
 }
 
@@ -179,6 +199,15 @@ COST_ESTIMATES = {
     },
     "upscale_video": {
         "topaz": 1.50,
+    },
+    "avatar": {
+        "omnihuman_v1_5": 0.80,        # ~$0.16/sec * 5sec
+        "fabric_1_0": 0.75,            # ~$0.15/sec * 5sec
+        "fabric_1_0_fast": 0.94,       # +25% for fast mode
+        "fabric_1_0_text": 0.75,       # ~$0.15/sec * 5sec
+        "kling_ref_to_video": 0.56,    # ~$0.112/sec * 5sec
+        "kling_v2v_reference": 0.50,   # ~$0.10/sec * 5sec
+        "kling_v2v_edit": 0.50,        # ~$0.10/sec * 5sec
     }
 }
 
@@ -231,13 +260,23 @@ PROCESSING_TIME_ESTIMATES = {
     },
     "upscale_video": {
         "topaz": 120,
+    },
+    "avatar": {
+        "omnihuman_v1_5": 60,          # 60 seconds for 5s video
+        "fabric_1_0": 45,              # 45 seconds for 5s video
+        "fabric_1_0_fast": 30,         # 30 seconds (fast mode)
+        "fabric_1_0_text": 50,         # 50 seconds (includes TTS)
+        "kling_ref_to_video": 90,      # 90 seconds for 5s video
+        "kling_v2v_reference": 90,     # 90 seconds for 5s video
+        "kling_v2v_edit": 60,          # 60 seconds for editing
     }
 }
 
 # File format mappings
 SUPPORTED_FORMATS = {
     "image": [".jpg", ".jpeg", ".png", ".webp"],
-    "video": [".mp4", ".mov", ".avi", ".webm"]
+    "video": [".mp4", ".mov", ".avi", ".webm"],
+    "audio": [".mp3", ".wav", ".m4a", ".ogg", ".flac"]
 }
 
 # Default configuration

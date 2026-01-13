@@ -17,6 +17,13 @@ from typing import Optional, Dict, Any
 from .pipeline.manager import AIPipelineManager
 from .config.constants import SUPPORTED_MODELS, MODEL_RECOMMENDATIONS
 
+# Try to import FAL Avatar Generator
+try:
+    from fal_avatar import FALAvatarGenerator
+    FAL_AVATAR_AVAILABLE = True
+except ImportError:
+    FAL_AVATAR_AVAILABLE = False
+
 
 def print_models():
     """Print information about all supported models."""
@@ -340,10 +347,134 @@ def create_examples(args):
         manager = AIPipelineManager(args.base_dir)
         manager.create_example_configs(args.output_dir)
         print("✅ Example configurations created successfully!")
-        
+
     except Exception as e:
         print(f"\n❌ Error: {e}")
         sys.exit(1)
+
+
+def generate_avatar(args):
+    """Handle generate-avatar command."""
+    if not FAL_AVATAR_AVAILABLE:
+        print("❌ FAL Avatar module not available.")
+        print("   Install it with: pip install fal-client")
+        sys.exit(1)
+
+    try:
+        generator = FALAvatarGenerator()
+
+        # Determine which method to use based on inputs
+        if args.video_url:
+            # Video transformation mode
+            print(f"🎬 Transforming video with model: {args.model or 'auto'}")
+            mode = "edit" if args.model == "kling_v2v_edit" else "reference"
+            result = generator.transform_video(
+                video_url=args.video_url,
+                prompt=args.prompt or "Transform this video",
+                mode=mode,
+            )
+        elif args.reference_images:
+            # Reference-to-video mode
+            print(f"🖼️ Generating video from {len(args.reference_images)} reference images")
+            result = generator.generate_reference_video(
+                prompt=args.prompt or "Generate a video with these references",
+                reference_images=args.reference_images,
+                duration=args.duration,
+                aspect_ratio=args.aspect_ratio,
+            )
+        elif args.image_url:
+            # Avatar/lipsync mode
+            model = args.model
+            if args.text and not args.audio_url:
+                model = model or "fabric_1_0_text"
+                print(f"🎤 Generating TTS avatar with model: {model}")
+            else:
+                model = model or "omnihuman_v1_5"
+                print(f"🎭 Generating lipsync avatar with model: {model}")
+
+            result = generator.generate_avatar(
+                image_url=args.image_url,
+                audio_url=args.audio_url,
+                text=args.text,
+                model=model,
+            )
+        else:
+            print("❌ No input provided. Use one of:")
+            print("   --image-url    : Portrait image for avatar generation")
+            print("   --video-url    : Video for transformation")
+            print("   --reference-images : Reference images for video generation")
+            sys.exit(1)
+
+        # Display results
+        if result.success:
+            print(f"\n✅ Avatar generation successful!")
+            print(f"📦 Model: {result.model_used}")
+            if result.video_url:
+                print(f"🎬 Video URL: {result.video_url}")
+            if result.duration:
+                print(f"⏱️ Duration: {result.duration:.1f} seconds")
+            if result.cost:
+                print(f"💰 Cost: ${result.cost:.3f}")
+            if result.processing_time:
+                print(f"⏱️ Processing time: {result.processing_time:.1f} seconds")
+        else:
+            print(f"\n❌ Avatar generation failed!")
+            print(f"Error: {result.error}")
+
+        # Save result if requested
+        if args.save_json:
+            result_dict = {
+                "success": result.success,
+                "model": result.model_used,
+                "video_url": result.video_url,
+                "duration": result.duration,
+                "cost": result.cost,
+                "processing_time": result.processing_time,
+                "error": result.error,
+                "metadata": result.metadata,
+            }
+
+            json_path = Path(args.save_json)
+            with open(json_path, 'w') as f:
+                json.dump(result_dict, f, indent=2)
+            print(f"\n📄 Result saved to: {json_path}")
+
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        if args.debug:
+            import traceback
+            traceback.print_exc()
+        sys.exit(1)
+
+
+def list_avatar_models(args):
+    """Handle list-avatar-models command."""
+    if not FAL_AVATAR_AVAILABLE:
+        print("❌ FAL Avatar module not available.")
+        print("   Install it with: pip install fal-client")
+        sys.exit(1)
+
+    generator = FALAvatarGenerator()
+
+    print("\n🎭 FAL Avatar Generation Models")
+    print("=" * 50)
+
+    # Group by category
+    categories = generator.list_models_by_category()
+    for category, models in categories.items():
+        print(f"\n📦 {category.replace('_', ' ').title()}")
+        for model in models:
+            info = generator.get_model_info(model)
+            display_name = generator.get_display_name(model)
+            print(f"   • {model}")
+            print(f"     Name: {display_name}")
+            print(f"     Best for: {', '.join(info.get('best_for', []))}")
+            if 'pricing' in info:
+                pricing = info['pricing']
+                if 'per_second' in pricing:
+                    print(f"     Cost: ${pricing['per_second']}/second")
+                elif '720p' in pricing:
+                    print(f"     Cost: ${pricing.get('480p', 'N/A')}/s (480p), ${pricing.get('720p', 'N/A')}/s (720p)")
 
 
 def main():
@@ -355,18 +486,30 @@ def main():
 Examples:
   # List all available models
   python -m ai_content_pipeline list-models
-  
+
   # Generate image only
   python -m ai_content_pipeline generate-image --text "epic space battle" --model flux_dev
-  
+
   # Quick video creation (text → image → video)
   python -m ai_content_pipeline create-video --text "serene mountain lake"
-  
+
   # Run custom chain from config
   python -m ai_content_pipeline run-chain --config my_chain.yaml --input "cyberpunk city"
-  
+
   # Create example configurations
   python -m ai_content_pipeline create-examples
+
+  # Generate lipsync avatar (image + audio)
+  python -m ai_content_pipeline generate-avatar --image-url "https://..." --audio-url "https://..."
+
+  # Generate TTS avatar (image + text)
+  python -m ai_content_pipeline generate-avatar --image-url "https://..." --text "Hello world!"
+
+  # Generate video with reference images
+  python -m ai_content_pipeline generate-avatar --reference-images img1.jpg img2.jpg --prompt "A person walking"
+
+  # List avatar models
+  python -m ai_content_pipeline list-avatar-models
         """
     )
     
@@ -414,7 +557,23 @@ Examples:
     # Create examples command
     examples_parser = subparsers.add_parser("create-examples", help="Create example configuration files")
     examples_parser.add_argument("--output-dir", help="Directory for example configs")
-    
+
+    # Generate avatar command
+    avatar_parser = subparsers.add_parser("generate-avatar", help="Generate avatar/lipsync video")
+    avatar_parser.add_argument("--image-url", help="Portrait image URL for avatar generation")
+    avatar_parser.add_argument("--audio-url", help="Audio URL for lipsync (use with --image-url)")
+    avatar_parser.add_argument("--text", help="Text for TTS avatar (use with --image-url)")
+    avatar_parser.add_argument("--video-url", help="Video URL for transformation")
+    avatar_parser.add_argument("--reference-images", nargs="+", help="Reference images for video generation (max 4)")
+    avatar_parser.add_argument("--prompt", help="Prompt for generation/transformation")
+    avatar_parser.add_argument("--model", help="Model to use (default: auto-selected based on inputs)")
+    avatar_parser.add_argument("--duration", default="5", help="Video duration in seconds (default: 5)")
+    avatar_parser.add_argument("--aspect-ratio", default="16:9", help="Aspect ratio (default: 16:9)")
+    avatar_parser.add_argument("--save-json", help="Save result as JSON")
+
+    # List avatar models command
+    subparsers.add_parser("list-avatar-models", help="List available avatar generation models")
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -431,6 +590,10 @@ Examples:
         run_chain(args)
     elif args.command == "create-examples":
         create_examples(args)
+    elif args.command == "generate-avatar":
+        generate_avatar(args)
+    elif args.command == "list-avatar-models":
+        list_avatar_models(args)
     else:
         parser.print_help()
         sys.exit(1)
