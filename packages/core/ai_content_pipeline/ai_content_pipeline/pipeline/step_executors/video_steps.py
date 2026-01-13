@@ -95,11 +95,15 @@ class AddAudioExecutor(BaseStepExecutor):
                     step.model
                 )
 
-            # Try to import video-to-video module
-            import sys
-            fal_video_path = Path(__file__).parent.parent.parent.parent.parent / "fal_video_to_video"
-            sys.path.insert(0, str(fal_video_path))
-            from fal_video_to_video.generator import FALVideoToVideoGenerator
+            # Import from the properly installed fal_video_to_video package
+            try:
+                from fal_video_to_video.generator import FALVideoToVideoGenerator
+            except ImportError as e:
+                return self._create_error_result(
+                    f"fal_video_to_video module not available. "
+                    f"Install: pip install -e packages/providers/fal/video-to-video. Error: {e}",
+                    step.model
+                )
 
             generator = FALVideoToVideoGenerator()
 
@@ -123,11 +127,6 @@ class AddAudioExecutor(BaseStepExecutor):
                 "error": result.get("error")
             }
 
-        except ImportError:
-            return self._create_error_result(
-                "Video-to-video module not available",
-                step.model
-            )
         except Exception as e:
             return self._create_error_result(
                 f"Audio generation failed: {str(e)}",
@@ -147,33 +146,17 @@ class UpscaleVideoExecutor(BaseStepExecutor):
         **kwargs
     ) -> Dict[str, Any]:
         """Execute video upscaling step."""
-        import sys
+        try:
+            # Import from the properly installed fal_video_to_video package
+            from fal_video_to_video.generator import FALVideoToVideoGenerator
+        except ImportError as e:
+            return self._create_error_result(
+                f"fal_video_to_video module not available. "
+                f"Install: pip install -e packages/providers/fal/video-to-video. Error: {e}",
+                step.model
+            )
 
         try:
-            # Try multiple import paths for fal_video_to_video
-            current_dir = os.getcwd()
-            possible_paths = [
-                os.path.join(os.path.dirname(current_dir), 'fal_video_to_video'),
-                os.path.join(current_dir, '..', 'fal_video_to_video'),
-                '/home/zdhpe/veo3-video-generation/fal_video_to_video'
-            ]
-
-            imported = False
-            for fal_video_path in possible_paths:
-                try:
-                    if os.path.exists(fal_video_path) and fal_video_path not in sys.path:
-                        sys.path.insert(0, fal_video_path)
-
-                    from fal_video_to_video.generator import FALVideoToVideoGenerator
-                    imported = True
-                    break
-                except ImportError:
-                    continue
-
-            if not imported:
-                sys.path.insert(0, '/home/zdhpe/veo3-video-generation/fal_video_to_video')
-                from fal_video_to_video.fal_video_to_video.generator import FALVideoToVideoGenerator
-
             # Initialize upscaler
             upscaler = FALVideoToVideoGenerator()
 
@@ -250,19 +233,13 @@ class GenerateSubtitlesExecutor(BaseStepExecutor):
         **kwargs
     ) -> Dict[str, Any]:
         """Execute subtitle generation step."""
-        import sys
-
         try:
-            # Import video tools subtitle generator
-            video_tools_path = "/home/zdhpe/veo3-video-generation/video_tools"
-            if video_tools_path not in sys.path:
-                sys.path.append(video_tools_path)
-
-            from video_utils.subtitle_generator import generate_subtitle_for_video
-
+            # Import from the properly installed video_utils package
+            from video_utils import generate_subtitle_for_video
         except ImportError as e:
             return self._create_error_result(
-                f"Could not import subtitle generation module: {e}",
+                f"Could not import subtitle generation module. "
+                f"Install video-tools package: pip install -e packages/services/video-tools. Error: {e}",
                 step.model
             )
 
