@@ -94,6 +94,7 @@ class BaseTextToVideoModel(ABC):
         output_dir: Optional[Path] = None,
         timeout: int = 600,
         verbose: bool = True,
+        mock: bool = False,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -104,6 +105,7 @@ class BaseTextToVideoModel(ABC):
             output_dir: Directory to save output (default: ./output)
             timeout: Maximum wait time in seconds
             verbose: Enable verbose output
+            mock: If True, simulate API call without actual generation (no cost)
             **kwargs: Model-specific parameters
 
         Returns:
@@ -124,9 +126,38 @@ class BaseTextToVideoModel(ABC):
                 print(f"Generating video with {self.display_name}...")
                 print(f"Prompt: {prompt[:100]}{'...' if len(prompt) > 100 else ''}")
                 print(f"Estimated cost: ${cost:.2f}")
+                if mock:
+                    print("[MOCK MODE] Simulating API call - no actual generation")
 
             # Prepare API arguments
             arguments = self.prepare_arguments(prompt, **validated_params)
+
+            if mock:
+                # Return simulated result without calling API
+                timestamp = int(time.time())
+                safe_prompt = "".join(
+                    c for c in prompt[:30] if c.isalnum() or c in (' ', '-', '_')
+                ).rstrip().replace(' ', '_')
+                filename = f"{self.model_key}_{safe_prompt}_{timestamp}_MOCK.mp4"
+
+                if verbose:
+                    print("[MOCK] Skipping API call")
+                    print("[MOCK] Video generation simulated!")
+
+                return {
+                    "success": True,
+                    "mock": True,
+                    "video_url": "https://mock.example.com/video.mp4",
+                    "local_path": str(output_dir / filename),
+                    "filename": filename,
+                    "prompt": prompt,
+                    "model": self.model_key,
+                    "model_name": self.display_name,
+                    "cost_usd": 0.0,  # No actual cost in mock mode
+                    "estimated_cost": cost,
+                    "parameters": validated_params,
+                    "metadata": {"mock": True, "arguments": arguments}
+                }
 
             if verbose:
                 print("Submitting generation request...")
@@ -135,8 +166,7 @@ class BaseTextToVideoModel(ABC):
             result = fal_client.subscribe(
                 self.endpoint,
                 arguments=arguments,
-                with_logs=verbose,
-                timeout=timeout
+                with_logs=verbose
             )
 
             if verbose:

@@ -20,7 +20,11 @@ from .config import (
     MODEL_INFO
 )
 
+from .generator import FALTextToVideoGenerator
+
 __all__ = [
+    # Generator
+    "FALTextToVideoGenerator",
     # Models
     "BaseTextToVideoModel",
     "Kling26ProModel",
