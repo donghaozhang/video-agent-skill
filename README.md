@@ -79,15 +79,6 @@ A comprehensive AI content generation package with multiple providers and servic
 | `elevenlabs_turbo` | ElevenLabs | $0.03 | Fast generation |
 | `elevenlabs_v3` | ElevenLabs | $0.08 | Latest v3 model |
 
-### Prompt Generation Models
-| Model Name | Provider | Cost per Request | Special Features |
-|------------|----------|------------------|------------------|
-| `openrouter_video_prompt` | OpenRouter | $0.002 | General video prompts |
-| `openrouter_video_cinematic` | OpenRouter | $0.002 | Cinematic style prompts |
-| `openrouter_video_realistic` | OpenRouter | $0.002 | Realistic style prompts |
-| `openrouter_video_artistic` | OpenRouter | $0.002 | Artistic style prompts |
-| `openrouter_video_dramatic` | OpenRouter | $0.002 | Dramatic style prompts |
-
 ### Audio & Video Processing
 | Model Name | Provider | Cost per Request | Special Features |
 |------------|----------|------------------|------------------|
