@@ -61,7 +61,7 @@ def example_1_basic_video_description():
     
     print("\nPython Function Usage:")
     print("""
-from video_utils.video_understanding import GeminiVideoAnalyzer
+from video_utils import GeminiVideoAnalyzer
 
 # Initialize analyzer
 analyzer = GeminiVideoAnalyzer()
@@ -83,7 +83,7 @@ if result:
     if video_path.exists():
         print(f"\n🎬 Live Example with {video_path}:")
         try:
-            from video_utils.video_understanding import GeminiVideoAnalyzer
+            from video_utils import GeminiVideoAnalyzer
             analyzer = GeminiVideoAnalyzer()
             result = analyzer.describe_video(video_path, detailed=False)
             if result:
@@ -111,7 +111,7 @@ def example_2_detailed_video_analysis():
     
     print("\nPython Function Usage:")
     print("""
-from video_utils.video_understanding import analyze_video_file
+from video_utils import analyze_video_file
 
 # 1. Detailed Description
 result = analyze_video_file(
@@ -160,7 +160,7 @@ def example_3_batch_video_processing():
     print("\nPython Function Usage:")
     print("""
 from pathlib import Path
-from video_utils.video_understanding import analyze_video_file, save_analysis_result
+from video_utils import analyze_video_file, save_analysis_result
 from video_utils.file_utils import find_video_files
 
 # Find all videos in directory
@@ -203,7 +203,7 @@ def example_4_audio_analysis():
     
     print("\nPython Function Usage:")
     print("""
-from video_utils.video_understanding import analyze_audio_file, GeminiVideoAnalyzer
+from video_utils import analyze_audio_file, GeminiVideoAnalyzer
 
 # Method 1: Using analyze_audio_file function
 result = analyze_audio_file(
@@ -249,7 +249,7 @@ def example_5_image_analysis():
     
     print("\nPython Function Usage:")
     print("""
-from video_utils.video_understanding import analyze_image_file, GeminiVideoAnalyzer
+from video_utils import analyze_image_file, GeminiVideoAnalyzer
 
 # Image description
 result = analyze_image_file(
@@ -302,7 +302,7 @@ def example_6_whisper_integration():
     
     print("\nPython Function Usage:")
     print("""
-from video_utils.video_understanding import (
+from video_utils import (
     transcribe_with_whisper, 
     batch_transcribe_whisper,
     check_whisper_requirements
@@ -341,7 +341,7 @@ def example_7_advanced_configurations():
     
     print("Python Function Usage:")
     print("""
-from video_utils.video_understanding import GeminiVideoAnalyzer
+from video_utils import GeminiVideoAnalyzer
 import os
 
 # Custom API key configuration
@@ -350,7 +350,7 @@ custom_analyzer = GeminiVideoAnalyzer(api_key="your_custom_key")
 # Error handling example
 def safe_video_analysis(video_path, analysis_type='description'):
     try:
-        from video_utils.video_understanding import check_gemini_requirements
+        from video_utils import check_gemini_requirements
         
         # Check if API is ready
         ready, message = check_gemini_requirements()
@@ -430,7 +430,7 @@ python ../video_audio_utils.py whisper-batch
     
     print("\nPython Function Usage:")
     print("""
-from video_utils.video_understanding import save_analysis_result
+from video_utils import save_analysis_result
 import json
 
 # Custom saving example

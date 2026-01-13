@@ -17,7 +17,7 @@ def test_gemini_import():
     print("🧪 Testing Gemini video understanding imports...")
     
     try:
-        from video_utils.video_understanding import (
+        from video_utils import (
             check_gemini_requirements,
             analyze_video_file,
             analyze_audio_file,
@@ -36,7 +36,7 @@ def test_requirements_check():
     print("\n🧪 Testing requirements check...")
     
     try:
-        from video_utils.video_understanding import check_gemini_requirements
+        from video_utils import check_gemini_requirements
         
         available, message = check_gemini_requirements()
         print(f"📋 Gemini available: {available}")
@@ -59,7 +59,7 @@ def test_analyzer_initialization():
     print("\n🧪 Testing analyzer initialization...")
     
     try:
-        from video_utils.video_understanding import GeminiVideoAnalyzer
+        from video_utils import GeminiVideoAnalyzer
         
         # This should fail without API key, which is expected
         try:
@@ -87,7 +87,7 @@ def test_save_functionality():
     print("\n🧪 Testing result saving...")
     
     try:
-        from video_utils.video_understanding import save_analysis_result
+        from video_utils import save_analysis_result
         
         # Test data
         test_result = {

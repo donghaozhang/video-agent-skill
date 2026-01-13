@@ -7,15 +7,9 @@ Contains commands for OpenAI Whisper-based audio and video transcription.
 from pathlib import Path
 
 from .file_utils import find_video_files, find_audio_files
-from .video_understanding import (
-    check_whisper_requirements,
-    transcribe_with_whisper,
-    batch_transcribe_whisper,
-    WhisperTranscriber,
-    GeminiVideoAnalyzer,
-    check_gemini_requirements,
-    save_analysis_result
-)
+from .whisper_transcriber import WhisperTranscriber, check_whisper_requirements
+from .gemini_analyzer import GeminiVideoAnalyzer, check_gemini_requirements
+from .ai_utils import transcribe_with_whisper, batch_transcribe_whisper, save_analysis_result
 
 
 def cmd_whisper_transcribe():

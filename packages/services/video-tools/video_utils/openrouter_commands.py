@@ -8,7 +8,8 @@ import time
 from pathlib import Path
 
 from .file_utils import find_image_files
-from .video_understanding import save_analysis_result, GeminiVideoAnalyzer
+from .ai_utils import save_analysis_result
+from .gemini_analyzer import GeminiVideoAnalyzer
 from .openrouter_analyzer import OpenRouterAnalyzer, check_openrouter_requirements
 
 
@@ -245,7 +246,7 @@ def cmd_compare_providers():
     print("=" * 60)
     
     # Check both providers
-    from .video_understanding import check_gemini_requirements
+    from .gemini_analyzer import check_gemini_requirements
     gemini_ready, gemini_msg = check_gemini_requirements()
     openrouter_ready, openrouter_msg = check_openrouter_requirements()
     

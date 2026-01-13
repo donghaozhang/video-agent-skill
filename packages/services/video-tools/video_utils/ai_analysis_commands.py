@@ -8,13 +8,12 @@ from pathlib import Path
 
 from .core import get_video_info
 from .file_utils import find_video_files, find_audio_files, find_image_files
-from .video_understanding import (
-    check_gemini_requirements,
+from .gemini_analyzer import GeminiVideoAnalyzer, check_gemini_requirements
+from .ai_utils import (
     analyze_video_file,
     analyze_audio_file,
     analyze_image_file,
     save_analysis_result,
-    GeminiVideoAnalyzer
 )
 from .openrouter_analyzer import OpenRouterAnalyzer, check_openrouter_requirements
 

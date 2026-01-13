@@ -36,7 +36,7 @@ sys.path.insert(0, str(video_tools_dir))
 sys.path.insert(0, str(fal_image_dir))
 
 # Import video_tools components (Gemini understanding)
-from video_utils.video_understanding import GeminiVideoAnalyzer, save_analysis_result
+from video_utils import GeminiVideoAnalyzer, save_analysis_result
 
 # Import fal_image_to_image components (FAL modification)
 try:
