@@ -176,8 +176,12 @@ class TestConstants:
             assert model in MODEL_PRICING, f"Missing pricing for {model}"
 
     def test_supported_models_count(self):
-        """Verify expected number of supported models."""
-        assert len(SUPPORTED_MODELS) == 6
+        """Verify expected supported models are present."""
+        expected_models = {
+            "hailuo_pro", "veo3", "veo3_fast",
+            "kling_2_6_pro", "sora_2", "sora_2_pro"
+        }
+        assert set(SUPPORTED_MODELS) == expected_models
 
 
 if __name__ == "__main__":
