@@ -21,7 +21,7 @@ A comprehensive AI content generation package with multiple providers and servic
 | Model Name | Provider | Cost per Image | Resolution | Special Features |
 |------------|----------|----------------|------------|------------------|
 | `nano_banana_pro` | FAL AI | $0.002 | 1024x1024 | **Fast & high-quality, recommended** |
-| `gpt_image_1_5` | FAL AI | $0.003 | 1024x1024 | GPT-powered image generation |
+| `gpt_image_1_5` | FAL AI | $0.003 | Up to 1536px | GPT-powered image generation |
 | `flux_dev` | FAL AI | $0.003 | 1024x1024 | High quality, FLUX.1 Dev |
 | `flux_schnell` | FAL AI | $0.001 | 1024x1024 | Fast generation, FLUX.1 Schnell |
 | `imagen4` | FAL AI | $0.004 | 1024x1024 | Google Imagen 4, photorealistic |
