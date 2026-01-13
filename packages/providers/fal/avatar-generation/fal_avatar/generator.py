@@ -157,7 +157,14 @@ class FALAvatarGenerator:
         Returns:
             AvatarGenerationResult with video URL
         """
-        model = "kling_v2v_reference" if mode == "reference" else "kling_v2v_edit"
+        valid_modes = {"reference": "kling_v2v_reference", "edit": "kling_v2v_edit"}
+        if mode not in valid_modes:
+            return AvatarGenerationResult(
+                success=False,
+                error=f"Invalid mode '{mode}'. Must be 'reference' or 'edit'.",
+                model_used="unknown",
+            )
+        model = valid_modes[mode]
 
         return self.generate(
             model=model,
@@ -270,9 +277,20 @@ class FALAvatarGenerator:
             ValueError: If required inputs are missing
         """
         requirements = self.get_input_requirements(model)
+
+        def _is_empty(value) -> bool:
+            """Check if value is None or empty (string/list)."""
+            if value is None:
+                return True
+            if isinstance(value, str) and not value.strip():
+                return True
+            if isinstance(value, (list, tuple)) and len(value) == 0:
+                return True
+            return False
+
         missing = [
             param for param in requirements["required"]
-            if param not in kwargs or kwargs[param] is None
+            if param not in kwargs or _is_empty(kwargs[param])
         ]
 
         if missing:

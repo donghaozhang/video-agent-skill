@@ -315,9 +315,9 @@ class TestFALAvatarGenerator:
         """Test listing models by category."""
         generator = FALAvatarGenerator()
         categories = generator.list_models_by_category()
-        assert "lipsync" in categories
-        assert "video_generation" in categories
-        assert "video_transformation" in categories
+        assert "avatar_lipsync" in categories
+        assert "reference_to_video" in categories
+        assert "video_to_video" in categories
 
     def test_get_model_info(self):
         """Test getting model info."""

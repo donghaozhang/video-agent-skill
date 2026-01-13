@@ -106,8 +106,22 @@ class FabricModel(BaseAvatarModel):
             # Extract video URL from response
             video_url = result.get("url") or result.get("video", {}).get("url")
 
+            if not video_url:
+                return AvatarGenerationResult(
+                    success=False,
+                    error="No video URL in API response",
+                    model_used=self.model_name,
+                    processing_time=response["processing_time"],
+                )
+
             # Estimate duration from kwargs or default to 10s
             duration = kwargs.get("estimated_duration", 10)
+            # Validate and clamp duration
+            try:
+                duration = float(duration)
+            except (TypeError, ValueError):
+                duration = 10.0
+            duration = max(0.1, min(duration, self.max_duration))
 
             return AvatarGenerationResult(
                 success=True,
@@ -264,6 +278,14 @@ class FabricTextModel(BaseAvatarModel):
 
             result = response["result"]
             video_url = result.get("video", {}).get("url")
+
+            if not video_url:
+                return AvatarGenerationResult(
+                    success=False,
+                    error="No video URL in API response",
+                    model_used=self.model_name,
+                    processing_time=response["processing_time"],
+                )
 
             # Estimate duration: ~150 words per minute, average 5 chars per word
             estimated_duration = len(text) / 5 / 150 * 60

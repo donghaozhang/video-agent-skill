@@ -29,8 +29,8 @@ MODEL_PRICING = {
     "fabric_1_0_fast": {"480p": 0.10, "720p": 0.19},
     "fabric_1_0_text": {"480p": 0.08, "720p": 0.15},
     "kling_ref_to_video": {"per_second": 0.112},
-    "kling_v2v_reference": {"per_second": 0.10},
-    "kling_v2v_edit": {"per_second": 0.10},
+    "kling_v2v_reference": {"per_second": 0.168},
+    "kling_v2v_edit": {"per_second": 0.168},
 }
 
 # Default values

@@ -65,9 +65,6 @@ class OmniHumanModel(BaseAvatarModel):
         # Validate resolution
         self._validate_resolution(resolution)
 
-        # Set max duration based on resolution
-        self.max_duration = self.max_durations.get(resolution, 30)
-
         # Build arguments
         arguments = {
             "image_url": image_url,

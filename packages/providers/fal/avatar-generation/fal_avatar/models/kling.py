@@ -99,10 +99,15 @@ class KlingRefToVideoModel(BaseAvatarModel):
         if face_id:
             arguments["face_id"] = face_id
 
-        # Add audio timing parameters if provided
+        # Add audio timing parameters if provided (must be numeric, in milliseconds)
         for param in ["sound_start_time", "sound_end_time", "sound_insert_time"]:
             if param in kwargs and kwargs[param] is not None:
-                arguments[param] = kwargs[param]
+                value = kwargs[param]
+                if not isinstance(value, (int, float)):
+                    raise ValueError(f"{param} must be a number (milliseconds), got {type(value).__name__}")
+                if value < 0:
+                    raise ValueError(f"{param} must be non-negative, got {value}")
+                arguments[param] = value
 
         return arguments
 
@@ -269,6 +274,16 @@ class KlingV2VReferenceModel(BaseAvatarModel):
         if face_id:
             arguments["face_id"] = face_id
 
+        # Add audio timing parameters if provided (must be numeric, in milliseconds)
+        for param in ["sound_start_time", "sound_end_time", "sound_insert_time"]:
+            if param in kwargs and kwargs[param] is not None:
+                value = kwargs[param]
+                if not isinstance(value, (int, float)):
+                    raise ValueError(f"{param} must be a number (milliseconds), got {type(value).__name__}")
+                if value < 0:
+                    raise ValueError(f"{param} must be non-negative, got {value}")
+                arguments[param] = value
+
         return arguments
 
     def generate(
@@ -303,6 +318,7 @@ class KlingV2VReferenceModel(BaseAvatarModel):
                 aspect_ratio=aspect_ratio,
                 audio_url=audio_url,
                 face_id=face_id,
+                **kwargs,
             )
 
             response = self._call_fal_api(arguments)

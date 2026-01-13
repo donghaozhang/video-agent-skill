@@ -214,8 +214,16 @@ class BaseAvatarModel(ABC):
             Validated duration
 
         Raises:
-            ValueError: If duration exceeds max
+            ValueError: If duration is invalid or exceeds max
         """
+        import math
+
+        if not isinstance(duration, (int, float)):
+            raise ValueError(f"Duration must be a number, got {type(duration).__name__}")
+        if math.isnan(duration) or math.isinf(duration):
+            raise ValueError(f"Duration must be finite, got {duration}")
+        if duration <= 0:
+            raise ValueError(f"Duration must be positive, got {duration}s")
         if duration > self.max_duration:
             raise ValueError(
                 f"Duration {duration}s exceeds maximum {self.max_duration}s"

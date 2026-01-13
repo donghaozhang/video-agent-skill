@@ -206,8 +206,8 @@ COST_ESTIMATES = {
         "fabric_1_0_fast": 0.94,       # +25% for fast mode
         "fabric_1_0_text": 0.75,       # ~$0.15/sec * 5sec
         "kling_ref_to_video": 0.56,    # ~$0.112/sec * 5sec
-        "kling_v2v_reference": 0.50,   # ~$0.10/sec * 5sec
-        "kling_v2v_edit": 0.50,        # ~$0.10/sec * 5sec
+        "kling_v2v_reference": 0.84,   # ~$0.168/sec * 5sec
+        "kling_v2v_edit": 0.84,        # ~$0.168/sec * 5sec
     }
 }
 

@@ -357,7 +357,7 @@ def generate_avatar(args):
     """Handle generate-avatar command."""
     if not FAL_AVATAR_AVAILABLE:
         print("❌ FAL Avatar module not available.")
-        print("   Install it with: pip install fal-client")
+        print("   Ensure fal_avatar package is in path and fal-client is installed.")
         sys.exit(1)
 
     try:
@@ -407,7 +407,7 @@ def generate_avatar(args):
 
         # Display results
         if result.success:
-            print(f"\n✅ Avatar generation successful!")
+            print("\n✅ Avatar generation successful!")
             print(f"📦 Model: {result.model_used}")
             if result.video_url:
                 print(f"🎬 Video URL: {result.video_url}")
@@ -418,7 +418,7 @@ def generate_avatar(args):
             if result.processing_time:
                 print(f"⏱️ Processing time: {result.processing_time:.1f} seconds")
         else:
-            print(f"\n❌ Avatar generation failed!")
+            print("\n❌ Avatar generation failed!")
             print(f"Error: {result.error}")
 
         # Save result if requested
@@ -451,7 +451,7 @@ def list_avatar_models(args):
     """Handle list-avatar-models command."""
     if not FAL_AVATAR_AVAILABLE:
         print("❌ FAL Avatar module not available.")
-        print("   Install it with: pip install fal-client")
+        print("   Ensure fal_avatar package is in path and fal-client is installed.")
         sys.exit(1)
 
     generator = FALAvatarGenerator()
