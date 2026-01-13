@@ -88,5 +88,8 @@ class Kling26ProModel(BaseTextToVideoModel):
     def estimate_cost(self, duration: str = "5", generate_audio: bool = True, **kwargs) -> float:
         """Estimate cost based on duration and audio setting."""
         duration_seconds = int(duration)
-        cost_per_second = 0.14 if generate_audio else 0.07
+        if generate_audio:
+            cost_per_second = self.pricing.get("cost_with_audio", 0.14)
+        else:
+            cost_per_second = self.pricing.get("cost_no_audio", 0.07)
         return cost_per_second * duration_seconds
