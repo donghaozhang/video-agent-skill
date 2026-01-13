@@ -45,6 +45,15 @@ A comprehensive AI content generation package with multiple providers and servic
 | `veo2` | FAL AI | $2.50 | Up to 1080p | Google Veo 2.0 |
 | `hailuo` | FAL AI | $0.08 | 720p | MiniMax Hailuo-02, budget-friendly |
 | `kling` | FAL AI | $0.10 | 720p | Kling Video 2.1 |
+| `wan_2_6` | FAL AI | $0.50-2.25 | 720p/1080p | Wan v2.6, multi-shot, audio input |
+
+### Text-to-Video Models
+| Model Name | Provider | Cost per Video | Resolution | Special Features |
+|------------|----------|----------------|------------|------------------|
+| `hailuo_pro` | FAL AI | $0.40-0.80 | 720p | MiniMax Hailuo-02 Pro, 5-10s |
+| `kling_2_6_pro` | FAL AI | $0.35-1.40 | 720p | Kling v2.6 Pro, audio generation |
+| `sora_2` | FAL AI | $0.40-1.20 | 720p | OpenAI Sora 2, 4-12s duration |
+| `sora_2_pro` | FAL AI | $1.20-6.00 | 720p/1080p | OpenAI Sora 2 Pro, professional |
 
 ### Image Understanding Models
 | Model Name | Provider | Cost per Analysis | Special Features |
@@ -86,7 +95,7 @@ The **`gen4`** model is our most advanced text-to-image model, offering unique c
 - **@ Syntax**: Reference tagged elements in prompts (`@woman`, `@park`)
 - **Variable Pricing**: $0.05 (720p) / $0.08 (1080p)
 
-**Total Models: 35+ AI models across 7 categories**
+**Total Models: 40+ AI models across 8 categories**
 
 ## 🏷️ Latest Release
 
@@ -96,7 +105,7 @@ The **`gen4`** model is our most advanced text-to-image model, offering unique c
 ### What's New in v1.0.15
 - ✅ Enhanced GitHub deployment tracking for better release visibility
 - 🧪 Improved mock mode testing infrastructure across all generators
-- 🎯 All 35+ AI models with comprehensive parallel processing support
+- 🎯 All 40+ AI models with comprehensive parallel processing support
 
 ## 🚀 **FLAGSHIP: AI Content Pipeline**
 
@@ -217,9 +226,10 @@ result = manager.execute_chain(chain, "input text")
 #### Google Services
 - **[google-veo](packages/providers/google/veo/)** - Google Veo video generation (Vertex AI)
 
-#### FAL AI Services  
+#### FAL AI Services
 - **[fal-video](packages/providers/fal/video/)** - Video generation (MiniMax Hailuo-02, Kling Video 2.1)
-- **[fal-text-to-video](packages/providers/fal/text-to-video/)** - Text-to-video (MiniMax Hailuo-02 Pro, Google Veo 3)
+- **[fal-text-to-video](packages/providers/fal/text-to-video/)** - Text-to-video (Hailuo Pro, Veo 3, Kling v2.6 Pro, Sora 2/Pro)
+- **[fal-image-to-video](packages/providers/fal/image-to-video/)** - Image-to-video (Veo 3, Hailuo, Kling, Wan v2.6)
 - **[fal-avatar](packages/providers/fal/avatar/)** - Avatar generation with TTS integration
 - **[fal-text-to-image](packages/providers/fal/text-to-image/)** - Text-to-image (Imagen 4, Seedream v3, FLUX.1)
 - **[fal-image-to-image](packages/providers/fal/image-to-image/)** - Image transformation (Luma Photon Flash)
@@ -407,6 +417,9 @@ See [CLAUDE.md](CLAUDE.md) for detailed commands for each package.
 - [FAL AI Platform](https://fal.ai/)
 - [MiniMax Hailuo Documentation](https://fal.ai/models/fal-ai/minimax-video-01)
 - [Kling Video 2.1 Documentation](https://fal.ai/models/fal-ai/kling-video/v2.1/standard/image-to-video/api)
+- [Kling v2.6 Pro Documentation](https://fal.ai/models/fal-ai/kling-video/v2.6/pro/text-to-video/api)
+- [Wan v2.6 Documentation](https://fal.ai/models/wan/v2.6/image-to-video)
+- [Sora 2 Documentation](https://fal.ai/models/openai/sora/v2/text-to-video)
 - [FAL AI Avatar Documentation](https://fal.ai/models/fal-ai/avatar-video)
 - [ThinksSound API Documentation](https://fal.ai/models/fal-ai/thinksound/api)
 - [Topaz Video Upscale Documentation](https://fal.ai/models/fal-ai/topaz/upscale/video/api)
