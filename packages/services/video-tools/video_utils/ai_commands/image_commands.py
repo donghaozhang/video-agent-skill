@@ -150,9 +150,11 @@ def cmd_describe_images() -> None:
     if not config:
         return
 
+    # Initialize analyzer once for all files (not per-file)
+    from ..gemini_analyzer import GeminiVideoAnalyzer
+    gemini_analyzer = GeminiVideoAnalyzer()
+
     def analyzer(file_path: Path):
-        from ..gemini_analyzer import GeminiVideoAnalyzer
-        gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.describe_image(file_path, config.detailed)
 
     successful, failed = process_files_with_progress(
@@ -182,9 +184,11 @@ def cmd_extract_text() -> None:
 
     print(f"🖼️ Found {len(paths.files)} image file(s)")
 
+    # Initialize analyzer once for all files (not per-file)
+    from ..gemini_analyzer import GeminiVideoAnalyzer
+    gemini_analyzer = GeminiVideoAnalyzer()
+
     def analyzer(file_path: Path):
-        from ..gemini_analyzer import GeminiVideoAnalyzer
-        gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.extract_text_from_image(file_path)
 
     successful, failed = process_files_with_progress(

@@ -345,11 +345,11 @@ def process_files_with_progress(
                 else:
                     failed += 1
             else:
-                print("❌ Analysis returned no result")
+                print(f"❌ Analysis for {file_path.name} returned no result")
                 failed += 1
 
         except Exception as e:
-            print(f"❌ Analysis failed: {e}")
+            print(f"❌ Analysis failed for {file_path.name}: {e}")
             failed += 1
 
     return successful, failed
