@@ -121,7 +121,13 @@ def setup_paths(
     # Handle output path
     if output_path:
         output_path_obj = Path(output_path)
-        if len(files) == 1 and output_path_obj.suffix:
+        # Treat as file output only if: single file, has suffix, and path doesn't exist as directory
+        is_file_output = (
+            len(files) == 1
+            and output_path_obj.suffix
+            and not output_path_obj.is_dir()
+        )
+        if is_file_output:
             # Single file with specific output file
             output_dir = output_path_obj.parent
             output_file = output_path_obj
