@@ -23,6 +23,49 @@ from ..core import get_video_info
 # Supported video extensions (keep in sync with file_utils.py)
 VIDEO_EXTENSIONS = {'.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv'}
 
+
+def _save_result_with_format(result: dict, output_path: Path, format_type: str, content_key: str) -> bool:
+    """Save analysis result based on format_type.
+
+    Args:
+        result: Analysis result dictionary
+        output_path: Base output path (without extension)
+        format_type: Output format ('describe-video', 'json', 'txt')
+        content_key: Key in result dict containing main content
+
+    Returns:
+        True if successful, False otherwise
+    """
+    import json
+
+    try:
+        json_file = output_path.with_suffix('.json')
+        txt_file = output_path.with_suffix('.txt')
+
+        # Save JSON if format allows
+        if format_type in ['describe-video', 'json']:
+            with open(json_file, 'w', encoding='utf-8') as f:
+                json.dump(result, f, indent=2, ensure_ascii=False)
+            print(f"💾 Saved JSON: {json_file.name}")
+
+        # Save TXT if format allows
+        if format_type in ['describe-video', 'txt']:
+            with open(txt_file, 'w', encoding='utf-8') as f:
+                f.write(f"Analysis Result\n")
+                f.write("=" * 50 + "\n\n")
+                if content_key in result:
+                    f.write(result[content_key])
+                else:
+                    f.write(str(result))
+                f.write(f"\n\nGenerated: {result.get('timestamp', 'Unknown')}")
+            print(f"💾 Saved TXT: {txt_file.name}")
+
+        return True
+
+    except Exception as e:
+        print(f"❌ Error saving results: {e}")
+        return False
+
 # Analysis types for video
 VIDEO_ANALYSIS_TYPES = {
     '1': ('description', 'Video Description (summary and overview)'),
@@ -181,17 +224,27 @@ def cmd_describe_videos_with_params(
     print(f"📁 Output directory: {paths.output_dir}")
     print(f"📋 Format: {format_type}")
 
-    config = get_analysis_options('description')
+    # Determine detailed based on format_type
+    if format_type == 'describe-video':
+        config = get_analysis_options('description')
+    else:
+        # Default to detailed for specific formats (json, txt)
+        from ..command_utils import AnalysisConfig
+        config = AnalysisConfig(analysis_type='description', detailed=True)
 
     def analyzer(file_path: Path):
         from ..gemini_analyzer import GeminiVideoAnalyzer
         gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.describe_video(file_path, config.detailed)
 
+    # Custom save function based on format_type
+    def save_with_format(result, output_path):
+        return _save_result_with_format(result, output_path, format_type, 'description')
+
     successful, failed = process_files_with_progress(
         files=paths.files,
         analyzer_fn=analyzer,
-        save_fn=save_analysis_result,
+        save_fn=save_with_format,
         output_dir=paths.output_dir,
         output_suffix="_description",
         media_emoji="📺",
@@ -227,17 +280,27 @@ def cmd_transcribe_videos_with_params(
     print(f"📁 Output directory: {paths.output_dir}")
     print(f"📋 Format: {format_type}")
 
-    config = get_analysis_options('transcription')
+    # Determine options based on format_type
+    if format_type == 'describe-video':
+        config = get_analysis_options('transcription')
+    else:
+        # Default options for specific formats
+        from ..command_utils import AnalysisConfig
+        config = AnalysisConfig(analysis_type='transcription', include_timestamps=True)
 
     def analyzer(file_path: Path):
         from ..gemini_analyzer import GeminiVideoAnalyzer
         gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.transcribe_video(file_path, config.include_timestamps)
 
+    # Custom save function based on format_type
+    def save_with_format(result, output_path):
+        return _save_result_with_format(result, output_path, format_type, 'transcription')
+
     successful, failed = process_files_with_progress(
         files=paths.files,
         analyzer_fn=analyzer,
-        save_fn=save_analysis_result,
+        save_fn=save_with_format,
         output_dir=paths.output_dir,
         output_suffix="_transcription",
         media_emoji="📺",
