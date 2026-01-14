@@ -178,8 +178,14 @@ def select_analysis_type(
         print(f"📋 Selected: {description}")
         return analysis_type
 
-    except (EOFError, KeyboardInterrupt):
+    except EOFError:
+        # Non-interactive mode - use default
+        print(f"📋 Using default: {analysis_types[default_key][1]}")
         return analysis_types[default_key][0]
+    except KeyboardInterrupt:
+        # User cancelled
+        print("\n👋 Operation cancelled.")
+        return None
 
 
 def get_analysis_options(analysis_type: str) -> AnalysisConfig:
