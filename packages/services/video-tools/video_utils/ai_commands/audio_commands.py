@@ -150,9 +150,10 @@ def cmd_transcribe_audio() -> None:
     if not config:
         return
 
+    from ..gemini_analyzer import GeminiVideoAnalyzer
+    gemini_analyzer = GeminiVideoAnalyzer()
+
     def analyzer(file_path: Path):
-        from ..gemini_analyzer import GeminiVideoAnalyzer
-        gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.transcribe_audio(
             file_path,
             config.include_timestamps,
@@ -190,9 +191,10 @@ def cmd_describe_audio() -> None:
     if not config:
         return
 
+    from ..gemini_analyzer import GeminiVideoAnalyzer
+    gemini_analyzer = GeminiVideoAnalyzer()
+
     def analyzer(file_path: Path):
-        from ..gemini_analyzer import GeminiVideoAnalyzer
-        gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.describe_audio(file_path, config.detailed)
 
     successful, failed = process_files_with_progress(

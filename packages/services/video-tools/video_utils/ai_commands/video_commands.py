@@ -150,9 +150,10 @@ def cmd_transcribe_videos() -> None:
     if not config:
         return
 
+    from ..gemini_analyzer import GeminiVideoAnalyzer
+    gemini_analyzer = GeminiVideoAnalyzer()
+
     def analyzer(file_path: Path):
-        from ..gemini_analyzer import GeminiVideoAnalyzer
-        gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.transcribe_video(file_path, config.include_timestamps)
 
     successful, failed = process_files_with_progress(
@@ -186,9 +187,10 @@ def cmd_describe_videos() -> None:
     if not config:
         return
 
+    from ..gemini_analyzer import GeminiVideoAnalyzer
+    gemini_analyzer = GeminiVideoAnalyzer()
+
     def analyzer(file_path: Path):
-        from ..gemini_analyzer import GeminiVideoAnalyzer
-        gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.describe_video(file_path, config.detailed)
 
     successful, failed = process_files_with_progress(
@@ -240,9 +242,10 @@ def cmd_describe_videos_with_params(
         from ..command_utils import AnalysisConfig
         config = AnalysisConfig(analysis_type='description', detailed=True)
 
+    from ..gemini_analyzer import GeminiVideoAnalyzer
+    gemini_analyzer = GeminiVideoAnalyzer()
+
     def analyzer(file_path: Path):
-        from ..gemini_analyzer import GeminiVideoAnalyzer
-        gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.describe_video(file_path, config.detailed)
 
     # Custom save function based on format_type
@@ -298,9 +301,10 @@ def cmd_transcribe_videos_with_params(
         from ..command_utils import AnalysisConfig
         config = AnalysisConfig(analysis_type='transcription', include_timestamps=True)
 
+    from ..gemini_analyzer import GeminiVideoAnalyzer
+    gemini_analyzer = GeminiVideoAnalyzer()
+
     def analyzer(file_path: Path):
-        from ..gemini_analyzer import GeminiVideoAnalyzer
-        gemini_analyzer = GeminiVideoAnalyzer()
         return gemini_analyzer.transcribe_video(file_path, config.include_timestamps)
 
     # Custom save function based on format_type
