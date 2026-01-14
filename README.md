@@ -20,6 +20,8 @@ A comprehensive AI content generation package with multiple providers and servic
 ### Text-to-Image Models
 | Model Name | Provider | Cost per Image | Resolution | Special Features |
 |------------|----------|----------------|------------|------------------|
+| `nano_banana_pro` | FAL AI | $0.002 | 1024x1024 | **Fast & high-quality, recommended** |
+| `gpt_image_1_5` | FAL AI | $0.003 | Up to 1536px | GPT-powered image generation |
 | `flux_dev` | FAL AI | $0.003 | 1024x1024 | High quality, FLUX.1 Dev |
 | `flux_schnell` | FAL AI | $0.001 | 1024x1024 | Fast generation, FLUX.1 Schnell |
 | `imagen4` | FAL AI | $0.004 | 1024x1024 | Google Imagen 4, photorealistic |
@@ -27,9 +29,11 @@ A comprehensive AI content generation package with multiple providers and servic
 | `seedream3` | Replicate | $0.003 | Up to 2048px | ByteDance Seedream-3, high-res |
 | `gen4` | Replicate | $0.08 | 720p/1080p | **Runway Gen-4, multi-reference guidance** |
 
-### Image-to-Image Models  
+### Image-to-Image Models
 | Model Name | Provider | Cost per Image | Special Features |
 |------------|----------|----------------|------------------|
+| `nano_banana_pro_edit` | FAL AI | $0.015 | **Fast editing, recommended** |
+| `gpt_image_1_5_edit` | FAL AI | $0.02 | GPT-powered image editing |
 | `photon_flash` | FAL AI | $0.02 | Luma Photon Flash, creative & fast |
 | `photon_base` | FAL AI | $0.03 | Luma Photon Base, high quality |
 | `flux_kontext` | FAL AI | $0.025 | FLUX Kontext Dev, contextual editing |
@@ -40,20 +44,22 @@ A comprehensive AI content generation package with multiple providers and servic
 ### Image-to-Video Models
 | Model Name | Provider | Cost per Video | Resolution | Special Features |
 |------------|----------|----------------|------------|------------------|
-| `veo3` | FAL AI | $3.00 | Up to 1080p | Google Veo 3.0, latest model |
-| `veo3_fast` | FAL AI | $2.00 | Up to 1080p | Google Veo 3.0 Fast |
-| `veo2` | FAL AI | $2.50 | Up to 1080p | Google Veo 2.0 |
-| `hailuo` | FAL AI | $0.08 | 720p | MiniMax Hailuo-02, budget-friendly |
-| `kling` | FAL AI | $0.10 | 720p | Kling Video 2.1 |
-| `wan_2_6` | FAL AI | $0.50-2.25 | 720p/1080p | Wan v2.6, multi-shot, audio input |
+| `veo_3_1_fast` | FAL AI | $0.40-0.80 | 720p/1080p | **Google Veo 3.1 Fast, audio generation** |
+| `sora_2` | FAL AI | $0.40-1.20 | 720p | OpenAI Sora 2, 4-12s duration |
+| `sora_2_pro` | FAL AI | $1.20-3.60 | 720p/1080p | OpenAI Sora 2 Pro, professional |
+| `kling_2_6_pro` | FAL AI | $0.50-1.00 | 720p/1080p | Kling v2.6 Pro, professional quality |
+| `kling_2_1` | FAL AI | $0.25-0.50 | 720p/1080p | Kling Video v2.1, budget option |
+| `seedance_1_5_pro` | FAL AI | $0.40-0.80 | 720p/1080p | ByteDance Seedance v1.5 Pro |
+| `hailuo` | FAL AI | $0.30-0.50 | 768p | MiniMax Hailuo-02, budget-friendly |
+| `wan_2_6` | FAL AI | $0.50-1.50 | 720p/1080p | Wan v2.6, multi-shot, audio input |
 
 ### Text-to-Video Models
 | Model Name | Provider | Cost per Video | Resolution | Special Features |
 |------------|----------|----------------|------------|------------------|
-| `hailuo_pro` | FAL AI | $0.40-0.80 | 720p | MiniMax Hailuo-02 Pro, 5-10s |
-| `kling_2_6_pro` | FAL AI | $0.35-1.40 | 720p | Kling v2.6 Pro, audio generation |
 | `sora_2` | FAL AI | $0.40-1.20 | 720p | OpenAI Sora 2, 4-12s duration |
 | `sora_2_pro` | FAL AI | $1.20-6.00 | 720p/1080p | OpenAI Sora 2 Pro, professional |
+| `kling_2_6_pro` | FAL AI | $0.35-1.40 | 720p | Kling v2.6 Pro, audio generation |
+| `hailuo_pro` | FAL AI | $0.08 | 1080p | MiniMax Hailuo-02 Pro, 6s fixed |
 
 > **💡 Cost-Saving Tips:** Start with `kling_2_6_pro` (5s, no audio) for cheapest testing at ~$0.35. Use `--mock` flag for FREE parameter validation: `python -m fal_text_to_video.cli generate --prompt "test" --mock`. Premium models like `sora_2_pro` can cost up to $6.00/video.
 
@@ -74,15 +80,6 @@ A comprehensive AI content generation package with multiple providers and servic
 | `elevenlabs` | ElevenLabs | $0.05 | High quality TTS |
 | `elevenlabs_turbo` | ElevenLabs | $0.03 | Fast generation |
 | `elevenlabs_v3` | ElevenLabs | $0.08 | Latest v3 model |
-
-### Prompt Generation Models
-| Model Name | Provider | Cost per Request | Special Features |
-|------------|----------|------------------|------------------|
-| `openrouter_video_prompt` | OpenRouter | $0.002 | General video prompts |
-| `openrouter_video_cinematic` | OpenRouter | $0.002 | Cinematic style prompts |
-| `openrouter_video_realistic` | OpenRouter | $0.002 | Realistic style prompts |
-| `openrouter_video_artistic` | OpenRouter | $0.002 | Artistic style prompts |
-| `openrouter_video_dramatic` | OpenRouter | $0.002 | Dramatic style prompts |
 
 ### Audio & Video Processing
 | Model Name | Provider | Cost per Request | Special Features |

@@ -90,23 +90,17 @@ class Veo31FastModel(BaseVideoModel):
             "supports_audio": True
         }
 
-    def estimate_cost(self, duration, generate_audio: bool = True, **kwargs) -> float:
+    def estimate_cost(self, duration: int, **kwargs) -> float:
         """
         Estimate cost with audio-based pricing.
 
         Args:
-            duration: Duration as string ("8s") or int (8)
-            generate_audio: Whether audio is generated (higher cost)
-            **kwargs: Unused, for base class compatibility
+            duration: Duration in seconds (int)
+            **kwargs: May contain generate_audio for pricing tier
 
         Returns:
             Estimated cost in USD
         """
-        # Handle both int and string duration formats
-        if isinstance(duration, str):
-            # Parse duration string (e.g., "8s" -> 8)
-            seconds = int(duration.rstrip("s"))
-        else:
-            seconds = int(duration)
+        generate_audio = kwargs.get("generate_audio", True)
         base_rate = 0.15 if generate_audio else 0.10
-        return base_rate * seconds
+        return base_rate * duration

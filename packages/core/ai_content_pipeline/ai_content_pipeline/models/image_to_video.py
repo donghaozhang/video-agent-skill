@@ -5,10 +5,8 @@ Integrates multiple image-to-video models with smart selection and cost optimiza
 """
 
 import os
-import sys
 import time
 from typing import Dict, Any, Optional, List
-from pathlib import Path
 
 from .base import BaseContentModel, ModelResult
 from ..config.constants import SUPPORTED_MODELS, COST_ESTIMATES, MODEL_RECOMMENDATIONS
@@ -16,7 +14,28 @@ from ..config.constants import SUPPORTED_MODELS, COST_ESTIMATES, MODEL_RECOMMEND
 
 class MockImageToVideoGenerator:
     """Mock image-to-video generator for testing without API keys."""
-    
+
+    def generate_video(self, prompt: str, image_url: str, model: str = "hailuo", **kwargs):
+        """Mock generate_video method."""
+        return self._mock_result(prompt, model)
+
+    def generate_video_from_local_image(self, prompt: str, image_path: str, model: str = "hailuo", **kwargs):
+        """Mock generate_video_from_local_image method."""
+        return self._mock_result(prompt, model)
+
+    def _mock_result(self, prompt: str, model: str):
+        """Create mock result."""
+        return {
+            'success': True,
+            'video': {'url': f'mock://generated-video-{int(time.time())}.mp4'},
+            'local_path': f'/tmp/mock_video_{int(time.time())}.mp4',
+            'model': model,
+            'cost_estimate': 0.05,
+            'processing_time': 5.0,
+            'prompt': prompt,
+            'mock_mode': True
+        }
+
     def generate_video_from_image(self, prompt: str, image_url: str, **kwargs):
         """Mock video generation that returns fake results."""
         import time
@@ -49,20 +68,19 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
     def _initialize_generators(self):
         """Initialize available image-to-video generators."""
         try:
-            # Try to import existing FAL image-to-video generator
-            fal_path = Path(__file__).parent.parent.parent.parent.parent / "providers" / "fal" / "image-to-video"
-            if fal_path.exists():
-                sys.path.insert(0, str(fal_path))
-                from fal_image_to_video_generator import FALImageToVideoGenerator
-                self._fal_generator = FALImageToVideoGenerator()
-                print("✅ FAL Image-to-Video generator initialized")
-            else:
-                print(f"⚠️  FAL Image-to-Video directory not found at: {fal_path}")
+            # Try to import the new FAL image-to-video generator package
+            from fal_image_to_video import FALImageToVideoGenerator
+            self._fal_generator = FALImageToVideoGenerator()
+            print("✅ FAL Image-to-Video generator initialized")
         except ImportError as e:
             print(f"⚠️  FAL Image-to-Video generator not available: {e}")
+            # Check if we should use mock mode
+            import os
+            if os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS') or not os.environ.get('FAL_KEY'):
+                print("⚠️  Initializing mock FAL Image-to-Video generator")
+                self._fal_generator = MockImageToVideoGenerator()
         except Exception as e:
             print(f"⚠️  FAL Image-to-Video initialization failed: {e}")
-            # Check if we should use mock mode
             import os
             if os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS') or not os.environ.get('FAL_KEY'):
                 print("⚠️  Initializing mock FAL Image-to-Video generator")
@@ -116,9 +134,15 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
                 print(f"🤖 Auto-selected model: {model}")
             
             # Route to appropriate generator
-            if model in ["hailuo", "kling"]:
+            # FAL models include all models supported by the FAL generator
+            fal_models = [
+                "hailuo", "kling", "kling_2_1", "kling_2_6_pro",
+                "seedance_1_5_pro", "sora_2", "sora_2_pro",
+                "veo_3_1_fast", "wan_2_6"
+            ]
+            if model in fal_models:
                 return self._generate_with_fal(prompt, image_url, model, **kwargs)
-            elif model in ["veo3", "veo2"]:
+            elif model in ["veo3", "veo3_fast", "veo2"]:
                 return self._generate_with_veo(prompt, image_url, model, **kwargs)
             else:
                 return self._create_error_result(model, f"Unsupported model: {model}")
@@ -130,51 +154,42 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
         """Generate video using FAL AI models."""
         if not self._fal_generator:
             return self._create_error_result(model, "FAL generator not available")
-        
+
         try:
-            # Map our model names to FAL model endpoints
+            # Map old model names to new FAL model keys if needed
             fal_model_map = {
-                "hailuo": "fal-ai/minimax/hailuo-02/standard/image-to-video",
-                "kling": "fal-ai/kling-video/v2.1/standard/image-to-video"
+                "kling": "kling_2_1",  # Map old name to new
             }
-            
-            fal_model = fal_model_map.get(model, fal_model_map["hailuo"])
-            
+            fal_model = fal_model_map.get(model, model)  # Use model key directly
+
             # Extract FAL-specific parameters
             output_folder = kwargs.get("output_dir", "output")
-            
-            # Set model-specific defaults for duration
-            if model == "kling":
-                duration = kwargs.get("duration", "5")  # Kling accepts "5" or "10"
-            else:  # hailuo
-                duration = kwargs.get("duration", "6")  # Hailuo accepts "6" or "10"
-            
-            prompt_optimizer = kwargs.get("prompt_optimizer", True)
-            
+
+            # Get duration from kwargs, let the model handle defaults
+            duration = kwargs.get("duration")
+
+            # Filter kwargs to pass model-specific params
+            excluded_keys = ["output_dir", "budget", "criteria"]
+            model_kwargs = {k: v for k, v in kwargs.items() if k not in excluded_keys}
+
             # Generate video - use local image method if we have a local path
             if image_url and not image_url.startswith("http"):
                 # Local file path - use the local image method
                 result = self._fal_generator.generate_video_from_local_image(
                     prompt=prompt,
                     image_path=image_url,  # This is actually a local path
-                    duration=duration,
-                    prompt_optimizer=prompt_optimizer,
-                    output_folder=output_folder,
                     model=fal_model,
-                    **{k: v for k, v in kwargs.items() 
-                       if k not in ["output_dir", "duration", "prompt_optimizer", "budget", "criteria"]}
+                    output_dir=output_folder,
+                    **model_kwargs
                 )
             else:
                 # Remote URL - use the URL method
-                result = self._fal_generator.generate_video_from_image(
+                result = self._fal_generator.generate_video(
                     prompt=prompt,
                     image_url=image_url,
-                    duration=duration,
-                    prompt_optimizer=prompt_optimizer,
-                    output_folder=output_folder,
                     model=fal_model,
-                    **{k: v for k, v in kwargs.items() 
-                       if k not in ["output_dir", "duration", "prompt_optimizer", "budget", "criteria"]}
+                    output_dir=output_folder,
+                    **model_kwargs
                 )
             
             if result and 'video' in result:
@@ -238,12 +253,10 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
         
         if model != "auto" and model not in SUPPORTED_MODELS.get("image_to_video", []):
             return False
-        
-        # Validate duration if provided
-        duration = kwargs.get("duration")
-        if duration and duration not in ["5", "6", "10"]:
-            return False
-        
+
+        # Duration validation is handled by model-specific validators
+        # Different models support different duration formats (e.g., "8s", 5, "10")
+
         return True
     
     def get_model_info(self, model: str) -> Dict[str, Any]:

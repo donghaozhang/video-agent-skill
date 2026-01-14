@@ -16,6 +16,14 @@ SUPPORTED_MODELS = {
         "dalle3",             # OpenAI DALL-E 3 (planned)
         "stable_diffusion",   # Stability AI (planned)
     ],
+    "text_to_video": [
+        "sora_2",             # OpenAI Sora 2 (via FAL)
+        "sora_2_pro",         # OpenAI Sora 2 Pro (via FAL) - 1080p support
+        "kling_2_6_pro",      # Kling Video v2.6 Pro
+        "veo3",               # Google Veo 3 (via FAL)
+        "veo3_fast",          # Google Veo 3 Fast (via FAL)
+        "hailuo_pro",         # MiniMax Hailuo-02 Pro
+    ],
     "text_to_speech": [
         "elevenlabs",         # ElevenLabs TTS (high quality)
         "elevenlabs_turbo",   # ElevenLabs Turbo (fast)
@@ -50,9 +58,15 @@ SUPPORTED_MODELS = {
     "image_to_video": [
         "veo3",               # Google Veo 3.0
         "veo3_fast",          # Google Veo 3.0 Fast
-        "veo2",               # Google Veo 2.0  
+        "veo_3_1_fast",       # Google Veo 3.1 Fast (with audio)
+        "veo2",               # Google Veo 2.0
         "hailuo",             # MiniMax Hailuo-02
         "kling",              # Kling Video 2.1
+        "kling_2_1",          # Kling Video v2.1
+        "kling_2_6_pro",      # Kling Video v2.6 Pro
+        "sora_2",             # OpenAI Sora 2
+        "sora_2_pro",         # OpenAI Sora 2 Pro
+        "seedance_1_5_pro",   # ByteDance Seedance v1.5 Pro
     ],
     "add_audio": [
         "thinksound",         # ThinksSound AI audio generation
@@ -74,6 +88,7 @@ SUPPORTED_MODELS = {
 # Pipeline step types
 PIPELINE_STEPS = [
     "text_to_image",
+    "text_to_video",
     "image_understanding",
     "prompt_generation",
     "image_to_image",
@@ -88,12 +103,21 @@ PIPELINE_STEPS = [
 MODEL_RECOMMENDATIONS = {
     "text_to_image": {
         "quality": "flux_dev",
-        "speed": "flux_schnell", 
+        "speed": "flux_schnell",
         "cost_effective": "seedream_v3",
         "photorealistic": "imagen4",
         "high_resolution": "seedream3",
         "cinematic": "gen4",
         "reference_guided": "gen4"
+    },
+    "text_to_video": {
+        "quality": "sora_2_pro",
+        "speed": "veo3_fast",
+        "cost_effective": "hailuo_pro",
+        "balanced": "sora_2",
+        "long_duration": "sora_2",
+        "cinematic": "veo3",
+        "1080p": "sora_2_pro"
     },
     "text_to_speech": {
         "quality": "elevenlabs_v3",
@@ -156,6 +180,14 @@ COST_ESTIMATES = {
         "nano_banana_pro": 0.002,
         "gpt_image_1_5": 0.003,
     },
+    "text_to_video": {
+        "sora_2": 0.40,           # $0.10/sec * 4sec default
+        "sora_2_pro": 2.00,       # $0.50/sec * 4sec default (1080p)
+        "kling_2_6_pro": 0.35,    # $0.07/sec * 5sec default
+        "veo3": 4.00,             # $0.50/sec * 8sec default
+        "veo3_fast": 2.00,        # $0.25/sec * 8sec default
+        "hailuo_pro": 0.08,       # Fixed per video
+    },
     "text_to_speech": {
         "elevenlabs": 0.05,
         "elevenlabs_turbo": 0.03,
@@ -190,9 +222,15 @@ COST_ESTIMATES = {
     "image_to_video": {
         "veo3": 3.00,
         "veo3_fast": 2.00,
+        "veo_3_1_fast": 1.20,     # $0.15/sec * 8sec (with audio)
         "veo2": 2.50,
         "hailuo": 0.08,
         "kling": 0.10,
+        "kling_2_1": 0.50,        # $0.05/sec * 10sec
+        "kling_2_6_pro": 1.00,    # $0.10/sec * 10sec
+        "sora_2": 0.40,           # $0.10/sec * 4sec
+        "sora_2_pro": 2.00,       # $0.50/sec * 4sec (1080p)
+        "seedance_1_5_pro": 0.80, # $0.08/sec * 10sec
     },
     "add_audio": {
         "thinksound": 0.05,
@@ -218,6 +256,14 @@ PROCESSING_TIME_ESTIMATES = {
         "flux_schnell": 5,
         "imagen4": 20,
         "seedream_v3": 10,
+    },
+    "text_to_video": {
+        "sora_2": 120,            # ~2 min for 4sec video
+        "sora_2_pro": 180,        # ~3 min for 4sec video (1080p)
+        "kling_2_6_pro": 90,      # ~1.5 min for 5sec video
+        "veo3": 300,              # ~5 min for 8sec video
+        "veo3_fast": 120,         # ~2 min for 8sec video
+        "hailuo_pro": 60,         # ~1 min for 6sec video
     },
     "text_to_speech": {
         "elevenlabs": 15,
@@ -251,9 +297,15 @@ PROCESSING_TIME_ESTIMATES = {
     "image_to_video": {
         "veo3": 300,
         "veo3_fast": 180,
+        "veo_3_1_fast": 120,      # ~2 min for 8sec video
         "veo2": 240,
         "hailuo": 60,
         "kling": 90,
+        "kling_2_1": 90,
+        "kling_2_6_pro": 120,
+        "sora_2": 120,
+        "sora_2_pro": 180,
+        "seedance_1_5_pro": 90,
     },
     "add_audio": {
         "thinksound": 45,

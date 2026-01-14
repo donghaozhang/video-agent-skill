@@ -1,6 +1,7 @@
 # Long Code Files Report
 
 **Generated:** 2026-01-13
+**Last Updated:** 2026-01-13
 **Threshold:** 800+ lines
 
 ---
@@ -9,12 +10,32 @@
 
 | # | File Path | Lines | Status |
 |---|-----------|-------|--------|
-| 1 | `packages/services/video-tools/video_utils/ai_analysis_commands.py` | 1634 | Needs refactoring |
-| 2 | `packages/core/ai_content_pipeline/ai_content_pipeline/pipeline/executor.py` | 1411 | Needs refactoring |
-| 3 | `packages/services/video-tools/video_utils/video_understanding.py` | 1363 | Needs refactoring |
-| 4 | `packages/providers/fal/text-to-image/fal_text_to_image_generator.py` | 892 | Needs refactoring |
+| 1 | `packages/services/video-tools/video_utils/ai_analysis_commands.py` | 1633 | Needs refactoring |
+| 2 | `packages/providers/fal/text-to-image/fal_text_to_image_generator.py` | 892 | Needs refactoring |
 
-**Total:** 4 files exceed the 800-line threshold
+**Total:** 2 files exceed the 800-line threshold
+
+---
+
+## Recently Completed Refactoring
+
+### ✅ `executor.py` (1411 → 467 lines) - COMPLETED
+
+**Refactored on:** 2026-01-13
+
+Split into modular components:
+- `pipeline/executor.py` - 467 lines (orchestration only)
+- `pipeline/report_generator.py` - 344 lines
+- `pipeline/step_executors/base.py` - 112 lines
+- `pipeline/step_executors/image_steps.py` - 208 lines
+- `pipeline/step_executors/video_steps.py` - 354 lines
+- `pipeline/step_executors/audio_steps.py` - 141 lines
+
+### ✅ `video_understanding.py` (1363 lines) - DELETED
+
+**Deleted on:** 2026-01-12
+
+Duplicate file removed. Functionality consolidated into `gemini_analyzer.py`.
 
 ---
 
@@ -25,22 +46,12 @@ Per project guidelines in CLAUDE.md:
 
 ### Suggested Refactoring
 
-#### 1. `ai_analysis_commands.py` (1634 lines)
+#### 1. `ai_analysis_commands.py` (1633 lines)
 - Split into separate command modules by functionality
 - Create `commands/` subdirectory with individual command files
 - Extract shared utilities to `command_utils.py`
 
-#### 2. `executor.py` (1411 lines)
-- Separate step execution logic into `step_executor.py`
-- Extract parallel execution to `parallel_runner.py`
-- Move result handling to `result_handler.py`
-
-#### 3. `video_understanding.py` (1363 lines)
-- Split analysis types into separate modules
-- Create `analyzers/` subdirectory
-- Extract prompts to `prompts.py`
-
-#### 4. `fal_text_to_image_generator.py` (892 lines)
+#### 2. `fal_text_to_image_generator.py` (892 lines)
 - Extract individual model implementations to separate files
 - Create `models/` subdirectory similar to avatar module pattern
 - Move shared utilities to `utils.py`
@@ -66,8 +77,8 @@ Per project guidelines in CLAUDE.md:
 
 ## Action Items
 
+- [x] ~~Refactor `executor.py`~~ - **COMPLETED** (467 lines)
+- [x] ~~Refactor `video_understanding.py`~~ - **DELETED** (duplicate removed)
 - [ ] Refactor `ai_analysis_commands.py` - Priority: High
-- [ ] Refactor `executor.py` - Priority: High
-- [ ] Refactor `video_understanding.py` - Priority: Medium
 - [ ] Refactor `fal_text_to_image_generator.py` - Priority: Medium
 - [ ] Monitor files approaching 500-line limit

@@ -85,7 +85,28 @@ venv\Scripts\ai-content-pipeline list-models
 ./venv/bin/ai-content-pipeline list-models
 ```
 
-## Available AI Models (37 Total)
+### Generate Avatar (Lipsync/TTS)
+```bash
+# Avatar with audio (lipsync)
+ai-content-pipeline generate-avatar --image-url "https://..." --audio-url "https://..." --model omnihuman_v1_5
+
+# Avatar with text (TTS)
+ai-content-pipeline generate-avatar --image-url "https://..." --text "Hello world!" --model fabric_1_0_text
+
+# Video with reference images (character consistency)
+ai-content-pipeline generate-avatar --reference-images img1.jpg img2.jpg --prompt "A person walking" --model kling_ref_to_video
+```
+
+### Transform Video (Style Transfer / Edit)
+```bash
+# Style-guided transformation
+ai-content-pipeline generate-avatar --video-url "https://..." --prompt "cinematic style" --model kling_v2v_reference
+
+# Targeted video edit (add/modify elements)
+ai-content-pipeline generate-avatar --video-url "https://..." --prompt "Add another person in cosplay" --model kling_v2v_edit
+```
+
+## Available AI Models (44 Total)
 
 ### Text-to-Image (8 models)
 | Model | Key | Description |
@@ -116,11 +137,19 @@ venv\Scripts\ai-content-pipeline list-models
 - Photon Flash, Photon Base, FLUX variants, Clarity Upscaler
 - Nano Banana Pro Edit, GPT Image 1.5 Edit
 
+### Avatar Generation (7 models)
+| Model | Key | Description |
+|-------|-----|-------------|
+| OmniHuman v1.5 | `omnihuman_v1_5` | Audio-driven human animation |
+| Fabric 1.0 | `fabric_1_0` | Lipsync video generation |
+| Fabric 1.0 Fast | `fabric_1_0_fast` | Fast lipsync (+25% cost) |
+| Fabric 1.0 Text | `fabric_1_0_text` | Text-to-speech avatar |
+| Kling Ref-to-Video | `kling_ref_to_video` | Character consistency from images |
+| Kling V2V Reference | `kling_v2v_reference` | Style-guided video transformation |
+| Kling V2V Edit | `kling_v2v_edit` | Targeted video modifications |
+
 ### Image Understanding (7 models)
 - Gemini variants for description, classification, OCR, Q&A
-
-### Prompt Generation (5 models)
-- OpenRouter models for video prompt optimization
 
 ## YAML Pipeline Configuration
 
@@ -165,6 +194,8 @@ GEMINI_API_KEY=your_gemini_key
 - **Text-to-Image**: $0.001-0.004 per image
 - **Image-to-Image**: $0.01-0.05 per modification
 - **Image-to-Video**: $0.08-6.00 per video (model dependent)
+- **Avatar Generation**: $0.50-1.00 per video (lipsync/TTS)
+- **Video Transform**: $0.84-1.68 per video (Kling V2V at $0.168/sec)
 
 ## Testing
 
