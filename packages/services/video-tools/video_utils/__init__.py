@@ -49,7 +49,7 @@ from .gemini_analyzer import GeminiVideoAnalyzer, check_gemini_requirements
 from .whisper_transcriber import WhisperTranscriber, check_whisper_requirements
 from .ai_utils import (
     analyze_video_file,
-    analyze_audio_file, 
+    analyze_audio_file,
     analyze_image_file,
     save_analysis_result,
     transcribe_with_whisper,
@@ -59,25 +59,41 @@ from .ai_utils import (
     print_ai_status
 )
 
+# Analyzer abstraction layer (for multi-provider support)
+from .analyzer_protocol import MediaAnalyzerProtocol
+from .analyzer_factory import AnalyzerFactory, get_analyzer, print_provider_status
+
+# Optional: FAL analyzer (only if fal-client is installed)
+try:
+    from .fal_video_analyzer import FalVideoAnalyzer, check_fal_requirements
+except ImportError:
+    FalVideoAnalyzer = None
+    check_fal_requirements = None
+
 __all__ = [
     # Legacy function-based utilities (for backward compatibility)
     'check_ffmpeg', 'check_ffprobe', 'get_video_info',
     'find_video_files', 'find_audio_files', 'find_image_files',
     'cut_video_duration',
-    'add_audio_to_video', 'extract_audio_from_video', 
+    'add_audio_to_video', 'extract_audio_from_video',
     'mix_multiple_audio_files', 'concatenate_multiple_audio_files',
     'generate_srt_subtitle_file', 'generate_vtt_subtitle_file',
     'generate_subtitle_for_video', 'add_subtitles_to_video', 'add_text_subtitles_to_video',
     'interactive_audio_selection', 'interactive_multiple_audio_selection',
-    
+
     # Enhanced class-based architecture
     'VideoProcessor', 'AudioProcessor',
     'BaseController', 'MediaProcessingController', 'CommandDispatcher',
-    
+
     # AI analysis classes and functions
     'GeminiVideoAnalyzer', 'WhisperTranscriber',
     'check_gemini_requirements', 'check_whisper_requirements',
     'analyze_video_file', 'analyze_audio_file', 'analyze_image_file',
     'save_analysis_result', 'transcribe_with_whisper', 'batch_transcribe_whisper',
-    'analyze_media_comprehensively', 'check_ai_requirements', 'print_ai_status'
+    'analyze_media_comprehensively', 'check_ai_requirements', 'print_ai_status',
+
+    # Analyzer abstraction layer (multi-provider support)
+    'MediaAnalyzerProtocol',
+    'AnalyzerFactory', 'get_analyzer', 'print_provider_status',
+    'FalVideoAnalyzer', 'check_fal_requirements',
 ]
