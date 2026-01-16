@@ -15,6 +15,8 @@ from .video_commands import (
     cmd_describe_videos,
     cmd_describe_videos_with_params,
     cmd_transcribe_videos_with_params,
+    cmd_detailed_timeline,
+    cmd_detailed_timeline_with_params,
 )
 from .audio_commands import (
     cmd_analyze_audio,
@@ -36,6 +38,8 @@ __all__ = [
     'cmd_describe_videos',
     'cmd_describe_videos_with_params',
     'cmd_transcribe_videos_with_params',
+    'cmd_detailed_timeline',
+    'cmd_detailed_timeline_with_params',
     # Audio commands
     'cmd_analyze_audio',
     'cmd_transcribe_audio',

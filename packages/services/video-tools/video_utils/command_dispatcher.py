@@ -134,18 +134,19 @@ class CommandDispatcher(BaseController):
         
         options = {
             '1': 'Analyze Videos (Gemini Direct)',
-            '2': 'Analyze Audio Files (Gemini Direct)', 
+            '2': 'Analyze Audio Files (Gemini Direct)',
             '3': 'Analyze Images (Gemini Direct)',
             '4': 'Analyze Images (OpenRouter)',
             '5': 'Compare Providers (Gemini vs OpenRouter)',
             '6': 'Comprehensive Media Analysis',
             '7': 'Custom Q&A Analysis',
             '8': 'OpenRouter Info & Setup',
+            '9': 'Detailed Video Timeline (FAL + Gemini)',
             'b': 'Back to main menu'
         }
-        
+
         choice = self.get_user_choice("🤖 Select AI analysis type:", options)
-        
+
         if choice == '1':
             return self._analyze_videos()
         elif choice == '2':
@@ -162,10 +163,18 @@ class CommandDispatcher(BaseController):
             return self._custom_qa_analysis()
         elif choice == '8':
             return self._openrouter_info()
+        elif choice == '9':
+            return self._detailed_timeline()
         elif choice == 'b':
             return True
         else:
             return False
+
+    def _detailed_timeline(self) -> bool:
+        """Generate detailed second-by-second video timeline."""
+        from .ai_commands import cmd_detailed_timeline
+        cmd_detailed_timeline()
+        return True
     
     def _analyze_videos(self) -> bool:
         """Analyze videos with Gemini."""
