@@ -325,32 +325,67 @@ from video_utils.ai_commands import (
 
 ### Video Analysis CLI Command
 
+The `analyze-video` command provides AI-powered video understanding using Gemini models.
+
 ```bash
-# Analyze video (default: gemini-3-pro, timeline)
-aicp analyze-video -i video.mp4
+# Windows - Basic usage (default: gemini-3-pro, timeline)
+./venv/Scripts/aicp.exe analyze-video -i video.mp4
 
-# With all options
-aicp analyze-video -i video.mp4 -m gemini-3-pro -t timeline -o output/
+# Windows - With all options
+./venv/Scripts/aicp.exe analyze-video -i video.mp4 -m gemini-3-pro -t timeline -o output/
 
-# Different analysis types
-aicp analyze-video -i video.mp4 -t describe      # Quick description
-aicp analyze-video -i video.mp4 -t transcribe    # Audio transcription
-
-# Different models
-aicp analyze-video -i video.mp4 -m gemini-2.5-flash  # Faster, cheaper
-aicp analyze-video -i video.mp4 -m gemini-direct     # Local, no upload
-
-# List available models
-aicp list-video-models
+# Linux/Mac
+./venv/bin/aicp analyze-video -i video.mp4 -m gemini-3-pro -t timeline -o output/
 ```
 
-**CLI Options:**
+**Analysis Types:**
+```bash
+# Detailed timeline (default) - second-by-second breakdown with transcript
+./venv/Scripts/aicp.exe analyze-video -i video.mp4 -t timeline
+
+# Quick description - summary of video content
+./venv/Scripts/aicp.exe analyze-video -i video.mp4 -t describe
+
+# Transcription - audio transcription with timestamps
+./venv/Scripts/aicp.exe analyze-video -i video.mp4 -t transcribe
+```
+
+**Model Options:**
+```bash
+# Gemini 3 Pro (default, recommended) - highest quality
+./venv/Scripts/aicp.exe analyze-video -i video.mp4 -m gemini-3-pro
+
+# Gemini 2.5 Flash - faster, cost-effective
+./venv/Scripts/aicp.exe analyze-video -i video.mp4 -m gemini-2.5-flash
+
+# Gemini 2.5 Pro - detailed reasoning
+./venv/Scripts/aicp.exe analyze-video -i video.mp4 -m gemini-2.5-pro
+
+# Gemini Direct - local files, no upload required
+./venv/Scripts/aicp.exe analyze-video -i video.mp4 -m gemini-direct
+```
+
+**List Available Models:**
+```bash
+# Windows
+./venv/Scripts/aicp.exe list-video-models
+
+# Linux/Mac
+./venv/bin/aicp list-video-models
+```
+
+**CLI Options Reference:**
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
-| `--input` | `-i` | required | Video file or directory |
-| `--output` | `-o` | `output/` | Output directory |
-| `--model` | `-m` | `gemini-3-pro` | Model to use |
-| `--type` | `-t` | `timeline` | Analysis type |
+| `--input` | `-i` | required | Video file or directory path |
+| `--output` | `-o` | `output/` | Output directory for results |
+| `--model` | `-m` | `gemini-3-pro` | Model to use for analysis |
+| `--type` | `-t` | `timeline` | Analysis type (timeline/describe/transcribe) |
+| `--format` | `-f` | `both` | Output format (md/json/both) |
+
+**Output Files:**
+- `{video_name}_detailed_timeline.md` - Markdown report
+- `{video_name}_detailed_timeline.json` - JSON data
 
 ### Interactive CLI (Alternative)
 
