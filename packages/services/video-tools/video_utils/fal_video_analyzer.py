@@ -2,7 +2,7 @@
 FAL OpenRouter Video Analyzer.
 
 Implements MediaAnalyzerProtocol using FAL's OpenRouter API.
-Supports multiple VLMs including Gemini 3, Claude, GPT-4o.
+Supports Gemini 2.5 and Gemini 3 model variants.
 """
 
 import os
@@ -22,14 +22,14 @@ class FalVideoAnalyzer(MediaAnalyzerProtocol):
     """FAL OpenRouter video, audio, and image analyzer.
 
     Uses FAL's OpenRouter API to access multiple Vision Language Models
-    for media analysis. Supports Gemini 3, Claude, GPT-4o and more.
+    for media analysis. Supports Gemini 2.5 and Gemini 3 model variants.
 
     Note:
         FAL requires media to be accessible via URL. Local files must be
         uploaded to cloud storage first.
 
     Example:
-        >>> analyzer = FalVideoAnalyzer(model='google/gemini-3-flash')
+        >>> analyzer = FalVideoAnalyzer(model='google/gemini-2.5-flash')
         >>> result = analyzer.describe_video('https://example.com/video.mp4')
         >>> print(result['description'])
     """
@@ -52,7 +52,7 @@ class FalVideoAnalyzer(MediaAnalyzerProtocol):
 
         Args:
             api_key: FAL API key (defaults to FAL_KEY env var)
-            model: Model to use for analysis (default: google/gemini-3-flash)
+            model: Model to use for analysis (default: google/gemini-2.5-flash)
 
         Raises:
             ImportError: If fal-client is not installed
@@ -106,6 +106,12 @@ class FalVideoAnalyzer(MediaAnalyzerProtocol):
             )
         return source
 
+    # Models that require reasoning mode
+    REASONING_MODELS = [
+        "google/gemini-2.5-pro",
+        "google/gemini-3-pro-preview",
+    ]
+
     def _analyze(
         self,
         video_url: str,
@@ -133,6 +139,10 @@ class FalVideoAnalyzer(MediaAnalyzerProtocol):
 
         if system_prompt:
             input_params["system_prompt"] = system_prompt
+
+        # Enable reasoning for models that require it
+        if self.model in self.REASONING_MODELS:
+            input_params["reasoning"] = True
 
         try:
             result = fal_client.subscribe(
