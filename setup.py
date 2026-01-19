@@ -120,6 +120,36 @@ extras_require["media"] = list(set(
     for req in extras_require[group]
 ))
 
+# Find standard packages
+standard_packages = find_packages(include=['packages', 'packages.*'])
+
+# Add packages from hyphenated directories that find_packages can't discover
+fal_subpackages = [
+    # image-to-video
+    'fal_image_to_video',
+    'fal_image_to_video.config',
+    'fal_image_to_video.models',
+    'fal_image_to_video.utils',
+    # text-to-video
+    'fal_text_to_video',
+    'fal_text_to_video.config',
+    'fal_text_to_video.models',
+    'fal_text_to_video.utils',
+    # avatar-generation
+    'fal_avatar',
+    'fal_avatar.config',
+    'fal_avatar.models',
+]
+
+all_packages = standard_packages + fal_subpackages
+
+# Package directory mappings for hyphenated directories
+package_dir = {
+    'fal_image_to_video': 'packages/providers/fal/image-to-video/fal_image_to_video',
+    'fal_text_to_video': 'packages/providers/fal/text-to-video/fal_text_to_video',
+    'fal_avatar': 'packages/providers/fal/avatar-generation/fal_avatar',
+}
+
 setup(
     name=PACKAGE_NAME,
     version=VERSION,
@@ -129,7 +159,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url=URL,
-    packages=find_packages(include=['packages', 'packages.*']),
+    packages=all_packages,
+    package_dir=package_dir,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -153,6 +184,10 @@ setup(
             # AI Content Pipeline
             "ai-content-pipeline=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
             "aicp=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
+            # FAL Image-to-Video CLI
+            "fal-image-to-video=fal_image_to_video.cli:main",
+            # FAL Text-to-Video CLI
+            "fal-text-to-video=fal_text_to_video.cli:main",
         ],
     },
     include_package_data=True,
