@@ -124,7 +124,13 @@ extras_require["media"] = list(set(
 standard_packages = find_packages(include=['packages', 'packages.*'])
 
 # Add packages from hyphenated directories that find_packages can't discover
+# Python package names cannot contain hyphens, so these must be manually specified
 fal_subpackages = [
+    # image-to-image
+    'fal_image_to_image',
+    'fal_image_to_image.config',
+    'fal_image_to_image.models',
+    'fal_image_to_image.utils',
     # image-to-video
     'fal_image_to_video',
     'fal_image_to_video.config',
@@ -135,6 +141,11 @@ fal_subpackages = [
     'fal_text_to_video.config',
     'fal_text_to_video.models',
     'fal_text_to_video.utils',
+    # video-to-video
+    'fal_video_to_video',
+    'fal_video_to_video.config',
+    'fal_video_to_video.models',
+    'fal_video_to_video.utils',
     # avatar-generation
     'fal_avatar',
     'fal_avatar.config',
@@ -145,8 +156,10 @@ all_packages = standard_packages + fal_subpackages
 
 # Package directory mappings for hyphenated directories
 package_dir = {
+    'fal_image_to_image': 'packages/providers/fal/image-to-image/fal_image_to_image',
     'fal_image_to_video': 'packages/providers/fal/image-to-video/fal_image_to_video',
     'fal_text_to_video': 'packages/providers/fal/text-to-video/fal_text_to_video',
+    'fal_video_to_video': 'packages/providers/fal/video-to-video/fal_video_to_video',
     'fal_avatar': 'packages/providers/fal/avatar-generation/fal_avatar',
 }
 
