@@ -1,203 +1,178 @@
 # Multiple Pip Setup Files Report
 
 **Generated:** 2026-01-19
+**Last Updated:** 2026-01-19
+**Status:** ✅ IMPLEMENTED - Consolidation Complete
 
 ---
 
 ## Summary
 
-**Yes, there are multiple pip setup files in this repository.**
+**Previously:** 4 `setup.py` files + 1 `pyproject.toml` (5 total)
+**Now:** 1 `setup.py` + 1 `pyproject.toml` (2 total) ✅
 
-| Count | File Type |
-|-------|-----------|
-| 4 | `setup.py` |
-| 1 | `pyproject.toml` |
-| **5** | **Total** |
-
----
-
-## Setup Files Found
-
-### 1. Root `setup.py` (Main Package)
-**Path:** `./setup.py`
-**Package Name:** `video_ai_studio`
-**Version:** 1.0.15
-**Purpose:** Main consolidated package for the entire AI Content Generation Suite
-
-```python
-PACKAGE_NAME = "video_ai_studio"
-VERSION = "1.0.15"
-```
-
-**Entry Points:**
-- `ai-content-pipeline` → main CLI command
-- `aicp` → shorthand alias
-
-**Optional Dependencies:**
-- `pipeline` - YAML configuration support
-- `google-cloud` - Google Cloud services
-- `video` - Video processing (moviepy, ffmpeg)
-- `image` - Image processing (Pillow)
-- `dev` - Development tools (pytest, black, flake8)
-- `jupyter` - Notebook support
-- `mcp` - MCP server support
-- `all` - Everything
+| Status | Description |
+|--------|-------------|
+| ✅ Complete | Setup files consolidated to single root setup.py |
+| ✅ Complete | Sub-package setup.py files removed |
+| ✅ Complete | All CLI entry points in main setup.py |
+| ✅ Complete | Single `pip install -e .` installs everything |
 
 ---
 
-### 2. Root `pyproject.toml` (Build Configuration)
-**Path:** `./pyproject.toml`
-**Purpose:** Build system configuration and tool settings
-
-```toml
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
-```
-
-**Tool Configurations:**
-- `black` - Code formatting (line-length: 88)
-- `isort` - Import sorting
-- `pytest` - Test configuration
-
----
-
-### 3. FAL Avatar Generation `setup.py`
-**Path:** `./packages/providers/fal/avatar-generation/setup.py`
-**Package Name:** `fal_avatar`
-**Version:** 0.1.0
-**Purpose:** Standalone FAL avatar generation package
-
-```python
-name="fal_avatar"
-version="0.1.0"
-python_requires=">=3.8"
-```
-
-**Dependencies:**
-- fal-client
-- python-dotenv
-- requests
-
----
-
-### 4. FAL Image-to-Video `setup.py`
-**Path:** `./packages/providers/fal/image-to-video/setup.py`
-**Package Name:** `fal-image-to-video`
-**Version:** 1.0.0
-**Purpose:** FAL image-to-video generator (Veo 3.1, Sora 2, Kling, Hailuo)
-
-```python
-name="fal-image-to-video"
-version="1.0.0"
-python_requires=">=3.10"
-```
-
-**Entry Points:**
-- `fal-image-to-video` → CLI command
-
----
-
-### 5. FAL Text-to-Video `setup.py`
-**Path:** `./packages/providers/fal/text-to-video/setup.py`
-**Package Name:** `fal-text-to-video`
-**Version:** 1.0.0
-**Purpose:** FAL text-to-video generator (Sora 2, Kling, Veo)
-
-```python
-name="fal-text-to-video"
-version="1.0.0"
-python_requires=">=3.10"
-```
-
-**Entry Points:**
-- `fal-text-to-video` → CLI command
-
----
-
-## Architecture Analysis
+## Current Architecture (After Consolidation)
 
 ```
 veo3-fal-video-ai/
-├── setup.py                 # Main package (video_ai_studio v1.0.15)
-├── pyproject.toml           # Build config & tool settings
+├── setup.py              # Main consolidated package (video_ai_studio v1.0.15)
+├── pyproject.toml        # Build config & tool settings
 └── packages/
     └── providers/
         └── fal/
             ├── avatar-generation/
-            │   └── setup.py     # fal_avatar v0.1.0
+            │   └── fal_avatar/        # No setup.py - included in main
             ├── image-to-video/
-            │   └── setup.py     # fal-image-to-video v1.0.0
+            │   └── fal_image_to_video/  # No setup.py - included in main
             └── text-to-video/
-                └── setup.py     # fal-text-to-video v1.0.0
+                └── fal_text_to_video/   # No setup.py - included in main
 ```
 
 ---
 
-## Potential Issues
+## Root `setup.py` (Consolidated)
 
-### 1. Version Inconsistency
-- Main package: `1.0.15`
-- Sub-packages: `0.1.0` and `1.0.0`
+**Path:** `./setup.py`
+**Package Name:** `video_ai_studio`
+**Version:** 1.0.15
+**Python Requires:** `>=3.10`
 
-### 2. Python Version Requirements
-- Main package: `>=3.10`
-- fal_avatar: `>=3.8` (inconsistent)
-- Other sub-packages: `>=3.10`
+### Entry Points (All CLI Commands)
 
-### 3. Duplicate Dependencies
-All packages require:
-- `fal-client`
-- `python-dotenv`
-- `requests`
+```python
+entry_points={
+    "console_scripts": [
+        # AI Content Pipeline
+        "ai-content-pipeline=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
+        "aicp=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
+        # FAL Image-to-Video CLI
+        "fal-image-to-video=fal_image_to_video.cli:main",
+        # FAL Text-to-Video CLI
+        "fal-text-to-video=fal_text_to_video.cli:main",
+    ],
+},
+```
 
-These are already in the main `setup.py`.
+### Package Directory Mappings
+
+The setup.py includes explicit package_dir mappings for hyphenated directories:
+
+```python
+package_dir = {
+    'fal_image_to_video': 'packages/providers/fal/image-to-video/fal_image_to_video',
+    'fal_text_to_video': 'packages/providers/fal/text-to-video/fal_text_to_video',
+    'fal_avatar': 'packages/providers/fal/avatar-generation/fal_avatar',
+}
+```
 
 ---
 
-## Recommendations
-
-1. **Consider consolidating** - The sub-package setup.py files may be redundant since the main setup.py already includes all packages
-
-2. **Synchronize Python version** - Update `fal_avatar` to require `>=3.10` for consistency
-
-3. **Use namespace packages** - If sub-packages need independent installation, consider using namespace packages
-
-4. **Remove if unused** - If these sub-packages are not published separately to PyPI, consider removing their individual setup.py files
-
----
-
-## Current Installation Methods
+## Installation (Single Command)
 
 ```bash
-# Install main package (recommended)
+# Install everything with one command
 pip install -e .
 
 # Install with all optional dependencies
 pip install -e ".[all]"
-
-# Install specific sub-package (if needed)
-pip install -e ./packages/providers/fal/image-to-video/
 ```
+
+This single command now:
+- ✅ Installs the main `video_ai_studio` package
+- ✅ Includes all Python code under `packages/` directory
+- ✅ Registers ALL CLI commands:
+  - `ai-content-pipeline`
+  - `aicp`
+  - `fal-image-to-video`
+  - `fal-text-to-video`
 
 ---
 
-## Can You Install All Packages with a Single Command?
+## Changes Made (Implementation Details)
 
-### Short Answer: **Partially Yes, but NOT completely**
+### 1. Root setup.py Updates
+- Added explicit `package_dir` mappings for FAL subpackages in hyphenated directories
+- Added `fal-image-to-video` CLI entry point
+- Added `fal-text-to-video` CLI entry point
 
-### What `pip install -e .` Does:
-- Installs the main `video_ai_studio` package
-- Includes all Python code under `packages/` directory
-- Registers CLI commands: `ai-content-pipeline`, `aicp`
+### 2. Removed Files
+- ❌ `packages/providers/fal/avatar-generation/setup.py` - DELETED
+- ❌ `packages/providers/fal/image-to-video/setup.py` - DELETED
+- ❌ `packages/providers/fal/text-to-video/setup.py` - DELETED
 
-### What `pip install -e .` Does NOT Do:
-- Does NOT register sub-package CLI commands:
-  - `fal-image-to-video` (from image-to-video/setup.py)
-  - `fal-text-to-video` (from text-to-video/setup.py)
-- Does NOT install sub-packages as separate named packages
+### 3. Kept Files
+- ✅ `./setup.py` - Main consolidated package
+- ✅ `./pyproject.toml` - Build config & tool settings
 
-### To Install Everything (4 commands needed):
+---
+
+## Issues Resolved
+
+### ✅ Version Inconsistency - RESOLVED
+- Previously: Main `1.0.15`, sub-packages `0.1.0` and `1.0.0`
+- Now: Single version `1.0.15` for all
+
+### ✅ Python Version Requirements - RESOLVED
+- Previously: Main `>=3.10`, fal_avatar `>=3.8` (inconsistent)
+- Now: Consistent `>=3.10` for everything
+
+### ✅ Duplicate Dependencies - RESOLVED
+- Previously: Same dependencies listed in multiple setup.py files
+- Now: Single requirements list in root setup.py
+
+### ✅ Multiple Installation Commands - RESOLVED
+- Previously: 4 commands needed to install everything
+- Now: Single `pip install -e .` installs everything
+
+---
+
+## Verification
+
+To verify the consolidation:
+
+```bash
+# Check installed CLI commands
+pip install -e .
+ai-content-pipeline --help
+aicp --help
+fal-image-to-video --help
+fal-text-to-video --help
+```
+
+All commands should work with a single installation.
+
+---
+
+## Previous State (For Reference)
+
+<details>
+<summary>Click to expand previous state</summary>
+
+### Previously Existing Setup Files (Now Removed)
+
+1. **FAL Avatar Generation `setup.py`** (REMOVED)
+   - Path: `./packages/providers/fal/avatar-generation/setup.py`
+   - Package: `fal_avatar` v0.1.0
+
+2. **FAL Image-to-Video `setup.py`** (REMOVED)
+   - Path: `./packages/providers/fal/image-to-video/setup.py`
+   - Package: `fal-image-to-video` v1.0.0
+
+3. **FAL Text-to-Video `setup.py`** (REMOVED)
+   - Path: `./packages/providers/fal/text-to-video/setup.py`
+   - Package: `fal-text-to-video` v1.0.0
+
+### Previous Installation (4 Commands Required)
+
 ```bash
 pip install -e .
 pip install -e ./packages/providers/fal/avatar-generation/
@@ -205,19 +180,4 @@ pip install -e ./packages/providers/fal/image-to-video/
 pip install -e ./packages/providers/fal/text-to-video/
 ```
 
-### Recommendation: Consolidate into Single Setup
-To enable single-command installation, add the sub-package entry points to the main `setup.py`:
-
-```python
-entry_points={
-    "console_scripts": [
-        "ai-content-pipeline=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
-        "aicp=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
-        # Add these:
-        "fal-image-to-video=packages.providers.fal.image_to_video.fal_image_to_video.cli:main",
-        "fal-text-to-video=packages.providers.fal.text_to_video.fal_text_to_video.cli:main",
-    ],
-},
-```
-
-Then `pip install -e .` would install everything with all CLI commands.
+</details>
