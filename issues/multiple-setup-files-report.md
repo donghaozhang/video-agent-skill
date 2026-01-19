@@ -179,3 +179,45 @@ pip install -e ".[all]"
 # Install specific sub-package (if needed)
 pip install -e ./packages/providers/fal/image-to-video/
 ```
+
+---
+
+## Can You Install All Packages with a Single Command?
+
+### Short Answer: **Partially Yes, but NOT completely**
+
+### What `pip install -e .` Does:
+- Installs the main `video_ai_studio` package
+- Includes all Python code under `packages/` directory
+- Registers CLI commands: `ai-content-pipeline`, `aicp`
+
+### What `pip install -e .` Does NOT Do:
+- Does NOT register sub-package CLI commands:
+  - `fal-image-to-video` (from image-to-video/setup.py)
+  - `fal-text-to-video` (from text-to-video/setup.py)
+- Does NOT install sub-packages as separate named packages
+
+### To Install Everything (4 commands needed):
+```bash
+pip install -e .
+pip install -e ./packages/providers/fal/avatar-generation/
+pip install -e ./packages/providers/fal/image-to-video/
+pip install -e ./packages/providers/fal/text-to-video/
+```
+
+### Recommendation: Consolidate into Single Setup
+To enable single-command installation, add the sub-package entry points to the main `setup.py`:
+
+```python
+entry_points={
+    "console_scripts": [
+        "ai-content-pipeline=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
+        "aicp=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
+        # Add these:
+        "fal-image-to-video=packages.providers.fal.image_to_video.fal_image_to_video.cli:main",
+        "fal-text-to-video=packages.providers.fal.text_to_video.fal_text_to_video.cli:main",
+    ],
+},
+```
+
+Then `pip install -e .` would install everything with all CLI commands.
