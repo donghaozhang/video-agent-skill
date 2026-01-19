@@ -61,6 +61,18 @@ ai-content-pipeline create-video --text "A beautiful sunset"
 
 # Shortened alias
 aicp --help
+
+# Analyze video with AI (Gemini 3 Pro via FAL)
+ai-content-pipeline analyze-video -i video.mp4
+
+# Analyze with specific model and type
+ai-content-pipeline analyze-video -i video.mp4 -m gemini-3-pro -t timeline
+
+# Available models: gemini-3-pro, gemini-2.5-pro, gemini-2.5-flash, gemini-direct
+# Available types: timeline, describe, transcribe
+
+# List video analysis models
+ai-content-pipeline list-video-models
 ```
 
 ### 🧪 Testing Commands

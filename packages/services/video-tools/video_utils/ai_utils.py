@@ -11,6 +11,7 @@ from typing import Optional, Dict, Any, List
 
 from .gemini_analyzer import GeminiVideoAnalyzer, check_gemini_requirements
 from .whisper_transcriber import WhisperTranscriber, check_whisper_requirements
+from .analyzer_factory import get_analyzer, AnalyzerFactory, print_provider_status
 
 
 def save_analysis_result(result: Dict[str, Any], output_path: Path) -> bool:
@@ -85,21 +86,25 @@ def save_analysis_result(result: Dict[str, Any], output_path: Path) -> bool:
 
 
 def analyze_video_file(video_path: Path, analysis_type: str = "description",
-                      questions: Optional[List[str]] = None, detailed: bool = False) -> Optional[Dict[str, Any]]:
-    """Convenience function to analyze video using Gemini.
-    
+                      questions: Optional[List[str]] = None, detailed: bool = False,
+                      provider: Optional[str] = None, **kwargs) -> Optional[Dict[str, Any]]:
+    """Convenience function to analyze video.
+
     Args:
-        video_path: Path to video file
+        video_path: Path to video file (or URL for FAL provider)
         analysis_type: Type of analysis ('description', 'transcription', 'scenes', 'extraction', 'qa')
         questions: List of questions for Q&A analysis
         detailed: Whether to perform detailed analysis
-        
+        provider: Provider to use ('gemini', 'fal'). Defaults to MEDIA_ANALYZER_PROVIDER env var
+        **kwargs: Additional provider-specific arguments (e.g., model for FAL)
+
     Returns:
         Analysis result dictionary or None if failed
     """
     try:
-        analyzer = GeminiVideoAnalyzer()
-        
+        # Use factory to get analyzer - defaults to Gemini for backward compatibility
+        analyzer = get_analyzer(provider=provider, **kwargs)
+
         if analysis_type == "description":
             return analyzer.describe_video(video_path, detailed=detailed)
         elif analysis_type == "transcription":
@@ -113,7 +118,7 @@ def analyze_video_file(video_path: Path, analysis_type: str = "description",
         else:
             print(f"❌ Unknown analysis type: {analysis_type}")
             return None
-            
+
     except Exception as e:
         print(f"❌ Video analysis failed: {e}")
         return None
@@ -121,26 +126,30 @@ def analyze_video_file(video_path: Path, analysis_type: str = "description",
 
 def analyze_audio_file(audio_path: Path, analysis_type: str = "description",
                       questions: Optional[List[str]] = None, detailed: bool = False,
-                      speaker_identification: bool = True) -> Optional[Dict[str, Any]]:
-    """Convenience function to analyze audio using Gemini.
-    
+                      speaker_identification: bool = True,
+                      provider: Optional[str] = None, **kwargs) -> Optional[Dict[str, Any]]:
+    """Convenience function to analyze audio.
+
     Args:
-        audio_path: Path to audio file
+        audio_path: Path to audio file (or URL for FAL provider)
         analysis_type: Type of analysis ('description', 'transcription', 'content_analysis', 'event_detection', 'qa')
         questions: List of questions for Q&A analysis
         detailed: Whether to perform detailed analysis
         speaker_identification: Whether to identify speakers in transcription
-        
+        provider: Provider to use ('gemini', 'fal'). Defaults to MEDIA_ANALYZER_PROVIDER env var
+        **kwargs: Additional provider-specific arguments (e.g., model for FAL)
+
     Returns:
         Analysis result dictionary or None if failed
     """
     try:
-        analyzer = GeminiVideoAnalyzer()
-        
+        # Use factory to get analyzer - defaults to Gemini for backward compatibility
+        analyzer = get_analyzer(provider=provider, **kwargs)
+
         if analysis_type == "description":
             return analyzer.describe_audio(audio_path, detailed=detailed)
         elif analysis_type == "transcription":
-            return analyzer.transcribe_audio(audio_path, include_timestamps=True, 
+            return analyzer.transcribe_audio(audio_path, include_timestamps=True,
                                            speaker_identification=speaker_identification)
         elif analysis_type == "content_analysis":
             return analyzer.analyze_audio_content(audio_path)
@@ -151,28 +160,32 @@ def analyze_audio_file(audio_path: Path, analysis_type: str = "description",
         else:
             print(f"❌ Unknown analysis type: {analysis_type}")
             return None
-            
+
     except Exception as e:
         print(f"❌ Audio analysis failed: {e}")
         return None
 
 
 def analyze_image_file(image_path: Path, analysis_type: str = "description",
-                      questions: Optional[List[str]] = None, detailed: bool = False) -> Optional[Dict[str, Any]]:
-    """Convenience function to analyze image using Gemini.
-    
+                      questions: Optional[List[str]] = None, detailed: bool = False,
+                      provider: Optional[str] = None, **kwargs) -> Optional[Dict[str, Any]]:
+    """Convenience function to analyze image.
+
     Args:
-        image_path: Path to image file
+        image_path: Path to image file (or URL for FAL provider)
         analysis_type: Type of analysis ('description', 'classification', 'object_detection', 'text_extraction', 'composition', 'qa')
         questions: List of questions for Q&A analysis
         detailed: Whether to perform detailed analysis
-        
+        provider: Provider to use ('gemini', 'fal'). Defaults to MEDIA_ANALYZER_PROVIDER env var
+        **kwargs: Additional provider-specific arguments (e.g., model for FAL)
+
     Returns:
         Analysis result dictionary or None if failed
     """
     try:
-        analyzer = GeminiVideoAnalyzer()
-        
+        # Use factory to get analyzer - defaults to Gemini for backward compatibility
+        analyzer = get_analyzer(provider=provider, **kwargs)
+
         if analysis_type == "description":
             return analyzer.describe_image(image_path, detailed=detailed)
         elif analysis_type == "classification":
@@ -188,7 +201,7 @@ def analyze_image_file(image_path: Path, analysis_type: str = "description",
         else:
             print(f"❌ Unknown analysis type: {analysis_type}")
             return None
-            
+
     except Exception as e:
         print(f"❌ Image analysis failed: {e}")
         return None

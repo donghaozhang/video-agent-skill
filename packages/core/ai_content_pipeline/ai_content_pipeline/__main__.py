@@ -24,6 +24,14 @@ try:
 except ImportError:
     FAL_AVATAR_AVAILABLE = False
 
+# Import video analysis module
+from .video_analysis import (
+    analyze_video_command,
+    list_video_models,
+    MODEL_MAP as VIDEO_MODEL_MAP,
+    ANALYSIS_TYPES as VIDEO_ANALYSIS_TYPES,
+)
+
 
 def print_models():
     """Print information about all supported models."""
@@ -510,6 +518,15 @@ Examples:
 
   # List avatar models
   python -m ai_content_pipeline list-avatar-models
+
+  # Analyze video with AI (Gemini 3 Pro via FAL)
+  python -m ai_content_pipeline analyze-video -i video.mp4
+
+  # Analyze with specific model and type
+  python -m ai_content_pipeline analyze-video -i video.mp4 -m gemini-3-pro -t timeline
+
+  # List video analysis models
+  python -m ai_content_pipeline list-video-models
         """
     )
     
@@ -574,6 +591,46 @@ Examples:
     # List avatar models command
     subparsers.add_parser("list-avatar-models", help="List available avatar generation models")
 
+    # Analyze video command
+    analyze_video_parser = subparsers.add_parser(
+        "analyze-video",
+        help="Analyze video content using AI (Gemini via FAL/Direct)"
+    )
+    analyze_video_parser.add_argument(
+        "-i", "--input",
+        required=True,
+        help="Input video file or directory"
+    )
+    analyze_video_parser.add_argument(
+        "-o", "--output",
+        default="output",
+        help="Output directory (default: output)"
+    )
+    analyze_video_parser.add_argument(
+        "-m", "--model",
+        default="gemini-3-pro",
+        choices=list(VIDEO_MODEL_MAP.keys()),
+        help="Model to use (default: gemini-3-pro)"
+    )
+    analyze_video_parser.add_argument(
+        "-t", "--type",
+        default="timeline",
+        choices=list(VIDEO_ANALYSIS_TYPES.keys()),
+        help="Analysis type (default: timeline)"
+    )
+    analyze_video_parser.add_argument(
+        "-f", "--format",
+        default="both",
+        choices=["md", "json", "both"],
+        help="Output format (default: both)"
+    )
+
+    # List video models command
+    subparsers.add_parser(
+        "list-video-models",
+        help="List available video analysis models"
+    )
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -594,6 +651,10 @@ Examples:
         generate_avatar(args)
     elif args.command == "list-avatar-models":
         list_avatar_models(args)
+    elif args.command == "analyze-video":
+        analyze_video_command(args)
+    elif args.command == "list-video-models":
+        list_video_models()
     else:
         parser.print_help()
         sys.exit(1)

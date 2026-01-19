@@ -1,7 +1,7 @@
 # Long Code Files Report
 
 **Generated:** 2026-01-13
-**Last Updated:** 2026-01-13
+**Last Updated:** 2026-01-14
 **Threshold:** 800+ lines
 
 ---
@@ -10,14 +10,27 @@
 
 | # | File Path | Lines | Status |
 |---|-----------|-------|--------|
-| 1 | `packages/services/video-tools/video_utils/ai_analysis_commands.py` | 1633 | Needs refactoring |
+| 1 | ~~`packages/services/video-tools/video_utils/ai_analysis_commands.py`~~ | ~~1633~~ | ✅ Refactored |
 | 2 | `packages/providers/fal/text-to-image/fal_text_to_image_generator.py` | 892 | Needs refactoring |
 
-**Total:** 2 files exceed the 800-line threshold
+**Total:** 1 file exceeds the 800-line threshold
 
 ---
 
 ## Recently Completed Refactoring
+
+### ✅ `ai_analysis_commands.py` (1633 → 1078 lines across 6 files) - COMPLETED
+
+**Refactored on:** 2026-01-14
+
+Split into modular components:
+- `video_utils/ai_analysis_commands.py` - 49 lines (re-export layer)
+- `video_utils/command_utils.py` - 340 lines (shared utilities)
+- `video_utils/ai_commands/__init__.py` - 49 lines (package exports)
+- `video_utils/ai_commands/video_commands.py` - 247 lines
+- `video_utils/ai_commands/audio_commands.py` - 200 lines
+- `video_utils/ai_commands/image_commands.py` - 193 lines
+- `tests/unit/test_ai_analysis_commands.py` - 404 lines (unit tests)
 
 ### ✅ `executor.py` (1411 → 467 lines) - COMPLETED
 
@@ -79,6 +92,6 @@ Per project guidelines in CLAUDE.md:
 
 - [x] ~~Refactor `executor.py`~~ - **COMPLETED** (467 lines)
 - [x] ~~Refactor `video_understanding.py`~~ - **DELETED** (duplicate removed)
-- [ ] Refactor `ai_analysis_commands.py` - Priority: High
-- [ ] Refactor `fal_text_to_image_generator.py` - Priority: Medium
+- [x] ~~Refactor `ai_analysis_commands.py`~~ - **COMPLETED** (1633 → 1078 lines, 34% reduction)
+- [ ] Refactor `fal_text_to_image_generator.py` - Priority: High
 - [ ] Monitor files approaching 500-line limit
