@@ -36,7 +36,7 @@ The technique is described as "deterministically bad in an undeterministic world
 Start a Ralph loop in your current session.
 
 **Usage:**
-```
+```bash
 /ralph-loop "Refactor the cache layer" --max-iterations 20
 /ralph-loop "Add tests" --completion-promise "TESTS COMPLETE"
 ```
@@ -60,7 +60,7 @@ Start a Ralph loop in your current session.
 Cancel an active Ralph loop (removes the loop state file).
 
 **Usage:**
-```
+```bash
 /cancel-ralph
 ```
 
@@ -77,7 +77,7 @@ Cancel an active Ralph loop (removes the loop state file).
 
 To signal completion, Claude must output a `<promise>` tag:
 
-```
+```xml
 <promise>TASK COMPLETE</promise>
 ```
 
@@ -95,7 +95,7 @@ The "loop" doesn't mean Claude talks to itself. It means:
 
 ### Interactive Bug Fix
 
-```
+```bash
 /ralph-loop "Fix the token refresh logic in auth.ts. Output <promise>FIXED</promise> when all tests pass." --completion-promise "FIXED" --max-iterations 10
 ```
 
