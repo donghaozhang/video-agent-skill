@@ -128,6 +128,7 @@ fal-text-to-video --help
 **Risk:** Low
 
 **Files to Delete:**
+
 | File Path | Lines | Reason |
 |-----------|-------|--------|
 | `packages/providers/fal/avatar-generation/setup.py` | 16 | No CLI, code included via find_packages |
