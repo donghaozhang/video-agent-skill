@@ -171,8 +171,8 @@ Keep trying until success. The loop handles retry logic automatically.
 
 ## Learn More
 
-- Original technique: https://ghuntley.com/ralph/
-- Ralph Orchestrator: https://github.com/mikeyobrien/ralph-orchestrator
+- Original technique: [Ralph by Geoffrey Huntley](https://ghuntley.com/ralph/)
+- Ralph Orchestrator: [ralph-orchestrator](https://github.com/mikeyobrien/ralph-orchestrator)
 
 ## For Help
 
