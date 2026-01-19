@@ -98,13 +98,14 @@ The **`gen4`** model is our most advanced text-to-image model, offering unique c
 
 ## 🏷️ Latest Release
 
-[![PyPI Version](https://img.shields.io/pypi/v/video-ai-studio?label=v1.0.15)](https://pypi.org/project/video-ai-studio/1.0.15/) 
-[![GitHub Release](https://img.shields.io/github/v/release/donghaozhang/veo3-fal-video-ai?label=v1.0.15)](https://github.com/donghaozhang/veo3-fal-video-ai/releases/tag/v1.0.15)
+[![PyPI Version](https://img.shields.io/pypi/v/video-ai-studio)](https://pypi.org/project/video-ai-studio/)
+[![GitHub Release](https://img.shields.io/github/v/release/donghaozhang/video-agent-skill)](https://github.com/donghaozhang/video-agent-skill/releases)
 
-### What's New in v1.0.15
-- ✅ Enhanced GitHub deployment tracking for better release visibility
-- 🧪 Improved mock mode testing infrastructure across all generators
+### What's New in v1.0.18
+- ✅ Automated PyPI publishing via GitHub Actions
+- 🔧 Consolidated setup files for cleaner package structure
 - 🎯 All 40+ AI models with comprehensive parallel processing support
+- 📦 Improved CI/CD workflow with skip-existing option
 
 ## 🚀 **FLAGSHIP: AI Content Pipeline**
 
@@ -147,7 +148,7 @@ After installation, you need to configure your API keys:
 1. **Download the example configuration:**
    ```bash
    # Option 1: Download from GitHub
-   curl -o .env https://raw.githubusercontent.com/donghaozhang/veo3-fal-video-ai/main/.env.example
+   curl -o .env https://raw.githubusercontent.com/donghaozhang/video-agent-skill/main/.env.example
    
    # Option 2: Create manually
    touch .env

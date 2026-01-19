@@ -10,11 +10,11 @@ from pathlib import Path
 
 # Package metadata
 PACKAGE_NAME = "video_ai_studio"
-VERSION = "1.0.17"
+VERSION = "1.0.18"
 AUTHOR = "donghao zhang"
 AUTHOR_EMAIL = "zdhpeter@gmail.com"
 DESCRIPTION = "Comprehensive AI content generation suite with multiple providers and services"
-URL = "https://github.com/donghaozhang/veo3-fal-video-ai"
+URL = "https://github.com/donghaozhang/video-agent-skill"
 
 # Read README
 readme_file = Path(__file__).parent / "README.md"
