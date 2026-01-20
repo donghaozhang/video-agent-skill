@@ -108,15 +108,45 @@ steps:
       prompt: "{{input}} with subtle motion"
 ```
 
-### Available Variables
+### Referencing Previous Step Outputs
+
+There are two ways to use outputs from previous steps:
+
+**1. Using `input_from` (Recommended)**
+
+Use the `input_from` field to pass the output file (image/video/audio) from a previous step as input to the current step:
+
+```yaml
+steps:
+  - name: "generate_image"
+    type: "text_to_image"
+    model: "flux_dev"
+    params:
+      prompt: "A mountain landscape"
+
+  - name: "create_video"
+    type: "image_to_video"
+    model: "kling_2_6_pro"
+    input_from: "generate_image"  # Uses the image from generate_image step
+```
+
+**2. Using `{{input}}` Variable**
+
+Use `{{input}}` in params to reference the CLI `--input` flag value:
 
 | Variable | Description |
 |----------|-------------|
-| `{{input}}` | Input from CLI `--input` flag |
-| `{{step_NAME.output}}` | Output from step named NAME |
-| `{{env.VARIABLE}}` | Environment variable |
-| `{{timestamp}}` | Current timestamp |
-| `{{random}}` | Random UUID |
+| `{{input}}` | Input text from CLI `--input` flag |
+
+```yaml
+steps:
+  - name: "generate"
+    type: "text_to_image"
+    params:
+      prompt: "{{input}}"  # Replaced with --input value at runtime
+```
+
+> **Note**: The `input_from` field handles file passing between steps automatically. Use `{{input}}` only for the initial text prompt from the command line.
 
 ---
 

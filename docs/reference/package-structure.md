@@ -4,7 +4,7 @@ Detailed overview of the AI Content Generation Suite package organization.
 
 ## Top-Level Structure
 
-```
+```text
 video-agent-skill/
 ├── packages/                 # Main source code
 │   ├── core/                # Core pipeline functionality
@@ -27,7 +27,7 @@ video-agent-skill/
 
 The main pipeline functionality.
 
-```
+```text
 packages/core/
 └── ai_content_pipeline/
     ├── __init__.py          # Package exports
@@ -127,7 +127,7 @@ def generate_image(text, model):
 
 Individual AI provider integrations.
 
-```
+```text
 packages/providers/
 ├── google/
 │   └── veo/                 # Google Veo video generation
@@ -198,7 +198,7 @@ class TextToImageResponse(BaseModel):
 
 Shared services and utilities.
 
-```
+```text
 packages/services/
 ├── text-to-speech/          # ElevenLabs TTS
 │   ├── __init__.py
@@ -220,7 +220,7 @@ packages/services/
 
 ## Tests Structure
 
-```
+```text
 tests/
 ├── __init__.py
 ├── run_all_tests.py         # Test runner
@@ -245,7 +245,7 @@ tests/
 
 ## Documentation Structure
 
-```
+```text
 docs/
 ├── index.md                 # Main navigation
 ├── guides/                  # How-to guides
@@ -308,7 +308,7 @@ setup(
 
 Full dependencies list.
 
-```
+```text
 click>=8.0.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
@@ -375,7 +375,7 @@ from packages.services.text_to_speech import TextToSpeechClient
 
 ## Module Dependencies
 
-```
+```text
 ai_content_pipeline
 ├── config (models, loader, validator)
 ├── utils (logging, cost, files)
