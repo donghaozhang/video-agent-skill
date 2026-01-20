@@ -14,6 +14,10 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 - [Parallel Execution](guides/parallel-execution.md) - Speed up your pipelines
 - [Cost Management](guides/cost-management.md) - Estimate and track costs
 - [Security Best Practices](guides/security.md) - Keep your setup secure
+- [Best Practices](guides/best-practices.md) - Recommended patterns
+- [Performance Optimization](guides/performance.md) - Maximize speed and efficiency
+- [Prompting Guide](guides/prompting.md) - Write effective prompts
+- [Video Generation Tips](guides/video-tips.md) - Create better videos
 
 ### Reference
 - [Models Reference](reference/models.md) - Complete list of all 40+ AI models
@@ -26,6 +30,7 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 - [Basic Examples](examples/basic-examples.md) - Simple use cases
 - [Advanced Pipelines](examples/advanced-pipelines.md) - Complex workflows
 - [Real-World Use Cases](examples/use-cases.md) - Production examples
+- [Integration Examples](examples/integrations.md) - Flask, FastAPI, Celery, etc.
 
 ### Architecture
 - [Architecture Overview](reference/architecture.md) - System design and structure
