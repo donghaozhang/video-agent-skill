@@ -310,7 +310,7 @@ pip install -e .
 
 If you encounter migration issues:
 
-1. Check the [Troubleshooting Guide](troubleshooting.md)
+1. Check the [Troubleshooting Guide](../support/troubleshooting.md)
 2. Search [GitHub Issues](https://github.com/donghaozhang/video-agent-skill/issues)
 3. Open a new issue with:
    - Previous version
@@ -320,4 +320,4 @@ If you encounter migration issues:
 
 ---
 
-[Back to Documentation Index](../index.md) | [Changelog](../CHANGELOG.md)
+[Back to Documentation Index](../../index.md) | [Changelog](../../CHANGELOG.md)

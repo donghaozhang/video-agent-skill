@@ -393,4 +393,4 @@ ai-content-pipeline run-chain --config config.yaml --dry-run
 
 ---
 
-[Back to Documentation Index](../index.md)
+[Back to Documentation Index](../../index.md)

@@ -447,4 +447,4 @@ ai-content-pipeline estimate-cost --type video_analysis --input video.mp4
 
 ---
 
-[Back to Documentation Index](../index.md)
+[Back to Documentation Index](../../index.md)

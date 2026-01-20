@@ -458,4 +458,4 @@ ai-content-pipeline estimate-cost --config pipeline.yaml
 
 ---
 
-[Back to Documentation Index](../index.md) | [Next: Parallel Execution](parallel-execution.md)
+[Back to Documentation Index](../../index.md) | [Next: Parallel Execution](parallel-execution.md)

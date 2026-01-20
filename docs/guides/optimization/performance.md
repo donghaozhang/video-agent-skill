@@ -407,4 +407,4 @@ compare_models("a beautiful sunset", ["flux_schnell", "flux_dev", "imagen4"])
 
 ---
 
-[Back to Documentation Index](../index.md)
+[Back to Documentation Index](../../index.md)

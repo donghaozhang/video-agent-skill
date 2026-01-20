@@ -100,9 +100,9 @@ For developers building integrations or extending the system.
 - Understand pricing
 
 **Study materials:**
-1. Read [Architecture Overview](../reference/architecture.md)
-2. Review [Models Reference](../reference/models.md)
-3. Study [Cost Management](cost-management.md)
+1. Read [Architecture Overview](../../reference/architecture.md)
+2. Review [Models Reference](../../reference/models.md)
+3. Study [Cost Management](../optimization/cost-management.md)
 
 **Practice:**
 ```bash
@@ -128,8 +128,8 @@ ai-content-pipeline estimate-cost --config sample-pipeline.yaml
 - Understand step dependencies
 
 **Study materials:**
-1. Read [YAML Pipeline Configuration](yaml-pipelines.md)
-2. Review [Basic Examples](../examples/basic-examples.md)
+1. Read [YAML Pipeline Configuration](../pipelines/yaml-pipelines.md)
+2. Review [Basic Examples](../../examples/basic-examples.md)
 
 **Practice exercises:**
 
@@ -176,9 +176,9 @@ steps:
 - Minimize costs while maintaining quality
 
 **Study materials:**
-1. Read [Parallel Execution](parallel-execution.md)
-2. Read [Performance Optimization](performance.md)
-3. Read [Best Practices](best-practices.md)
+1. Read [Parallel Execution](../pipelines/parallel-execution.md)
+2. Read [Performance Optimization](../optimization/performance.md)
+3. Read [Best Practices](../optimization/best-practices.md)
 
 **Practice:**
 ```bash
@@ -200,8 +200,8 @@ time PIPELINE_PARALLEL_ENABLED=true ai-content-pipeline run-chain --config confi
 - Avoid common mistakes
 
 **Study materials:**
-1. Read [Prompting Guide](prompting.md)
-2. Read [Video Generation Tips](video-tips.md)
+1. Read [Prompting Guide](../content-creation/prompting.md)
+2. Read [Video Generation Tips](../content-creation/video-tips.md)
 
 **Practice exercises:**
 
@@ -235,9 +235,9 @@ prompt: "subtle movement, gentle breathing, eyes blinking naturally, soft wind"
 - Know where to find help
 
 **Study materials:**
-1. Read [Troubleshooting Guide](troubleshooting.md)
-2. Read [Error Codes Reference](../reference/error-codes.md)
-3. Read [FAQ](faq.md)
+1. Read [Troubleshooting Guide](../support/troubleshooting.md)
+2. Read [Error Codes Reference](../../reference/error-codes.md)
+3. Read [FAQ](../support/faq.md)
 
 **Practice:**
 ```bash
@@ -265,8 +265,8 @@ ai-content-pipeline run-chain --config config.yaml --verbose
 - Handle results programmatically
 
 **Study materials:**
-1. Read [Python API Reference](../api/python-api.md)
-2. Review [Integration Examples](../examples/integrations.md)
+1. Read [Python API Reference](../../api/python-api.md)
+2. Review [Integration Examples](../../examples/integrations.md)
 
 **Practice:**
 ```python
@@ -301,8 +301,8 @@ for step_result in results:
 - Build REST APIs
 
 **Study materials:**
-1. Read [Integration Examples](../examples/integrations.md)
-2. Review [Advanced Pipelines](../examples/advanced-pipelines.md)
+1. Read [Integration Examples](../../examples/integrations.md)
+2. Review [Advanced Pipelines](../../examples/advanced-pipelines.md)
 
 **Practice: Build a Flask API**
 ```python
@@ -339,8 +339,8 @@ if __name__ == '__main__':
 - Handle long-running operations
 
 **Study materials:**
-1. Read async patterns in [Integration Examples](../examples/integrations.md)
-2. Read [Performance Optimization](performance.md)
+1. Read async patterns in [Integration Examples](../../examples/integrations.md)
+2. Read [Performance Optimization](../optimization/performance.md)
 
 **Practice: Celery Task**
 ```python
@@ -369,8 +369,8 @@ def generate_video_task(config_path, input_text):
 - Use mock mode for testing
 
 **Study materials:**
-1. Read [Testing Guide](testing.md)
-2. Read [Contributing Guide](contributing.md)
+1. Read [Testing Guide](../support/testing.md)
+2. Read [Contributing Guide](../contributing/contributing.md)
 
 **Practice: Write Tests**
 ```python
@@ -402,9 +402,9 @@ class TestMyIntegration:
 - Submit pull requests
 
 **Study materials:**
-1. Read [Contributing Guide](contributing.md)
-2. Read [Package Structure](../reference/package-structure.md)
-3. Review [Architecture Overview](../reference/architecture.md)
+1. Read [Contributing Guide](../contributing/contributing.md)
+2. Read [Package Structure](../../reference/package-structure.md)
+3. Review [Architecture Overview](../../reference/architecture.md)
 
 **Practice:**
 1. Fork the repository
@@ -466,14 +466,14 @@ class TestMyIntegration:
 ## Additional Resources
 
 ### Documentation
-- [Complete Documentation Index](../index.md)
-- [CLI Commands Reference](../reference/cli-commands.md)
-- [Models Reference](../reference/models.md)
+- [Complete Documentation Index](../../index.md)
+- [CLI Commands Reference](../../reference/cli-commands.md)
+- [Models Reference](../../reference/models.md)
 
 ### Examples
-- [Basic Examples](../examples/basic-examples.md)
-- [Advanced Pipelines](../examples/advanced-pipelines.md)
-- [Real-World Use Cases](../examples/use-cases.md)
+- [Basic Examples](../../examples/basic-examples.md)
+- [Advanced Pipelines](../../examples/advanced-pipelines.md)
+- [Real-World Use Cases](../../examples/use-cases.md)
 
 ### Community
 - [GitHub Repository](https://github.com/donghaozhang/video-agent-skill)
@@ -492,4 +492,4 @@ After completing your chosen track:
 
 ---
 
-[Back to Documentation Index](../index.md)
+[Back to Documentation Index](../../index.md)

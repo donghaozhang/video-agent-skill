@@ -307,4 +307,4 @@ pip install video-ai-studio
 
 ---
 
-[Back to Documentation Index](../index.md) | [Next: Quick Start](quick-start.md)
+[Back to Documentation Index](../../index.md) | [Next: Quick Start](quick-start.md)

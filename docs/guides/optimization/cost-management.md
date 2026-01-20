@@ -338,4 +338,4 @@ Check each provider's current free tier offerings.
 
 ---
 
-[Back to Documentation Index](../index.md)
+[Back to Documentation Index](../../index.md)

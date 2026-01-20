@@ -149,4 +149,4 @@ ai-content-pipeline list-models
 
 ---
 
-[Back to Documentation Index](../index.md)
+[Back to Documentation Index](../../index.md)

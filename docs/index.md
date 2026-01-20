@@ -5,21 +5,24 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 ## Quick Navigation
 
 ### Getting Started
-- [Quick Start Guide](guides/quick-start.md) - Get up and running in 5 minutes
-- [Installation Guide](guides/installation.md) - Detailed installation instructions
-- [Configuration Guide](guides/configuration.md) - Environment setup and API keys
-- [Learning Path](guides/learning-path.md) - Structured learning journey
+- [Quick Start Guide](guides/getting-started/quick-start.md) - Get up and running in 5 minutes
+- [Installation Guide](guides/getting-started/installation.md) - Detailed installation instructions
+- [Configuration Guide](guides/getting-started/configuration.md) - Environment setup and API keys
+- [Learning Path](guides/getting-started/learning-path.md) - Structured learning journey
 
-### Core Guides
-- [YAML Pipeline Configuration](guides/yaml-pipelines.md) - Create custom workflows
-- [Parallel Execution](guides/parallel-execution.md) - Speed up your pipelines
-- [Cost Management](guides/cost-management.md) - Estimate and track costs
-- [Security Best Practices](guides/security.md) - Keep your setup secure
-- [Best Practices](guides/best-practices.md) - Recommended patterns
-- [Performance Optimization](guides/performance.md) - Maximize speed and efficiency
-- [Prompting Guide](guides/prompting.md) - Write effective prompts
-- [Video Generation Tips](guides/video-tips.md) - Create better videos
-- [Video Analysis](guides/video-analysis.md) - AI-powered video analysis
+### Pipelines
+- [YAML Pipeline Configuration](guides/pipelines/yaml-pipelines.md) - Create custom workflows
+- [Parallel Execution](guides/pipelines/parallel-execution.md) - Speed up your pipelines
+
+### Content Creation
+- [Prompting Guide](guides/content-creation/prompting.md) - Write effective prompts
+- [Video Generation Tips](guides/content-creation/video-tips.md) - Create better videos
+- [Video Analysis](guides/content-creation/video-analysis.md) - AI-powered video analysis
+
+### Optimization
+- [Cost Management](guides/optimization/cost-management.md) - Estimate and track costs
+- [Performance Optimization](guides/optimization/performance.md) - Maximize speed and efficiency
+- [Best Practices](guides/optimization/best-practices.md) - Recommended patterns
 
 ### Reference
 - [Models Reference](reference/models.md) - Complete list of all 40+ AI models
@@ -42,12 +45,15 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 - [Package Structure](reference/package-structure.md) - Code organization
 
 ### Support
-- [Troubleshooting](guides/troubleshooting.md) - Common issues and solutions
-- [FAQ](guides/faq.md) - Frequently asked questions
-- [Testing Guide](guides/testing.md) - How to test your pipelines
-- [Contributing](guides/contributing.md) - How to contribute
+- [Troubleshooting](guides/support/troubleshooting.md) - Common issues and solutions
+- [FAQ](guides/support/faq.md) - Frequently asked questions
+- [Testing Guide](guides/support/testing.md) - How to test your pipelines
+- [Security Best Practices](guides/support/security.md) - Keep your setup secure
+
+### Contributing
+- [Contributing Guide](guides/contributing/contributing.md) - How to contribute
+- [Migration Guide](guides/contributing/migration.md) - Upgrading between versions
 - [Changelog](CHANGELOG.md) - Version history and updates
-- [Migration Guide](guides/migration.md) - Upgrading between versions
 
 ## Feature Highlights
 
