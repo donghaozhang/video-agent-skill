@@ -304,10 +304,10 @@ steps:
 
 ### Dashboard Links
 
-- **FAL AI**: https://fal.ai/dashboard
-- **Google Cloud**: https://console.cloud.google.com/billing
-- **ElevenLabs**: https://elevenlabs.io/app/usage
-- **OpenRouter**: https://openrouter.ai/activity
+- **FAL AI**: [fal.ai/dashboard](https://fal.ai/dashboard)
+- **Google Cloud**: [console.cloud.google.com/billing](https://console.cloud.google.com/billing)
+- **ElevenLabs**: [elevenlabs.io/app/usage](https://elevenlabs.io/app/usage)
+- **OpenRouter**: [openrouter.ai/activity](https://openrouter.ai/activity)
 
 ### Cost Reports
 
