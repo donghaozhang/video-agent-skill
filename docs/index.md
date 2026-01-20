@@ -19,11 +19,13 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 - [Performance Optimization](guides/performance.md) - Maximize speed and efficiency
 - [Prompting Guide](guides/prompting.md) - Write effective prompts
 - [Video Generation Tips](guides/video-tips.md) - Create better videos
+- [Video Analysis](guides/video-analysis.md) - AI-powered video analysis
 
 ### Reference
 - [Models Reference](reference/models.md) - Complete list of all 40+ AI models
 - [CLI Commands](reference/cli-commands.md) - Command-line interface reference
 - [API Reference](api/python-api.md) - Python API documentation
+- [API Quick Reference](reference/api-quick-ref.md) - Condensed API reference
 - [Provider Comparison](reference/provider-comparison.md) - Compare AI providers
 - [Error Codes](reference/error-codes.md) - Error codes and troubleshooting
 - [Cheat Sheet](reference/cheat-sheet.md) - Quick reference card
@@ -103,6 +105,10 @@ ai-content-pipeline create-video --text "serene mountain lake"
 - [GitHub Repository](https://github.com/donghaozhang/video-agent-skill)
 - [PyPI Package](https://pypi.org/project/video-ai-studio/)
 - [Demo Video](https://www.youtube.com/watch?v=xzvPrlKnXqk)
+
+## Documentation Map
+
+Looking for something specific? See the complete [Documentation Sitemap](SITEMAP.md) for a full listing of all 35 documentation files organized by category and user type.
 
 ---
 
