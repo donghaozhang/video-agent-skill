@@ -28,14 +28,14 @@ A comprehensive AI content generation package with multiple providers and servic
 ### Image-to-Video (Top Picks)
 | Model | Cost | Best For |
 |-------|------|----------|
+| `sora_2` | $0.40-1.20 | OpenAI quality |
 | `kling_2_6_pro` | $0.50-1.00 | Professional quality |
-| `hailuo` | $0.30 | Budget-friendly |
 
 ### Text-to-Video (Top Picks)
 | Model | Cost | Best For |
 |-------|------|----------|
+| `sora_2` | $0.40-1.20 | OpenAI quality |
 | `kling_2_6_pro` | $0.35-1.40 | Quality + audio |
-| `hailuo_pro` | $0.08 | Cheapest option |
 
 > **💡 Cost-Saving Tip:** Use `--mock` flag for FREE validation: `ai-content-pipeline generate-image --text "test" --mock`
 
