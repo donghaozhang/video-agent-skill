@@ -9,10 +9,18 @@ Generate talking avatar videos from images using multiple AI providers. This imp
 - **Audio-to-Avatar**: Use custom audio files for lip-sync animation  
 - **Multi-Audio Conversation**: Two-person conversations with sequential speaking
 
-### Replicate MultiTalk Model
+### Replicate MultiTalk Model (DEPRECATED)
+
+> **⚠️ DEPRECATED**: The Replicate MultiTalk model is deprecated. Use the **FAL AI Avatar Multi** model instead for multi-person conversations. See migration guide: `issues/migrate-replicate-to-fal-avatar.md`
+
 - **Multi-Person Conversations**: Audio-driven conversational videos (up to 2 people)
 - **Advanced Lip-Sync**: Natural facial expressions and mouth movements
 - **Flexible Audio Input**: Support for single or dual audio tracks
+
+### FAL AI Avatar Multi (Recommended)
+- **Native Multi-Person Support**: Built-in 2-person conversation via `second_audio_url`
+- **Commercial License**: Fully licensed for commercial use
+- **Unified API**: Consistent with other FAL avatar models
 
 ## 🎭 Features
 
@@ -135,12 +143,42 @@ result = generator.generate_multi_avatar_conversation(
 print(f"Conversation video generated: {result['video']['url']}")
 ```
 
-#### Replicate MultiTalk Model (Multi-Person Conversations)
+#### FAL AI Avatar Multi (Recommended for Conversations)
+
+```python
+from fal_avatar import FALAvatarGenerator
+
+# Initialize generator
+generator = FALAvatarGenerator()
+
+# Single person video
+result = generator.generate_conversation(
+    image_url="path/to/your/image.jpg",
+    first_audio_url="path/to/your/audio.mp3",
+    prompt="A person speaking naturally with clear expressions"
+)
+
+# Multi-person conversation
+result = generator.generate_conversation(
+    image_url="path/to/two_people.jpg",
+    first_audio_url="path/to/person1_audio.mp3",
+    second_audio_url="path/to/person2_audio.mp3",
+    prompt="A smiling man and woman hosting a podcast",
+    num_frames=100,
+    resolution="720p"
+)
+
+print(f"Video generated: {result.video_url}")
+```
+
+#### Replicate MultiTalk Model (DEPRECATED)
+
+> **⚠️ DEPRECATED**: Use FAL AI Avatar Multi above instead.
 
 ```python
 from replicate_multitalk_generator import ReplicateMultiTalkGenerator
 
-# Initialize generator
+# Initialize generator (will show deprecation warning)
 generator = ReplicateMultiTalkGenerator()
 
 # Single person video

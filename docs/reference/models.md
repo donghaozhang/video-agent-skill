@@ -13,7 +13,8 @@ Complete reference for all 40+ AI models available in the AI Content Generation 
 | Image Understanding | 7 | Google Gemini |
 | Text-to-Speech | 3 | ElevenLabs |
 | Audio/Video Processing | 2 | FAL AI |
-| **Total** | **40+** | **Multiple** |
+| Avatar Generation | 8 | FAL AI |
+| **Total** | **48** | **Multiple** |
 
 ---
 
@@ -451,6 +452,98 @@ Video upscaling with AI enhancement.
 ```bash
 ai-content-pipeline upscale-video --video input.mp4 --model topaz
 ```
+
+---
+
+## Avatar Generation Models
+
+Generate talking avatar videos with lip-sync from images.
+
+### omnihuman_v1_5
+**Provider:** FAL AI (ByteDance) | **Cost:** $0.16/second | **Resolution:** 720p/1080p
+
+Highest quality audio-driven human animation.
+
+```bash
+ai-content-pipeline generate-avatar --image-url "https://..." --audio-url "https://..." --model omnihuman_v1_5
+```
+
+**Features:**
+- Premium quality lip-sync
+- Natural facial expressions
+- Turbo mode for faster generation
+
+---
+
+### fabric_1_0
+**Provider:** FAL AI (VEED) | **Cost:** $0.08-0.15/video | **Resolution:** 480p/720p
+
+Cost-effective lip-sync video generation.
+
+---
+
+### fabric_1_0_fast
+**Provider:** FAL AI (VEED) | **Cost:** $0.10-0.19/video | **Resolution:** 480p/720p
+
+Speed-optimized lip-sync generation.
+
+---
+
+### fabric_1_0_text
+**Provider:** FAL AI (VEED) | **Cost:** $0.08-0.15/video | **Resolution:** 480p/720p
+
+Text-to-speech with lip-sync animation.
+
+```bash
+ai-content-pipeline generate-avatar --image-url "https://..." --text "Hello world!" --model fabric_1_0_text
+```
+
+---
+
+### kling_ref_to_video
+**Provider:** FAL AI (Kling O1) | **Cost:** $0.112/second
+
+Character-consistent video generation from reference images.
+
+---
+
+### kling_v2v_reference
+**Provider:** FAL AI (Kling O1) | **Cost:** $0.168/second
+
+Style-guided video transformation.
+
+---
+
+### kling_v2v_edit
+**Provider:** FAL AI (Kling O1) | **Cost:** $0.168/second
+
+Targeted video modifications and editing.
+
+---
+
+### multitalk
+**Provider:** FAL AI | **Cost:** $0.10-0.25/video | **Resolution:** 480p/720p
+
+Multi-person conversational video generation. **Recommended for conversations.**
+
+```bash
+# Python API
+from fal_avatar import FALAvatarGenerator
+
+generator = FALAvatarGenerator()
+result = generator.generate_conversation(
+    image_url="https://...",
+    first_audio_url="https://...",
+    prompt="A natural conversation",
+    second_audio_url="https://..."  # Optional
+)
+```
+
+**Features:**
+- Native 2-person conversation support
+- Resolution: 480p (base) or 720p (2x cost)
+- Frames: 81-129 (>81 = 1.25x cost)
+- Acceleration modes: none, regular, high
 
 ---
 

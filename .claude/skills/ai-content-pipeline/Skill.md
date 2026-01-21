@@ -1,6 +1,6 @@
 ---
 name: AI Content Pipeline
-description: Generate AI content (images, videos, audio) and analyze videos with detailed timelines using YAML pipelines with 41+ models. Includes video analysis with Gemini 3 Pro.
+description: Generate AI content (images, videos, audio, avatars) and analyze videos with detailed timelines using YAML pipelines with 49+ models. Includes video analysis with Gemini 3 Pro.
 dependencies: python>=3.10
 ---
 
@@ -82,7 +82,7 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 ./venv/Scripts/ai-content-pipeline.exe generate-avatar --image-url "https://..." --text "Hello world!" --model fabric_1_0_text
 ```
 
-## Available AI Models (41 Total)
+## Available AI Models (49 Total)
 
 ### Text-to-Image (8 models)
 | Model | Key | Provider | Cost |
@@ -148,6 +148,18 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 |-------|-----|-------------|
 | ThinksSound | `thinksound` | Audio generation |
 | Topaz | `topaz` | Video upscaling |
+
+### Avatar Generation (8 models)
+| Model | Key | Description |
+|-------|-----|-------------|
+| OmniHuman v1.5 | `omnihuman_v1_5` | High-quality audio-driven animation |
+| VEED Fabric 1.0 | `fabric_1_0` | Cost-effective lip-sync |
+| VEED Fabric 1.0 Fast | `fabric_1_0_fast` | Speed-optimized lip-sync |
+| VEED Fabric 1.0 Text | `fabric_1_0_text` | Text-to-speech + lip-sync |
+| Kling Ref-to-Video | `kling_ref_to_video` | Character consistency |
+| Kling V2V Reference | `kling_v2v_reference` | Style transfer |
+| Kling V2V Edit | `kling_v2v_edit` | Video editing |
+| AI Avatar Multi | `multitalk` | Multi-person conversations |
 
 ## YAML Pipeline Configuration
 
@@ -253,7 +265,7 @@ REPLICATE_API_TOKEN=your_replicate_token
 | Text-to-Image | $0.001-0.08 per image |
 | Image-to-Image | $0.01-0.05 per modification |
 | Image-to-Video | $0.08-6.00 per video |
-| Avatar Generation | $0.50-1.00 per video |
+| Avatar Generation | $0.08-0.25 per video |
 | Video Upscaling | Varies by resolution |
 
 ## Testing
