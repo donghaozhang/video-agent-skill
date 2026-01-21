@@ -6,6 +6,8 @@ Tests cover:
 - CLI command handler
 - Error handling
 - Integration with FAL Avatar Generator
+
+Note: All external API calls are mocked; these tests do not incur model costs.
 """
 
 import pytest
