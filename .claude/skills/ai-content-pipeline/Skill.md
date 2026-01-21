@@ -1,6 +1,6 @@
 ---
 name: AI Content Pipeline
-description: Generate AI content (images, videos, audio, avatars) and analyze videos with detailed timelines using YAML pipelines with 50+ models. Includes video analysis with Gemini 3 Pro.
+description: Generate AI content (images, videos, audio, avatars) and analyze videos with detailed timelines using YAML pipelines with 51 models across 9 categories. Includes video analysis with Gemini 3 Pro.
 dependencies: python>=3.10
 ---
 
@@ -82,7 +82,7 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 ./venv/Scripts/ai-content-pipeline.exe generate-avatar --image-url "https://..." --text "Hello world!" --model fabric_1_0_text
 ```
 
-## Available AI Models (49 Total)
+## Available AI Models (50 Total)
 
 ### Text-to-Image (8 models)
 | Model | Key | Provider | Cost |
@@ -162,6 +162,11 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 | Kling v2.6 Motion | `kling_motion_control` | Motion transfer from video to image |
 | AI Avatar Multi | `multitalk` | Multi-person conversations |
 
+### Speech-to-Text (1 model)
+| Model | Key | Description |
+|-------|-----|-------------|
+| ElevenLabs Scribe v2 | `scribe_v2` | Fast transcription with diarization |
+
 ## YAML Pipeline Configuration
 
 **IMPORTANT:** Step types use underscores (e.g., `text_to_image`, not `text-to-image`)
@@ -173,6 +178,7 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 - `image_understanding` - Analyze image
 - `prompt_generation` - Generate optimized prompts
 - `text_to_speech` - Generate audio from text
+- `speech_to_text` - Transcribe audio to text
 - `add_audio` - Add audio to video
 - `upscale_video` - Upscale video resolution
 - `parallel_group` - Run steps in parallel

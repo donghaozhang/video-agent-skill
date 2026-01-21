@@ -579,6 +579,45 @@ result = generator.generate_conversation(
 
 ---
 
+## Speech-to-Text Models
+
+Transcribe audio to text with speaker identification.
+
+### scribe_v2
+**Provider:** FAL AI (ElevenLabs) | **Cost:** $0.008/minute | **Languages:** 99
+
+ElevenLabs Scribe v2 for fast, accurate transcription with speaker diarization.
+
+```bash
+# Python API
+from fal_speech_to_text import FALSpeechToTextGenerator
+
+generator = FALSpeechToTextGenerator()
+result = generator.transcribe(
+    audio_url="https://example.com/audio.mp3"
+)
+print(result.text)
+
+# With speaker diarization
+result = generator.transcribe_with_diarization(
+    audio_url="https://example.com/meeting.mp3"
+)
+for speaker in result.speakers:
+    print(f"Speaker: {speaker}")
+```
+
+**Features:**
+- 99 language support with auto-detection
+- Word-level timestamps
+- Speaker diarization (identify who said what)
+- Audio event tagging (laughter, applause, music)
+- Keyterms support for domain-specific vocabulary (+30% cost)
+- Commercial use allowed
+
+**Best For:** Meeting transcription, podcast processing, interview analysis
+
+---
+
 ## Model Selection Guide
 
 ### By Use Case
