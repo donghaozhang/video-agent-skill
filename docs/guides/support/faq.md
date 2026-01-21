@@ -2,6 +2,8 @@
 
 Common questions and answers about AI Content Generation Suite.
 
+> **Having errors or issues?** See the **[Troubleshooting Guide](troubleshooting.md)** for error solutions and diagnostics.
+
 ## General Questions
 
 ### What is AI Content Generation Suite?

@@ -2,6 +2,8 @@
 
 Complete map of all documentation files with descriptions.
 
+> **Quick start?** Go to the [Documentation Index](index.md) for the main entry point with feature highlights.
+
 ## Overview
 
 **Total Documents:** 35 files
