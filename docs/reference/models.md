@@ -588,7 +588,7 @@ Transcribe audio to text with speaker identification.
 
 ElevenLabs Scribe v2 for fast, accurate transcription with speaker diarization.
 
-```bash
+```python
 # Python API
 from fal_speech_to_text import FALSpeechToTextGenerator
 
