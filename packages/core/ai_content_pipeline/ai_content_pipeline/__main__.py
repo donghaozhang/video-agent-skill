@@ -39,6 +39,12 @@ from .motion_transfer import (
     ORIENTATION_OPTIONS,
 )
 
+# Import speech-to-text module
+from .speech_to_text import (
+    transcribe_command,
+    list_speech_models,
+)
+
 
 def print_models():
     """Print information about all supported models."""
@@ -693,6 +699,66 @@ Examples:
         help="List available motion transfer models"
     )
 
+    # Transcribe command
+    transcribe_parser = subparsers.add_parser(
+        "transcribe",
+        help="Transcribe audio using ElevenLabs Scribe v2"
+    )
+    transcribe_parser.add_argument(
+        "-i", "--input",
+        required=True,
+        help="Input audio file path or URL"
+    )
+    transcribe_parser.add_argument(
+        "-o", "--output",
+        default="output",
+        help="Output directory (default: output)"
+    )
+    transcribe_parser.add_argument(
+        "--language",
+        help="Language code (e.g., eng, spa, fra). Default: auto-detect"
+    )
+    transcribe_parser.add_argument(
+        "--diarize",
+        action="store_true",
+        default=True,
+        help="Enable speaker diarization (default: enabled)"
+    )
+    transcribe_parser.add_argument(
+        "--no-diarize",
+        action="store_false",
+        dest="diarize",
+        help="Disable speaker diarization"
+    )
+    transcribe_parser.add_argument(
+        "--tag-events",
+        action="store_true",
+        default=True,
+        help="Tag audio events (default: enabled)"
+    )
+    transcribe_parser.add_argument(
+        "--no-tag-events",
+        action="store_false",
+        dest="tag_events",
+        help="Disable audio event tagging"
+    )
+    transcribe_parser.add_argument(
+        "--keyterms",
+        nargs="+",
+        help="Terms to bias transcription toward (increases cost by 30%%)"
+    )
+    transcribe_parser.add_argument(
+        "--save-json",
+        metavar="FILENAME",
+        help="Save detailed metadata as JSON file"
+    )
+
+    # List speech models command
+    subparsers.add_parser(
+        "list-speech-models",
+        help="List available speech-to-text models"
+    )
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -721,6 +787,10 @@ Examples:
         transfer_motion_command(args)
     elif args.command == "list-motion-models":
         list_motion_models()
+    elif args.command == "transcribe":
+        transcribe_command(args)
+    elif args.command == "list-speech-models":
+        list_speech_models()
     else:
         parser.print_help()
         sys.exit(1)

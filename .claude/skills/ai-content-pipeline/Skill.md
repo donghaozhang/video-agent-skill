@@ -116,6 +116,45 @@ Transfer motion from a reference video to a reference image.
 
 **Pricing:** $0.06/second
 
+### Transcribe Audio (Scribe v2)
+Transcribe audio files using ElevenLabs Scribe v2 with speaker diarization.
+
+```bash
+# Basic transcription (auto-detect language)
+./venv/Scripts/aicp.exe transcribe -i audio.mp3
+
+# With language specified
+./venv/Scripts/aicp.exe transcribe -i audio.mp3 --language eng
+
+# Disable diarization for faster processing
+./venv/Scripts/aicp.exe transcribe -i audio.mp3 --no-diarize
+
+# With keyterms for better accuracy (+30% cost)
+./venv/Scripts/aicp.exe transcribe -i audio.mp3 --keyterms "Claude" "Anthropic"
+
+# Save detailed JSON metadata
+./venv/Scripts/aicp.exe transcribe -i audio.mp3 --save-json metadata.json
+
+# List speech models
+./venv/Scripts/aicp.exe list-speech-models
+```
+
+**Options:**
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--input` | `-i` | required | Audio file path or URL |
+| `--output` | `-o` | `output/` | Output directory |
+| `--language` | | auto-detect | Language code (eng, spa, fra, etc.) |
+| `--diarize` | | true | Enable speaker diarization |
+| `--no-diarize` | | | Disable diarization |
+| `--tag-events` | | true | Tag audio events |
+| `--no-tag-events` | | | Disable event tagging |
+| `--keyterms` | | | Terms to bias toward (+30% cost) |
+| `--save-json` | | | Save metadata as JSON |
+
+**Pricing:** $0.008/minute (+30% with keyterms)
+
 ## Available AI Models (51 Total)
 
 ### Text-to-Image (8 models)
