@@ -19,7 +19,7 @@ This is the **AI Content Pipeline** - a unified Python package for multi-modal A
 - **Unified Interface**: Single package with console commands `ai-content-pipeline` and `aicp`
 - **YAML Configuration**: Multi-step content generation workflows
 - **Parallel Execution**: 2-3x speedup with thread-based parallel processing
-- **Multi-Model Support**: 32 AI models across 7 categories
+- **Multi-Model Support**: 41 AI models across 8 categories
 - **Cost Management**: Built-in cost estimation and tracking
 - **Organized Output**: Structured output directories with proper file management
 
@@ -123,7 +123,7 @@ ai-content-pipeline/
 - **Unified Package**: Single installable package with console commands
 - **YAML Configuration**: Multi-step workflow definitions
 - **Parallel Execution**: Thread-based processing with `PIPELINE_PARALLEL_ENABLED=true`
-- **Multi-Model Support**: 32 AI models across 7 categories
+- **Multi-Model Support**: 41 AI models across 8 categories
 - **Cost Management**: Built-in estimation and tracking
 - **Organized Output**: Structured file management
 
@@ -238,9 +238,19 @@ python tests/run_all_tests.py --quick
 ### 📦 Prompt Generation (5 models)
 - **OpenRouter models** - Video prompt optimization
 
-### 📦 Audio/Video Processing
+### 📦 Audio/Video Processing (2 models)
 - **ThinksSound** - Audio generation
 - **Topaz** - Video upscaling
+
+### 📦 Avatar Generation (8 models)
+- **OmniHuman v1.5** - High-quality audio-driven animation (ByteDance)
+- **VEED Fabric 1.0** - Cost-effective lip-sync
+- **VEED Fabric 1.0 Fast** - Speed-optimized lip-sync
+- **VEED Fabric 1.0 Text** - Text-to-speech + lip-sync
+- **Kling O1 Ref-to-Video** - Character consistency
+- **Kling O1 V2V Reference** - Style transfer
+- **Kling O1 V2V Edit** - Video editing
+- **AI Avatar Multi** - Multi-person conversations
 
 ## Key Features
 
@@ -281,6 +291,7 @@ python tests/run_all_tests.py --quick
   - **Text-to-Image**: $0.001-0.004 per image
   - **Image-to-Image**: $0.01-0.05 per modification
   - **Image-to-Video**: $0.08-6.00 per video (model dependent)
+  - **Avatar Generation**: $0.08-0.20 per video (resolution dependent)
   - **Audio Generation**: Varies by usage and model
 - Always check costs before running large pipelines
 

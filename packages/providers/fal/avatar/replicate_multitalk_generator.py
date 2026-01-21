@@ -1,8 +1,25 @@
 """
 Replicate MultiTalk Generator
 
-This module provides a Python interface for generating multi-person conversational videos using 
-Replicate's MultiTalk model (zsxkib/multitalk). The MultiTalk model creates realistic conversations 
+DEPRECATED: This module is deprecated. Use the FAL AI Avatar Multi model instead.
+See: issues/migrate-replicate-to-fal-avatar.md
+
+Migration example:
+    # Old (deprecated):
+    from replicate_multitalk_generator import ReplicateMultiTalkGenerator
+    generator = ReplicateMultiTalkGenerator()
+
+    # New (recommended):
+    from fal_avatar import FALAvatarGenerator
+    generator = FALAvatarGenerator()
+    result = generator.generate_conversation(
+        image_url="...",
+        first_audio_url="...",
+        prompt="..."
+    )
+
+This module provides a Python interface for generating multi-person conversational videos using
+Replicate's MultiTalk model (zsxkib/multitalk). The MultiTalk model creates realistic conversations
 between multiple people by synchronizing audio files with a reference image.
 
 Features:
@@ -19,6 +36,7 @@ Documentation: https://replicate.com/zsxkib/multitalk
 
 import os
 import time
+import warnings
 import replicate
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
@@ -37,10 +55,21 @@ class ReplicateMultiTalkGenerator:
     def __init__(self, api_token: Optional[str] = None):
         """
         Initialize the Replicate MultiTalk Generator
-        
+
+        DEPRECATED: Use FALAvatarGenerator with model='multitalk' instead.
+
         Args:
             api_token (str, optional): Replicate API token. If not provided, will look for REPLICATE_API_TOKEN environment variable.
         """
+        warnings.warn(
+            "ReplicateMultiTalkGenerator is deprecated and will be removed in a future version. "
+            "Use FALAvatarGenerator with model='multitalk' instead. "
+            "See: issues/migrate-replicate-to-fal-avatar.md\n"
+            "Example: from fal_avatar import FALAvatarGenerator; "
+            "generator = FALAvatarGenerator(); generator.generate_conversation(...)",
+            DeprecationWarning,
+            stacklevel=2
+        )
         self.api_token = api_token or os.getenv('REPLICATE_API_TOKEN')
         if not self.api_token:
             raise ValueError("REPLICATE_API_TOKEN environment variable not set or api_token not provided")

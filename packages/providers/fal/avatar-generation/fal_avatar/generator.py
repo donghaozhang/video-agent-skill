@@ -11,6 +11,7 @@ from .models import (
     KlingRefToVideoModel,
     KlingV2VReferenceModel,
     KlingV2VEditModel,
+    MultiTalkModel,
 )
 from .config.constants import (
     MODEL_DISPLAY_NAMES,
@@ -31,6 +32,7 @@ class FALAvatarGenerator:
     - Kling O1 Reference-to-Video - Character consistency
     - Kling O1 V2V Reference - Style-guided video
     - Kling O1 V2V Edit - Targeted video modifications
+    - AI Avatar Multi - Multi-person conversational video
     """
 
     def __init__(self):
@@ -43,6 +45,7 @@ class FALAvatarGenerator:
             "kling_ref_to_video": KlingRefToVideoModel(),
             "kling_v2v_reference": KlingV2VReferenceModel(),
             "kling_v2v_edit": KlingV2VEditModel(),
+            "multitalk": MultiTalkModel(),
         }
 
     def generate(
@@ -170,6 +173,44 @@ class FALAvatarGenerator:
             model=model,
             video_url=video_url,
             prompt=prompt,
+            **kwargs,
+        )
+
+    def generate_conversation(
+        self,
+        image_url: str,
+        first_audio_url: str,
+        prompt: str,
+        second_audio_url: Optional[str] = None,
+        **kwargs,
+    ) -> AvatarGenerationResult:
+        """
+        Generate multi-person conversational video.
+
+        Convenience method for the MultiTalk model. Creates realistic videos
+        where multiple people speak in sequence, driven by separate audio files.
+
+        Args:
+            image_url: URL of input image containing person(s)
+            first_audio_url: URL of Person 1 audio file
+            prompt: Text description guiding video generation
+            second_audio_url: Optional URL of Person 2 audio file
+            **kwargs: Additional parameters:
+                - num_frames: Frame count (81-129, default 81)
+                - resolution: "480p" or "720p" (default "480p")
+                - seed: Random seed for reproducibility
+                - acceleration: "none", "regular", or "high" (default "regular")
+                - use_only_first_audio: Ignore second audio if provided
+
+        Returns:
+            AvatarGenerationResult with video URL and metadata
+        """
+        return self.generate(
+            model="multitalk",
+            image_url=image_url,
+            first_audio_url=first_audio_url,
+            prompt=prompt,
+            second_audio_url=second_audio_url,
             **kwargs,
         )
 

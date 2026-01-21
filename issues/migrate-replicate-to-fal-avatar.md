@@ -2,7 +2,7 @@
 
 **Created:** 2026-01-21
 **Updated:** 2026-01-21
-**Status:** Planned
+**Status:** Implemented
 **Priority:** Medium
 **Estimated Effort:** 2-3 hours total
 
@@ -752,14 +752,14 @@ fal-client  # Used for all FAL models
 
 ## Success Criteria
 
-- [ ] FAL MultiTalk model registered in generator
-- [ ] `generate_conversation()` convenience method works
-- [ ] Parameter validation enforces FAL constraints
-- [ ] Cost estimation accurate (resolution & frame multipliers)
-- [ ] All existing tests pass
-- [ ] New unit tests pass
-- [ ] Replicate shows deprecation warning
-- [ ] Documentation updated (8 avatar models)
+- [x] FAL MultiTalk model registered in generator
+- [x] `generate_conversation()` convenience method works
+- [x] Parameter validation enforces FAL constraints
+- [x] Cost estimation accurate (resolution & frame multipliers)
+- [ ] All existing tests pass (run manually to verify)
+- [x] New unit tests written
+- [x] Replicate shows deprecation warning
+- [x] Documentation updated (8 avatar models)
 
 ---
 

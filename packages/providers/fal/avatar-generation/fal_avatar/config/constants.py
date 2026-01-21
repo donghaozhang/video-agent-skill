@@ -9,6 +9,7 @@ MODEL_ENDPOINTS = {
     "kling_ref_to_video": "fal-ai/kling-video/o1/standard/reference-to-video",
     "kling_v2v_reference": "fal-ai/kling-video/o1/standard/video-to-video/reference",
     "kling_v2v_edit": "fal-ai/kling-video/o1/standard/video-to-video/edit",
+    "multitalk": "fal-ai/ai-avatar/multi",
 }
 
 # Display names for UI/CLI
@@ -20,6 +21,7 @@ MODEL_DISPLAY_NAMES = {
     "kling_ref_to_video": "Kling O1 Reference-to-Video",
     "kling_v2v_reference": "Kling O1 V2V Reference",
     "kling_v2v_edit": "Kling O1 V2V Edit",
+    "multitalk": "AI Avatar Multi (FAL)",
 }
 
 # Pricing per second
@@ -31,6 +33,7 @@ MODEL_PRICING = {
     "kling_ref_to_video": {"per_second": 0.112},
     "kling_v2v_reference": {"per_second": 0.168},
     "kling_v2v_edit": {"per_second": 0.168},
+    "multitalk": {"base": 0.10, "720p_multiplier": 2.0, "extended_frames_multiplier": 1.25},
 }
 
 # Default values
@@ -59,6 +62,11 @@ MODEL_DEFAULTS = {
     "kling_v2v_edit": {
         "aspect_ratio": "16:9",
     },
+    "multitalk": {
+        "num_frames": 81,
+        "resolution": "480p",
+        "acceleration": "regular",
+    },
 }
 
 # Supported resolutions per model
@@ -70,6 +78,7 @@ SUPPORTED_RESOLUTIONS = {
     "kling_ref_to_video": [],  # Uses aspect_ratio instead
     "kling_v2v_reference": [],
     "kling_v2v_edit": [],
+    "multitalk": ["480p", "720p"],
 }
 
 # Supported aspect ratios
@@ -99,6 +108,7 @@ PROCESSING_TIME_ESTIMATES = {
     "kling_ref_to_video": 45,
     "kling_v2v_reference": 30,
     "kling_v2v_edit": 30,
+    "multitalk": 60,
 }
 
 # Input requirements
@@ -131,6 +141,10 @@ INPUT_REQUIREMENTS = {
         "required": ["video_url", "prompt"],
         "optional": ["mask_url"],
     },
+    "multitalk": {
+        "required": ["image_url", "first_audio_url", "prompt"],
+        "optional": ["second_audio_url", "num_frames", "resolution", "seed", "acceleration", "use_only_first_audio"],
+    },
 }
 
 # Model categories
@@ -138,6 +152,7 @@ MODEL_CATEGORIES = {
     "avatar_lipsync": ["omnihuman_v1_5", "fabric_1_0", "fabric_1_0_fast", "fabric_1_0_text"],
     "reference_to_video": ["kling_ref_to_video"],
     "video_to_video": ["kling_v2v_reference", "kling_v2v_edit"],
+    "conversational": ["multitalk"],
 }
 
 # Model recommendations
@@ -149,4 +164,7 @@ MODEL_RECOMMENDATIONS = {
     "style_transfer": "kling_v2v_reference",
     "video_editing": "kling_v2v_edit",
     "cost_effective": "fabric_1_0",
+    "conversation": "multitalk",
+    "multi_person": "multitalk",
+    "podcast": "multitalk",
 }
