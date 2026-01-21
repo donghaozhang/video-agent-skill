@@ -203,3 +203,110 @@ class ReplicateMultiTalkExecutor(BaseStepExecutor):
                 f"MultiTalk generation failed: {str(e)}",
                 step.model
             )
+
+
+class SpeechToTextExecutor(BaseStepExecutor):
+    """Executor for speech-to-text transcription steps."""
+
+    def __init__(self, generator=None):
+        """
+        Initialize executor with optional generator.
+
+        Args:
+            generator: FALSpeechToTextGenerator instance (lazy loaded if not provided)
+        """
+        self._generator = generator
+
+    @property
+    def generator(self):
+        """Lazy load the generator."""
+        if self._generator is None:
+            from fal_speech_to_text import FALSpeechToTextGenerator
+            self._generator = FALSpeechToTextGenerator()
+        return self._generator
+
+    def execute(
+        self,
+        step,
+        input_data: Any,
+        chain_config: Dict[str, Any],
+        step_context: Optional[Dict[str, Any]] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Execute speech-to-text transcription.
+
+        Args:
+            step: PipelineStep configuration
+            input_data: Audio URL or path from previous step
+            chain_config: Pipeline configuration
+            step_context: Context from previous steps
+
+        Returns:
+            Dict with transcription text, timestamps, speakers, cost, etc.
+        """
+        try:
+            # Get audio URL from params or input
+            audio_url = step.params.get("audio_url") or input_data
+
+            if not audio_url:
+                return self._create_error_result(
+                    "No audio URL provided. Use 'audio_url' parameter or provide from previous step.",
+                    step.model
+                )
+
+            # Get optional parameters
+            language_code = step.params.get("language_code", kwargs.get("language_code"))
+            diarize = step.params.get("diarize", kwargs.get("diarize", True))
+            tag_audio_events = step.params.get("tag_audio_events", kwargs.get("tag_audio_events", True))
+            keyterms = step.params.get("keyterms", kwargs.get("keyterms"))
+
+            print(f"Starting transcription with {step.model}...")
+
+            # Call transcription
+            result = self.generator.transcribe(
+                audio_url=audio_url,
+                model=step.model,
+                language_code=language_code,
+                diarize=diarize,
+                tag_audio_events=tag_audio_events,
+                keyterms=keyterms,
+            )
+
+            if result.success:
+                # Build speaker summary if available
+                speaker_count = len(result.speakers) if result.speakers else 0
+
+                return {
+                    "success": True,
+                    "output_path": None,
+                    "output_url": None,
+                    "output_text": result.text,
+                    "processing_time": result.processing_time or 0,
+                    "cost": result.cost or 0,
+                    "model": result.model_used,
+                    "metadata": {
+                        "duration": result.duration,
+                        "word_count": len(result.words) if result.words else 0,
+                        "speaker_count": speaker_count,
+                        "speakers": result.speakers,
+                        "audio_events": [
+                            {"type": e.event_type, "start": e.start, "end": e.end}
+                            for e in (result.audio_events or [])
+                        ],
+                        "language_detected": result.language_detected,
+                        **(result.metadata or {}),
+                    },
+                    "error": None
+                }
+            else:
+                return self._create_error_result(
+                    result.error or "Transcription failed",
+                    step.model
+                )
+
+        except Exception as e:
+            return self._create_error_result(
+                f"Speech-to-text execution failed: {str(e)}",
+                step.model
+            )

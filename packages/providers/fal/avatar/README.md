@@ -146,7 +146,7 @@ print(f"Conversation video generated: {result['video']['url']}")
 #### FAL AI Avatar Multi (Recommended for Conversations)
 
 ```python
-from fal_avatar_generator import FALAvatarGenerator
+from fal_avatar import FALAvatarGenerator
 
 # Initialize generator
 generator = FALAvatarGenerator()
@@ -168,6 +168,7 @@ result = generator.generate_conversation(
     resolution="720p"
 )
 
+# AvatarGenerationResult has video_url attribute
 print(f"Video generated: {result.video_url}")
 ```
 

@@ -1,6 +1,6 @@
 # AI Models Reference
 
-Complete reference for all 50 AI models available in the AI Content Generation Suite.
+Complete reference for all 51 AI models available in the AI Content Generation Suite.
 
 ## Overview
 
@@ -15,7 +15,8 @@ Complete reference for all 50 AI models available in the AI Content Generation S
 | Prompt Generation | 5 | OpenRouter |
 | Audio/Video Processing | 2 | FAL AI |
 | Avatar Generation | 9 | FAL AI |
-| **Total** | **50*** | **Multiple** |
+| Speech-to-Text | 1 | FAL AI (ElevenLabs) |
+| **Total** | **51*** | **Multiple** |
 
 *\*Some models support multiple input modes (e.g., sora_2 supports both image-to-video and text-to-video). Total counts unique models.*
 

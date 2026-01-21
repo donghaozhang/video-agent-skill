@@ -83,6 +83,9 @@ SUPPORTED_MODELS = {
         "kling_v2v_reference",  # Kling O1 - style-guided video
         "kling_v2v_edit",       # Kling O1 - targeted video modifications
         "kling_motion_control", # Kling v2.6 - motion transfer from video to image
+    ],
+    "speech_to_text": [
+        "scribe_v2",            # ElevenLabs Scribe v2 via FAL
     ]
 }
 
@@ -95,6 +98,7 @@ PIPELINE_STEPS = [
     "image_to_image",
     "image_to_video",
     "text_to_speech",
+    "speech_to_text",
     "add_audio",
     "upscale_video",
     "avatar"
@@ -167,6 +171,12 @@ MODEL_RECOMMENDATIONS = {
         "style_transfer": "kling_v2v_reference",
         "video_editing": "kling_v2v_edit",
         "motion_transfer": "kling_motion_control"
+    },
+    "speech_to_text": {
+        "quality": "scribe_v2",
+        "speed": "scribe_v2",
+        "diarization": "scribe_v2",
+        "multilingual": "scribe_v2"
     }
 }
 
@@ -249,6 +259,9 @@ COST_ESTIMATES = {
         "kling_v2v_reference": 0.84,   # ~$0.168/sec * 5sec
         "kling_v2v_edit": 0.84,        # ~$0.168/sec * 5sec
         "kling_motion_control": 0.60,  # ~$0.06/sec * 10sec
+    },
+    "speech_to_text": {
+        "scribe_v2": 0.08,             # ~$0.008/min * 10min average
     }
 }
 
@@ -325,6 +338,9 @@ PROCESSING_TIME_ESTIMATES = {
         "kling_v2v_reference": 90,     # 90 seconds for 5s video
         "kling_v2v_edit": 60,          # 60 seconds for editing
         "kling_motion_control": 60,    # 60 seconds for motion transfer
+    },
+    "speech_to_text": {
+        "scribe_v2": 15,               # ~15 seconds for average audio
     }
 }
 
