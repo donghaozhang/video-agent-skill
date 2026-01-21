@@ -128,18 +128,23 @@ class MultiTalkGenerator(BaseContentModel):
             return self._create_error_result(model, f"FAL MultiTalk generation failed: {str(e)}")
 
     def _download_file(self, url: str, output_path: str):
-        """Download file from URL."""
-        try:
-            import requests
-            response = requests.get(url)
-            response.raise_for_status()
+        """Download file from URL.
 
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'wb') as f:
-                f.write(response.content)
+        Args:
+            url: URL to download from.
+            output_path: Local path to save the file.
 
-        except Exception as e:
-            print(f"Warning: Failed to download video: {e}")
+        Raises:
+            requests.RequestException: If download fails.
+            IOError: If file cannot be written.
+        """
+        import requests
+        response = requests.get(url)
+        response.raise_for_status()
+
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
 
     def estimate_cost(self, model: str, **kwargs) -> float:
         """Estimate cost for MultiTalk generation.
@@ -314,18 +319,23 @@ class ReplicateMultiTalkGenerator(BaseContentModel):
             return self._create_error_result(model, f"MultiTalk generation failed: {str(e)}")
 
     def _download_file(self, url: str, output_path: str):
-        """Download file from URL."""
-        try:
-            import requests
-            response = requests.get(url)
-            response.raise_for_status()
+        """Download file from URL.
 
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'wb') as f:
-                f.write(response.content)
+        Args:
+            url: URL to download from.
+            output_path: Local path to save the file.
 
-        except Exception as e:
-            print(f"Warning: Failed to download video: {e}")
+        Raises:
+            requests.RequestException: If download fails.
+            IOError: If file cannot be written.
+        """
+        import requests
+        response = requests.get(url)
+        response.raise_for_status()
+
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
 
     def estimate_cost(self, model: str, **kwargs) -> float:
         """Estimate cost for MultiTalk generation."""
