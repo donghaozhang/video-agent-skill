@@ -6,7 +6,7 @@ Complete map of all documentation files with descriptions.
 
 ## Overview
 
-**Total Documents:** 33 files
+**Total Documents:** 31 files
 **Total Lines:** ~15,000+
 **Last Updated:** January 2026
 
@@ -22,9 +22,7 @@ docs/
 │
 ├── guides/
 │   ├── getting-started/               # New user guides
-│   │   ├── quick-start.md             # 5-minute setup
-│   │   ├── installation.md            # Detailed installation
-│   │   ├── configuration.md           # Environment setup
+│   │   ├── setup.md                   # Installation & configuration
 │   │   └── learning-path.md           # Structured learning
 │   │
 │   ├── pipelines/                     # Pipeline guides
@@ -78,9 +76,7 @@ docs/
 
 | File | Description | Time |
 |------|-------------|------|
-| [Quick Start](guides/getting-started/quick-start.md) | Get running in 5 minutes | 5 min |
-| [Installation](guides/getting-started/installation.md) | Detailed setup instructions | 15 min |
-| [Configuration](guides/getting-started/configuration.md) | API keys and settings | 10 min |
+| [Setup Guide](guides/getting-started/setup.md) | Installation, configuration, API keys | 15 min |
 | [Learning Path](guides/getting-started/learning-path.md) | Structured learning journey | varies |
 
 ### Pipelines
@@ -155,7 +151,7 @@ docs/
 
 ### Content Creators
 
-1. [Quick Start](guides/getting-started/quick-start.md) - Get started fast
+1. [Setup Guide](guides/getting-started/setup.md) - Get started fast
 2. [Prompting Guide](guides/content-creation/prompting.md) - Write better prompts
 3. [Video Tips](guides/content-creation/video-tips.md) - Create quality videos
 4. [Basic Examples](examples/basic-examples.md) - Simple workflows
@@ -163,7 +159,7 @@ docs/
 
 ### Developers
 
-1. [Installation](guides/getting-started/installation.md) - Full setup
+1. [Setup Guide](guides/getting-started/setup.md) - Full setup
 2. [Python API](api/python-api.md) - API documentation
 3. [YAML Pipelines](guides/pipelines/yaml-pipelines.md) - Configuration
 4. [Integrations](examples/integrations.md) - Framework examples
@@ -171,7 +167,7 @@ docs/
 
 ### System Administrators
 
-1. [Configuration](guides/getting-started/configuration.md) - Environment setup
+1. [Setup Guide](guides/getting-started/setup.md) - Environment setup
 2. [Security](guides/support/security.md) - Security practices
 3. [Cost Management](guides/optimization/cost-management.md) - Budget control
 4. [Performance](guides/optimization/performance.md) - Optimization

@@ -5,10 +5,8 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 ## Quick Navigation
 
 ### Getting Started
-- [Quick Start Guide](guides/getting-started/quick-start.md) - Get up and running in 5 minutes
-- [Installation Guide](guides/getting-started/installation.md) - Detailed installation instructions
-- [Configuration Guide](guides/getting-started/configuration.md) - Environment setup and API keys
-- [Learning Path](guides/getting-started/learning-path.md) - Structured learning journey
+- [Setup Guide](guides/getting-started/setup.md) - Installation, configuration, and API keys
+- [Learning Path](guides/getting-started/learning-path.md) - Structured learning journey (beginner to advanced)
 
 ### Pipelines
 - [YAML Pipeline Configuration](guides/pipelines/yaml-pipelines.md) - Create custom workflows
