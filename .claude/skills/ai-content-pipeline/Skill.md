@@ -1,6 +1,6 @@
 ---
 name: AI Content Pipeline
-description: Generate AI content (images, videos, audio, avatars) and analyze videos with detailed timelines using YAML pipelines with 51 models across 9 categories. Includes video analysis with Gemini 3 Pro.
+description: Generate AI content (images, videos, audio, avatars) and analyze videos with detailed timelines using YAML pipelines with 46 models across 8 categories. Includes video analysis with Gemini 3 Pro.
 dependencies: python>=3.10
 ---
 
@@ -82,7 +82,7 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 ./venv/Scripts/ai-content-pipeline.exe generate-avatar --image-url "https://..." --text "Hello world!" --model fabric_1_0_text
 ```
 
-## Available AI Models (50 Total)
+## Available AI Models (46 Total)
 
 ### Text-to-Image (8 models)
 | Model | Key | Provider | Cost |
@@ -99,14 +99,9 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 ### Image-to-Image (8 models)
 | Model | Key | Description |
 |-------|-----|-------------|
-| Photon Flash | `photon_flash` | Fast creative modifications |
-| Photon Base | `photon_base` | Standard transformations |
-| FLUX Kontext | `flux_kontext` | Context-aware editing |
-| FLUX Kontext Multi | `flux_kontext_multi` | Multi-image context |
-| Seededit v3 | `seededit_v3` | Seed-controlled editing |
-| Clarity Upscaler | `clarity_upscaler` | Resolution enhancement |
 | Nano Banana Pro Edit | `nano_banana_pro_edit` | Fast image editing |
 | GPT Image 1.5 Edit | `gpt_image_1_5_edit` | GPT-powered editing |
+| ... | `photon_flash`, `photon_base`, `flux_kontext`, `flux_kontext_multi`, `seededit_v3`, `clarity_upscaler` | Other editing models |
 
 ### Image-to-Video (11 models)
 | Model | Key | Description |
@@ -134,15 +129,6 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 | Gemini Composition | `gemini_composition` | Composition analysis |
 | Gemini Q&A | `gemini_qa` | Visual question answering |
 
-### Prompt Generation (5 models)
-| Model | Key | Description |
-|-------|-----|-------------|
-| Video Prompt | `openrouter_video_prompt` | General video prompts |
-| Cinematic | `openrouter_video_cinematic` | Cinematic style |
-| Realistic | `openrouter_video_realistic` | Photorealistic style |
-| Artistic | `openrouter_video_artistic` | Artistic style |
-| Dramatic | `openrouter_video_dramatic` | Dramatic style |
-
 ### Audio & Video Processing (2 models)
 | Model | Key | Description |
 |-------|-----|-------------|
@@ -152,15 +138,11 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 ### Avatar Generation (9 models)
 | Model | Key | Description |
 |-------|-----|-------------|
-| OmniHuman v1.5 | `omnihuman_v1_5` | High-quality audio-driven animation |
-| VEED Fabric 1.0 | `fabric_1_0` | Cost-effective lip-sync |
-| VEED Fabric 1.0 Fast | `fabric_1_0_fast` | Speed-optimized lip-sync |
-| VEED Fabric 1.0 Text | `fabric_1_0_text` | Text-to-speech + lip-sync |
 | Kling Ref-to-Video | `kling_ref_to_video` | Character consistency |
 | Kling V2V Reference | `kling_v2v_reference` | Style transfer |
 | Kling V2V Edit | `kling_v2v_edit` | Video editing |
 | Kling v2.6 Motion | `kling_motion_control` | Motion transfer from video to image |
-| AI Avatar Multi | `multitalk` | Multi-person conversations |
+| ... | `omnihuman_v1_5`, `fabric_1_0`, `fabric_1_0_fast`, `fabric_1_0_text`, `multitalk` | Other avatar/lipsync models |
 
 ### Speech-to-Text (1 model)
 | Model | Key | Description |
@@ -176,7 +158,6 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 - `image_to_image` - Transform/edit image
 - `image_to_video` - Generate video from image
 - `image_understanding` - Analyze image
-- `prompt_generation` - Generate optimized prompts
 - `text_to_speech` - Generate audio from text
 - `speech_to_text` - Transcribe audio to text
 - `add_audio` - Add audio to video
@@ -260,7 +241,6 @@ OUTPUT_BUCKET_PATH=gs://your-bucket/output/
 
 # Optional services
 ELEVENLABS_API_KEY=your_elevenlabs_key
-OPENROUTER_API_KEY=your_openrouter_key
 GEMINI_API_KEY=your_gemini_key
 REPLICATE_API_TOKEN=your_replicate_token
 ```
