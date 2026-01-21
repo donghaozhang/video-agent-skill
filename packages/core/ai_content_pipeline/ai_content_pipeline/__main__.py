@@ -32,6 +32,13 @@ from .video_analysis import (
     ANALYSIS_TYPES as VIDEO_ANALYSIS_TYPES,
 )
 
+# Import motion transfer module
+from .motion_transfer import (
+    transfer_motion_command,
+    list_motion_models,
+    ORIENTATION_OPTIONS,
+)
+
 
 def print_models():
     """Print information about all supported models."""
@@ -527,6 +534,15 @@ Examples:
 
   # List video analysis models
   python -m ai_content_pipeline list-video-models
+
+  # Transfer motion from video to image
+  python -m ai_content_pipeline transfer-motion -i person.jpg -v dance.mp4
+
+  # With options
+  python -m ai_content_pipeline transfer-motion -i person.jpg -v dance.mp4 -o output/ --orientation video -p "Person dancing"
+
+  # List motion models
+  python -m ai_content_pipeline list-motion-models
         """
     )
     
@@ -631,6 +647,52 @@ Examples:
         help="List available video analysis models"
     )
 
+    # Transfer motion command
+    motion_parser = subparsers.add_parser(
+        "transfer-motion",
+        help="Transfer motion from video to image (Kling v2.6)"
+    )
+    motion_parser.add_argument(
+        "-i", "--image",
+        required=True,
+        help="Image file path or URL (character/background source)"
+    )
+    motion_parser.add_argument(
+        "-v", "--video",
+        required=True,
+        help="Video file path or URL (motion source)"
+    )
+    motion_parser.add_argument(
+        "-o", "--output",
+        default="output",
+        help="Output directory (default: output)"
+    )
+    motion_parser.add_argument(
+        "--orientation",
+        choices=list(ORIENTATION_OPTIONS.keys()),
+        default="video",
+        help="Character orientation: video (max 30s) or image (max 10s)"
+    )
+    motion_parser.add_argument(
+        "--no-sound",
+        action="store_true",
+        help="Remove audio from output (default: keep sound)"
+    )
+    motion_parser.add_argument(
+        "-p", "--prompt",
+        help="Optional text description to guide generation"
+    )
+    motion_parser.add_argument(
+        "--save-json",
+        help="Save result metadata as JSON file"
+    )
+
+    # List motion models command
+    subparsers.add_parser(
+        "list-motion-models",
+        help="List available motion transfer models"
+    )
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -655,6 +717,10 @@ Examples:
         analyze_video_command(args)
     elif args.command == "list-video-models":
         list_video_models()
+    elif args.command == "transfer-motion":
+        transfer_motion_command(args)
+    elif args.command == "list-motion-models":
+        list_motion_models()
     else:
         parser.print_help()
         sys.exit(1)

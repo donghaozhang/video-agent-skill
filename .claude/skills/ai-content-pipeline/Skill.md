@@ -82,19 +82,47 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 ./venv/Scripts/ai-content-pipeline.exe generate-avatar --image-url "https://..." --text "Hello world!" --model fabric_1_0_text
 ```
 
+### Transfer Motion (Kling v2.6)
+Transfer motion from a reference video to a reference image.
+
+```bash
+# Basic usage - local files (auto-uploads to FAL)
+./venv/Scripts/aicp.exe transfer-motion -i person.jpg -v dance.mp4
+
+# With all options
+./venv/Scripts/aicp.exe transfer-motion -i person.jpg -v dance.mp4 -o output/ --orientation video -p "A person dancing"
+
+# Using URLs directly
+./venv/Scripts/aicp.exe transfer-motion -i "https://example.com/person.jpg" -v "https://example.com/dance.mp4"
+
+# Remove audio from output
+./venv/Scripts/aicp.exe transfer-motion -i person.jpg -v dance.mp4 --no-sound
+
+# List motion models
+./venv/Scripts/aicp.exe list-motion-models
+```
+
+**Options:**
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--image` | `-i` | required | Image path/URL (character source) |
+| `--video` | `-v` | required | Video path/URL (motion source) |
+| `--output` | `-o` | `output/` | Output directory |
+| `--orientation` | | `video` | `video` (max 30s) or `image` (max 10s) |
+| `--no-sound` | | false | Remove audio from output |
+| `--prompt` | `-p` | | Optional description |
+| `--save-json` | | | Save metadata as JSON |
+
+**Pricing:** $0.06/second
+
 ## Available AI Models (46 Total)
 
 ### Text-to-Image (8 models)
 | Model | Key | Provider | Cost |
 |-------|-----|----------|------|
-| FLUX.1 Dev | `flux_dev` | FAL AI | $0.003 |
-| FLUX.1 Schnell | `flux_schnell` | FAL AI | $0.001 |
-| Imagen 4 Preview | `imagen4` | Google (FAL) | $0.004 |
-| Seedream v3 | `seedream_v3` | FAL AI | $0.002 |
 | Nano Banana Pro | `nano_banana_pro` | FAL AI | $0.002 |
 | GPT Image 1.5 | `gpt_image_1_5` | FAL AI | $0.003 |
-| Seedream 3 | `seedream3` | Replicate | $0.003 |
-| Runway Gen-4 | `gen4` | Replicate | $0.08 |
+| ... | `flux_dev`, `flux_schnell`, `imagen4`, `seedream_v3`, `seedream3`, `gen4` | Other models | $0.001-0.08 |
 
 ### Image-to-Image (8 models)
 | Model | Key | Description |
