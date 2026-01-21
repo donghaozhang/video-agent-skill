@@ -144,6 +144,8 @@ class MultiTalkGenerator(BaseContentModel):
     def estimate_cost(self, model: str, **kwargs) -> float:
         """Estimate cost for MultiTalk generation.
 
+        Delegates to the underlying FAL Avatar generator for accurate pricing.
+
         Args:
             model: Model identifier
             num_frames: Number of frames (default 81)
@@ -152,18 +154,19 @@ class MultiTalkGenerator(BaseContentModel):
         Returns:
             Estimated cost in USD
         """
-        base_cost = 0.10
+        if self.generator:
+            try:
+                return self.generator.estimate_cost(
+                    model="multitalk",
+                    duration=0,  # Not used by multitalk model
+                    num_frames=kwargs.get('num_frames', 81),
+                    resolution=kwargs.get('resolution', '480p'),
+                )
+            except Exception:
+                pass  # Fall back to default estimate
 
-        # Resolution multiplier (720p = 2x)
-        if kwargs.get('resolution') == '720p':
-            base_cost *= 2.0
-
-        # Frame count multiplier (>81 frames = 1.25x)
-        num_frames = kwargs.get('num_frames', 81)
-        if num_frames > 81:
-            base_cost *= 1.25
-
-        return base_cost
+        # Fallback estimate if generator not available
+        return 0.10
 
     def get_available_models(self) -> list:
         """Get available MultiTalk models."""
