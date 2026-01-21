@@ -8,12 +8,16 @@ Complete reference for all 49 AI models available in the AI Content Generation S
 |----------|-------------|-----------|
 | Text-to-Image | 8 | FAL AI, Replicate |
 | Image-to-Image | 8 | FAL AI |
-| Image-to-Video | 11 | FAL AI, Google |
+| Image-to-Video | 8 | FAL AI, Google |
+| Text-to-Video | 4 | FAL AI |
 | Image Understanding | 7 | Google Gemini |
+| Text-to-Speech | 3 | ElevenLabs |
 | Prompt Generation | 5 | OpenRouter |
 | Audio/Video Processing | 2 | FAL AI |
 | Avatar Generation | 8 | FAL AI |
-| **Total** | **49** | **Multiple** |
+| **Total** | **49*** | **Multiple** |
+
+*\*Some models support multiple input modes (e.g., sora_2 supports both image-to-video and text-to-video). Total counts unique models.*
 
 ---
 

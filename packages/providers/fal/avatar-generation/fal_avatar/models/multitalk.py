@@ -102,9 +102,9 @@ class MultiTalkModel(BaseAvatarModel):
 
     def generate(
         self,
-        image_url: str = None,
-        first_audio_url: str = None,
-        prompt: str = None,
+        image_url: Optional[str] = None,
+        first_audio_url: Optional[str] = None,
+        prompt: Optional[str] = None,
         second_audio_url: Optional[str] = None,
         num_frames: int = 81,
         resolution: str = "480p",
