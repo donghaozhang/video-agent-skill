@@ -109,10 +109,10 @@ At minimum, you need one API key to use the package:
 
 | Provider | Key Name | Required For | Get Key At |
 |----------|----------|--------------|------------|
-| FAL AI | `FAL_KEY` | Most models | https://fal.ai/dashboard |
-| Google | `GEMINI_API_KEY` | Image analysis | https://makersuite.google.com |
-| ElevenLabs | `ELEVENLABS_API_KEY` | Text-to-speech | https://elevenlabs.io/app/settings |
-| OpenRouter | `OPENROUTER_API_KEY` | Alternative models | https://openrouter.ai/keys |
+| FAL AI | `FAL_KEY` | Most models | [fal.ai/dashboard](https://fal.ai/dashboard) |
+| Google | `GEMINI_API_KEY` | Image analysis | [makersuite.google.com](https://makersuite.google.com) |
+| ElevenLabs | `ELEVENLABS_API_KEY` | Text-to-speech | [elevenlabs.io/app/settings](https://elevenlabs.io/app/settings) |
+| OpenRouter | `OPENROUTER_API_KEY` | Alternative models | [openrouter.ai/keys](https://openrouter.ai/keys) |
 
 ### Setting Up Environment Variables
 
@@ -213,7 +213,7 @@ print("Installation successful!")
 
 The package automatically installs these core dependencies:
 
-```
+```text
 click>=8.0.0          # CLI framework
 pydantic>=2.0.0       # Data validation
 python-dotenv>=1.0.0  # Environment management

@@ -287,12 +287,12 @@ prompt: "person walking forward naturally, subtle movement"
 - Specify motion direction clearly
 - Reduce duration
 
-### Issue: Low Quality Output
+### Issue: Low-Quality Output
 
 **Cause:** Model or resolution mismatch
 
 **Solutions:**
-- Use higher quality model
+- Use higher-quality model
 - Match source image resolution
 - Specify quality in prompt
 
