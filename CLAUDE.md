@@ -19,7 +19,7 @@ This is the **AI Content Pipeline** - a unified Python package for multi-modal A
 - **Unified Interface**: Single package with console commands `ai-content-pipeline` and `aicp`
 - **YAML Configuration**: Multi-step content generation workflows
 - **Parallel Execution**: 2-3x speedup with thread-based parallel processing
-- **Multi-Model Support**: 49 AI models across 8 categories
+- **Multi-Model Support**: 50 AI models across 8 categories
 - **Cost Management**: Built-in cost estimation and tracking
 - **Organized Output**: Structured output directories with proper file management
 
@@ -123,7 +123,7 @@ ai-content-pipeline/
 - **Unified Package**: Single installable package with console commands
 - **YAML Configuration**: Multi-step workflow definitions
 - **Parallel Execution**: Thread-based processing with `PIPELINE_PARALLEL_ENABLED=true`
-- **Multi-Model Support**: 49 AI models across 8 categories
+- **Multi-Model Support**: 50 AI models across 8 categories
 - **Cost Management**: Built-in estimation and tracking
 - **Organized Output**: Structured file management
 
@@ -242,7 +242,7 @@ python tests/run_all_tests.py --quick
 - **ThinksSound** - Audio generation
 - **Topaz** - Video upscaling
 
-### 📦 Avatar Generation (8 models)
+### 📦 Avatar Generation (9 models)
 - **OmniHuman v1.5** - High-quality audio-driven animation (ByteDance)
 - **VEED Fabric 1.0** - Cost-effective lip-sync
 - **VEED Fabric 1.0 Fast** - Speed-optimized lip-sync
@@ -250,6 +250,7 @@ python tests/run_all_tests.py --quick
 - **Kling O1 Ref-to-Video** - Character consistency
 - **Kling O1 V2V Reference** - Style transfer
 - **Kling O1 V2V Edit** - Video editing
+- **Kling v2.6 Motion Control** - Motion transfer from video to image
 - **AI Avatar Multi** - Multi-person conversations
 
 ## Key Features

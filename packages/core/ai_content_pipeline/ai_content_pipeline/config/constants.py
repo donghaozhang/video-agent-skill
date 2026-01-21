@@ -82,6 +82,7 @@ SUPPORTED_MODELS = {
         "kling_ref_to_video",   # Kling O1 - reference image consistency
         "kling_v2v_reference",  # Kling O1 - style-guided video
         "kling_v2v_edit",       # Kling O1 - targeted video modifications
+        "kling_motion_control", # Kling v2.6 - motion transfer from video to image
     ]
 }
 
@@ -164,7 +165,8 @@ MODEL_RECOMMENDATIONS = {
         "text_to_avatar": "fabric_1_0_text",
         "character_consistency": "kling_ref_to_video",
         "style_transfer": "kling_v2v_reference",
-        "video_editing": "kling_v2v_edit"
+        "video_editing": "kling_v2v_edit",
+        "motion_transfer": "kling_motion_control"
     }
 }
 
@@ -246,6 +248,7 @@ COST_ESTIMATES = {
         "kling_ref_to_video": 0.56,    # ~$0.112/sec * 5sec
         "kling_v2v_reference": 0.84,   # ~$0.168/sec * 5sec
         "kling_v2v_edit": 0.84,        # ~$0.168/sec * 5sec
+        "kling_motion_control": 0.60,  # ~$0.06/sec * 10sec
     }
 }
 
@@ -321,6 +324,7 @@ PROCESSING_TIME_ESTIMATES = {
         "kling_ref_to_video": 90,      # 90 seconds for 5s video
         "kling_v2v_reference": 90,     # 90 seconds for 5s video
         "kling_v2v_edit": 60,          # 60 seconds for editing
+        "kling_motion_control": 60,    # 60 seconds for motion transfer
     }
 }
 

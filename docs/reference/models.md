@@ -1,6 +1,6 @@
 # AI Models Reference
 
-Complete reference for all 49 AI models available in the AI Content Generation Suite.
+Complete reference for all 50 AI models available in the AI Content Generation Suite.
 
 ## Overview
 
@@ -14,8 +14,8 @@ Complete reference for all 49 AI models available in the AI Content Generation S
 | Text-to-Speech | 3 | ElevenLabs |
 | Prompt Generation | 5 | OpenRouter |
 | Audio/Video Processing | 2 | FAL AI |
-| Avatar Generation | 8 | FAL AI |
-| **Total** | **49*** | **Multiple** |
+| Avatar Generation | 9 | FAL AI |
+| **Total** | **50*** | **Multiple** |
 
 *\*Some models support multiple input modes (e.g., sora_2 supports both image-to-video and text-to-video). Total counts unique models.*
 
@@ -521,6 +521,34 @@ Style-guided video transformation.
 **Provider:** FAL AI (Kling O1) | **Cost:** $0.168/second
 
 Targeted video modifications and editing.
+
+---
+
+### kling_motion_control
+**Provider:** FAL AI (Kling v2.6) | **Cost:** $0.06/second | **Max Duration:** 30s (video) / 10s (image)
+
+Motion transfer from reference video to reference image. **Recommended for dance videos and action sequences.**
+
+```bash
+# Python API
+from fal_avatar import FALAvatarGenerator
+
+generator = FALAvatarGenerator()
+result = generator.transfer_motion(
+    image_url="https://example.com/person.jpg",
+    video_url="https://example.com/dance.mp4",
+    character_orientation="video",  # or "image"
+    keep_original_sound=True
+)
+```
+
+**Features:**
+- Motion transfer from video to image
+- Dual orientation modes: video (max 30s), image (max 10s)
+- Audio preservation option
+- Cost-effective standard tier pricing
+
+**Best For:** Dance videos, action sequences, character animation
 
 ---
 

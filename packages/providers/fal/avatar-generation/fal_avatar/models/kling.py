@@ -494,3 +494,194 @@ class KlingV2VEditModel(BaseAvatarModel):
             "description": "Targeted video modifications through natural language",
             "best_for": ["background changes", "object removal", "lighting adjustments"],
         }
+
+
+class KlingMotionControlModel(BaseAvatarModel):
+    """
+    Kling Video v2.6 Motion Control - Motion transfer from video to image.
+
+    Transfers motion from a reference video to a reference image,
+    creating videos where the image's subjects mimic the video's movements.
+
+    Use Cases:
+    - Dance videos: Transfer dance moves to a person image
+    - Action sequences: Apply motion patterns to characters
+    - Character animation: Animate still images with video motion
+
+    API Parameters:
+        - image_url: Reference image URL (characters/background source)
+        - video_url: Reference video URL (motion source)
+        - character_orientation: "video" (max 30s) or "image" (max 10s)
+        - keep_original_sound: Preserve reference video audio
+        - prompt: Optional text description
+
+    Pricing: ~$0.06/second (standard tier)
+    Max Duration: 30s (video orientation) or 10s (image orientation)
+    """
+
+    def __init__(self):
+        """Initialize Kling Motion Control model."""
+        super().__init__("kling_motion_control")
+        self.endpoint = MODEL_ENDPOINTS["kling_motion_control"]
+        self.pricing = MODEL_PRICING["kling_motion_control"]
+        self.defaults = MODEL_DEFAULTS["kling_motion_control"]
+        self.max_durations = MAX_DURATIONS["kling_motion_control"]
+
+    def validate_parameters(
+        self,
+        image_url: str,
+        video_url: str,
+        character_orientation: Optional[str] = None,
+        keep_original_sound: Optional[bool] = None,
+        prompt: Optional[str] = None,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """
+        Validate parameters for Kling Motion Control.
+
+        Args:
+            image_url: Reference image URL (characters/background source)
+            video_url: Reference video URL (motion source)
+            character_orientation: "video" (max 30s) or "image" (max 10s)
+            keep_original_sound: Keep audio from reference video
+            prompt: Optional text description
+
+        Returns:
+            Dict of validated parameters
+
+        Raises:
+            ValueError: If parameters are invalid
+        """
+        # Validate required URLs
+        self._validate_url(image_url, "image_url")
+        self._validate_url(video_url, "video_url")
+
+        # Apply defaults
+        character_orientation = character_orientation or self.defaults["character_orientation"]
+        if keep_original_sound is None:
+            keep_original_sound = self.defaults["keep_original_sound"]
+
+        # Validate character_orientation
+        valid_orientations = ["video", "image"]
+        if character_orientation not in valid_orientations:
+            raise ValueError(
+                f"character_orientation must be one of {valid_orientations}, "
+                f"got: '{character_orientation}'"
+            )
+
+        arguments = {
+            "image_url": image_url,
+            "video_url": video_url,
+            "character_orientation": character_orientation,
+            "keep_original_sound": keep_original_sound,
+        }
+
+        # Add optional prompt
+        if prompt:
+            arguments["prompt"] = prompt
+
+        return arguments
+
+    def generate(
+        self,
+        image_url: str = None,
+        video_url: str = None,
+        character_orientation: Optional[str] = None,
+        keep_original_sound: Optional[bool] = None,
+        prompt: Optional[str] = None,
+        **kwargs,
+    ) -> AvatarGenerationResult:
+        """
+        Generate motion-controlled video.
+
+        Args:
+            image_url: Reference image URL (characters/background source)
+            video_url: Reference video URL (motion source)
+            character_orientation: "video" (max 30s) or "image" (max 10s)
+            keep_original_sound: Keep audio from reference video
+            prompt: Optional text description
+
+        Returns:
+            AvatarGenerationResult with video URL and metadata
+        """
+        try:
+            arguments = self.validate_parameters(
+                image_url=image_url,
+                video_url=video_url,
+                character_orientation=character_orientation,
+                keep_original_sound=keep_original_sound,
+                prompt=prompt,
+                **kwargs,
+            )
+
+            response = self._call_fal_api(arguments)
+
+            if not response["success"]:
+                return AvatarGenerationResult(
+                    success=False,
+                    error=response["error"],
+                    model_used=self.model_name,
+                    processing_time=response.get("processing_time"),
+                )
+
+            result = response["result"]
+
+            # Get max duration based on orientation
+            orientation = arguments["character_orientation"]
+            max_duration = self.max_durations.get(orientation, 10)
+
+            # Use video duration from result if available, otherwise estimate
+            video_duration = result.get("duration", max_duration)
+
+            return AvatarGenerationResult(
+                success=True,
+                video_url=result["video"]["url"],
+                duration=video_duration,
+                cost=self.estimate_cost(video_duration, character_orientation=orientation),
+                processing_time=response["processing_time"],
+                model_used=self.model_name,
+                metadata={
+                    "character_orientation": orientation,
+                    "keep_original_sound": arguments["keep_original_sound"],
+                    "file_size": result["video"].get("file_size"),
+                    "file_name": result["video"].get("file_name"),
+                },
+            )
+
+        except Exception as e:
+            return AvatarGenerationResult(
+                success=False,
+                error=str(e),
+                model_used=self.model_name,
+            )
+
+    def estimate_cost(self, duration: float, **kwargs) -> float:
+        """
+        Estimate cost based on duration.
+
+        Args:
+            duration: Video duration in seconds
+            character_orientation: Optional orientation to cap duration
+
+        Returns:
+            Estimated cost in USD
+        """
+        orientation = kwargs.get("character_orientation", "video")
+        max_duration = self.max_durations.get(orientation, 30)
+        effective_duration = min(duration, max_duration)
+        return effective_duration * self.pricing["per_second"]
+
+    def get_model_info(self) -> Dict[str, Any]:
+        """Return model info."""
+        return {
+            "name": self.model_name,
+            "display_name": "Kling v2.6 Motion Control",
+            "endpoint": self.endpoint,
+            "pricing": self.pricing,
+            "max_durations": self.max_durations,
+            "orientation_options": ["video", "image"],
+            "input_types": ["image", "video"],
+            "description": "Motion transfer from reference video to reference image",
+            "best_for": ["dance videos", "action sequences", "character animation", "motion transfer"],
+            "commercial_use": True,
+        }

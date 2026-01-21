@@ -1,6 +1,6 @@
 ---
 name: AI Content Pipeline
-description: Generate AI content (images, videos, audio, avatars) and analyze videos with detailed timelines using YAML pipelines with 49+ models. Includes video analysis with Gemini 3 Pro.
+description: Generate AI content (images, videos, audio, avatars) and analyze videos with detailed timelines using YAML pipelines with 50+ models. Includes video analysis with Gemini 3 Pro.
 dependencies: python>=3.10
 ---
 
@@ -149,7 +149,7 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 | ThinksSound | `thinksound` | Audio generation |
 | Topaz | `topaz` | Video upscaling |
 
-### Avatar Generation (8 models)
+### Avatar Generation (9 models)
 | Model | Key | Description |
 |-------|-----|-------------|
 | OmniHuman v1.5 | `omnihuman_v1_5` | High-quality audio-driven animation |
@@ -159,6 +159,7 @@ PIPELINE_PARALLEL_ENABLED=true ./venv/bin/ai-content-pipeline run-chain --config
 | Kling Ref-to-Video | `kling_ref_to_video` | Character consistency |
 | Kling V2V Reference | `kling_v2v_reference` | Style transfer |
 | Kling V2V Edit | `kling_v2v_edit` | Video editing |
+| Kling v2.6 Motion | `kling_motion_control` | Motion transfer from video to image |
 | AI Avatar Multi | `multitalk` | Multi-person conversations |
 
 ## YAML Pipeline Configuration

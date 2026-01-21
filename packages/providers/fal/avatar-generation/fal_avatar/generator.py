@@ -11,6 +11,7 @@ from .models import (
     KlingRefToVideoModel,
     KlingV2VReferenceModel,
     KlingV2VEditModel,
+    KlingMotionControlModel,
     MultiTalkModel,
 )
 from .config.constants import (
@@ -32,6 +33,7 @@ class FALAvatarGenerator:
     - Kling O1 Reference-to-Video - Character consistency
     - Kling O1 V2V Reference - Style-guided video
     - Kling O1 V2V Edit - Targeted video modifications
+    - Kling v2.6 Motion Control - Motion transfer from video to image
     - AI Avatar Multi - Multi-person conversational video
     """
 
@@ -45,6 +47,7 @@ class FALAvatarGenerator:
             "kling_ref_to_video": KlingRefToVideoModel(),
             "kling_v2v_reference": KlingV2VReferenceModel(),
             "kling_v2v_edit": KlingV2VEditModel(),
+            "kling_motion_control": KlingMotionControlModel(),
             "multitalk": MultiTalkModel(),
         }
 
@@ -211,6 +214,50 @@ class FALAvatarGenerator:
             first_audio_url=first_audio_url,
             prompt=prompt,
             second_audio_url=second_audio_url,
+            **kwargs,
+        )
+
+    def transfer_motion(
+        self,
+        image_url: str,
+        video_url: str,
+        character_orientation: str = "video",
+        keep_original_sound: bool = True,
+        prompt: Optional[str] = None,
+        **kwargs,
+    ) -> AvatarGenerationResult:
+        """
+        Transfer motion from a reference video to a reference image.
+
+        Creates videos where characters in the image mimic movements
+        from the reference video.
+
+        Args:
+            image_url: Reference image URL (characters/background source)
+            video_url: Reference video URL (motion source)
+            character_orientation: "video" (max 30s) or "image" (max 10s)
+            keep_original_sound: Keep audio from reference video
+            prompt: Optional text description
+            **kwargs: Additional parameters
+
+        Returns:
+            AvatarGenerationResult with video URL
+
+        Example:
+            result = generator.transfer_motion(
+                image_url="https://example.com/person.jpg",
+                video_url="https://example.com/dance.mp4",
+                character_orientation="video",
+                keep_original_sound=True
+            )
+        """
+        return self.generate(
+            model="kling_motion_control",
+            image_url=image_url,
+            video_url=video_url,
+            character_orientation=character_orientation,
+            keep_original_sound=keep_original_sound,
+            prompt=prompt,
             **kwargs,
         )
 

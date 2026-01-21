@@ -9,6 +9,7 @@ MODEL_ENDPOINTS = {
     "kling_ref_to_video": "fal-ai/kling-video/o1/standard/reference-to-video",
     "kling_v2v_reference": "fal-ai/kling-video/o1/standard/video-to-video/reference",
     "kling_v2v_edit": "fal-ai/kling-video/o1/standard/video-to-video/edit",
+    "kling_motion_control": "fal-ai/kling-video/v2.6/standard/motion-control",
     "multitalk": "fal-ai/ai-avatar/multi",
 }
 
@@ -21,6 +22,7 @@ MODEL_DISPLAY_NAMES = {
     "kling_ref_to_video": "Kling O1 Reference-to-Video",
     "kling_v2v_reference": "Kling O1 V2V Reference",
     "kling_v2v_edit": "Kling O1 V2V Edit",
+    "kling_motion_control": "Kling v2.6 Motion Control",
     "multitalk": "AI Avatar Multi (FAL)",
 }
 
@@ -33,6 +35,7 @@ MODEL_PRICING = {
     "kling_ref_to_video": {"per_second": 0.112},
     "kling_v2v_reference": {"per_second": 0.168},
     "kling_v2v_edit": {"per_second": 0.168},
+    "kling_motion_control": {"per_second": 0.06},
     "multitalk": {"base": 0.10, "720p_multiplier": 2.0, "extended_frames_multiplier": 1.25},
 }
 
@@ -62,6 +65,10 @@ MODEL_DEFAULTS = {
     "kling_v2v_edit": {
         "aspect_ratio": "16:9",
     },
+    "kling_motion_control": {
+        "character_orientation": "video",
+        "keep_original_sound": True,
+    },
     "multitalk": {
         "num_frames": 81,
         "resolution": "480p",
@@ -78,6 +85,7 @@ SUPPORTED_RESOLUTIONS = {
     "kling_ref_to_video": [],  # Uses aspect_ratio instead
     "kling_v2v_reference": [],
     "kling_v2v_edit": [],
+    "kling_motion_control": [],  # Uses character_orientation instead
     "multitalk": ["480p", "720p"],
 }
 
@@ -86,6 +94,7 @@ SUPPORTED_ASPECT_RATIOS = {
     "kling_ref_to_video": ["16:9", "9:16", "1:1"],
     "kling_v2v_reference": ["16:9", "9:16", "1:1"],
     "kling_v2v_edit": ["16:9", "9:16", "1:1"],
+    "kling_motion_control": [],  # Determined by input image/video
 }
 
 # Max durations (seconds)
@@ -97,6 +106,7 @@ MAX_DURATIONS = {
     "kling_ref_to_video": 10,
     "kling_v2v_reference": 10,
     "kling_v2v_edit": 10,
+    "kling_motion_control": {"video": 30, "image": 10},
 }
 
 # Processing time estimates (seconds)
@@ -108,6 +118,7 @@ PROCESSING_TIME_ESTIMATES = {
     "kling_ref_to_video": 45,
     "kling_v2v_reference": 30,
     "kling_v2v_edit": 30,
+    "kling_motion_control": 60,
     "multitalk": 60,
 }
 
@@ -141,6 +152,10 @@ INPUT_REQUIREMENTS = {
         "required": ["video_url", "prompt"],
         "optional": ["mask_url"],
     },
+    "kling_motion_control": {
+        "required": ["image_url", "video_url", "character_orientation"],
+        "optional": ["keep_original_sound", "prompt"],
+    },
     "multitalk": {
         "required": ["image_url", "first_audio_url", "prompt"],
         "optional": ["second_audio_url", "num_frames", "resolution", "seed", "acceleration", "use_only_first_audio"],
@@ -152,6 +167,7 @@ MODEL_CATEGORIES = {
     "avatar_lipsync": ["omnihuman_v1_5", "fabric_1_0", "fabric_1_0_fast", "fabric_1_0_text"],
     "reference_to_video": ["kling_ref_to_video"],
     "video_to_video": ["kling_v2v_reference", "kling_v2v_edit"],
+    "motion_transfer": ["kling_motion_control"],
     "conversational": ["multitalk"],
 }
 
@@ -163,6 +179,8 @@ MODEL_RECOMMENDATIONS = {
     "character_consistency": "kling_ref_to_video",
     "style_transfer": "kling_v2v_reference",
     "video_editing": "kling_v2v_edit",
+    "motion_transfer": "kling_motion_control",
+    "dance_video": "kling_motion_control",
     "cost_effective": "fabric_1_0",
     "conversation": "multitalk",
     "multi_person": "multitalk",
