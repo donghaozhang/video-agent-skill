@@ -5,8 +5,10 @@
 # Feeds Claude's output back as input to continue the loop
 
 # Windows compatibility: Add user bin to PATH for jq
-export PATH="/c/Users/zdhpe/bin:$PATH"
-
+# Add common locations for jq on Windows Git Bash
+if [[ -n "${USERPROFILE:-}" ]]; then
+  export PATH="${USERPROFILE}/bin:$PATH"
+fi
 set -euo pipefail
 
 # Read hook input from stdin (advanced stop hook API)
