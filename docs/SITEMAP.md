@@ -187,14 +187,14 @@ docs/
 
 ### Most Popular
 
-- [Quick Start](guides/getting-started/quick-start.md) - Get started
+- [Setup Guide](guides/getting-started/setup.md) - Get started
 - [Models Reference](reference/models.md) - Available models
 - [API Quick Ref](reference/api-quick-ref.md) - Quick reference
 - [Troubleshooting](guides/support/troubleshooting.md) - Fix problems
 
 ### Essential Reading
 
-- [Configuration](guides/getting-started/configuration.md) - Setup API keys
+- [Setup Guide](guides/getting-started/setup.md) - Installation & API keys
 - [YAML Pipelines](guides/pipelines/yaml-pipelines.md) - Create workflows
 - [Cost Management](guides/optimization/cost-management.md) - Control costs
 
@@ -210,7 +210,7 @@ docs/
 
 | Folder | Files | Description |
 |--------|-------|-------------|
-| `guides/getting-started/` | 4 | New user onboarding |
+| `guides/getting-started/` | 2 | New user onboarding |
 | `guides/pipelines/` | 2 | Pipeline configuration |
 | `guides/content-creation/` | 3 | Content generation |
 | `guides/optimization/` | 3 | Performance & cost |
@@ -219,7 +219,7 @@ docs/
 | `reference/` | 7 | Technical reference |
 | `api/` | 1 | API documentation |
 | `examples/` | 4 | Code examples |
-| **Total** | **33** | |
+| **Total** | **31** | |
 
 ---
 
