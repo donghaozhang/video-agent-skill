@@ -37,7 +37,7 @@ aicp generate-grid --prompt-file storyboard.md
 aicp generate-grid --prompt-file storyboard.md --grid 2x2
 
 # Generate and upscale
-aicp generate-grid --prompt-file storyboard.md --upscale 2x
+aicp generate-grid --prompt-file storyboard.md --upscale 2
 
 # Upscale existing image
 aicp upscale-image -i image.png --factor 2
