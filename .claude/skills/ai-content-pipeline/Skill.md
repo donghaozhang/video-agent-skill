@@ -201,7 +201,7 @@ Generate 2x2 or 3x3 image grids from structured prompt files.
 | `--grid` | `-g` | 3x3 | Grid size (2x2 or 3x3) |
 | `--style` | `-s` | | Style override |
 | `--model` | `-m` | nano_banana_pro | Model to use |
-| `--upscale` | | | Upscale factor (2-10) |
+| `--upscale` | | | Upscale factor (1-8) |
 | `--output` | `-o` | output/ | Output directory |
 | `--save-json` | | | Save metadata as JSON file |
 
@@ -229,7 +229,7 @@ Upscale images using SeedVR2 API.
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
 | `--input` | `-i` | required | Image path or URL |
-| `--factor` | | 2 | Upscale factor (2-10) |
+| `--factor` | | 2 | Upscale factor (1-8) |
 | `--target` | | | Target: 720p/1080p/1440p/2160p |
 | `--format` | | png | Output format (png/jpg/webp) |
 | `--output` | `-o` | output/ | Output directory |

@@ -23,7 +23,7 @@ Implement two CLI commands:
 
 ### Image Upscaling
 - SeedVR2 API: `fal-ai/seedvr/upscale/image`
-- Factor mode: 2x-10x upscale
+- Factor mode: 1x-8x upscale
 - Target mode: 720p, 1080p, 1440p, 2160p
 - Local file and URL support
 
@@ -275,7 +275,7 @@ def upscale_image(
 
     Args:
         image_path: Local path or URL to image
-        factor: Upscale factor (2-10), mutually exclusive with target
+        factor: Upscale factor (1-8), mutually exclusive with target
         target: Target resolution (720p, 1080p, 1440p, 2160p)
         output_dir: Output directory
         output_format: Output format (png, jpg, webp)
@@ -689,7 +689,7 @@ upscale_parser.add_argument(
     "--factor",
     type=float,
     default=2,
-    help="Upscale factor 2-10 (default: 2)"
+    help="Upscale factor 1-8 (default: 2)"
 )
 upscale_parser.add_argument(
     "--target",
@@ -756,7 +756,7 @@ Generate 2x2 or 3x3 image grids from structured prompt files.
 | `--grid` | `-g` | 3x3 | Grid size (2x2 or 3x3) |
 | `--style` | `-s` | | Style override |
 | `--model` | `-m` | nano_banana_pro | Model to use |
-| `--upscale` | | | Upscale factor (2-10) |
+| `--upscale` | | | Upscale factor (1-8) |
 | `--output` | `-o` | output/ | Output directory |
 
 **Pricing:** $0.002/grid + $0.01 if upscaled
@@ -783,7 +783,7 @@ Upscale images using SeedVR2 API.
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
 | `--input` | `-i` | required | Image path or URL |
-| `--factor` | | 2 | Upscale factor (2-10) |
+| `--factor` | | 2 | Upscale factor (1-8) |
 | `--target` | | | Target: 720p/1080p/1440p/2160p |
 | `--format` | | png | Output format (png/jpg/webp) |
 | `--output` | `-o` | output/ | Output directory |
@@ -808,7 +808,7 @@ Upscale images using SeedVR2 API.
 - **Endpoint:** `fal-ai/seedvr/upscale/image`
 - **Required:** `image_url`
 - **Modes:**
-  - Factor mode: `upscale_factor` (2-10)
+  - Factor mode: `upscale_factor` (1-8)
   - Target mode: `target_resolution` (720p, 1080p, 1440p, 2160p)
 - **Options:** `noise_scale` (0-1), `output_format` (png/jpg/webp)
 
