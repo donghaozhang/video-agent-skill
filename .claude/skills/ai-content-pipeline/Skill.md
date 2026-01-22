@@ -135,6 +135,12 @@ Transcribe audio files using ElevenLabs Scribe v2 with speaker diarization.
 # Save detailed JSON metadata
 ./venv/Scripts/aicp.exe transcribe -i audio.mp3 --save-json metadata.json
 
+# Save raw JSON with word-level timestamps (for lip-sync, subtitles)
+./venv/Scripts/aicp.exe transcribe -i audio.mp3 --raw-json words.json
+
+# Both metadata and raw output
+./venv/Scripts/aicp.exe transcribe -i audio.mp3 --save-json meta.json --raw-json words.json
+
 # List speech models
 ./venv/Scripts/aicp.exe list-speech-models
 ```
@@ -152,6 +158,21 @@ Transcribe audio files using ElevenLabs Scribe v2 with speaker diarization.
 | `--no-tag-events` | | | Disable event tagging |
 | `--keyterms` | | | Terms to bias toward (+30% cost) |
 | `--save-json` | | | Save metadata as JSON |
+| `--raw-json` | | | Save raw API response with word timestamps |
+
+**Raw JSON Output Format (--raw-json):**
+```json
+{
+  "language_code": "eng",
+  "language_probability": 0.99,
+  "text": "Hello world...",
+  "words": [
+    {"text": "Hello", "start": 0.0, "end": 0.5, "type": "word", "speaker_id": "speaker_0"},
+    {"text": " ", "start": 0.5, "end": 0.6, "type": "spacing", "speaker_id": "speaker_0"},
+    {"text": "world", "start": 0.6, "end": 1.0, "type": "word", "speaker_id": "speaker_0"}
+  ]
+}
+```
 
 **Pricing:** $0.008/minute (+30% with keyterms)
 
