@@ -405,6 +405,7 @@ def generate_grid(
             model=model,
             aspect_ratio=aspect_ratio,
             output_format="png",
+            output_dir=output_dir,
         )
 
         # Handle ModelResult dataclass (has attributes, not dict access)
@@ -419,10 +420,10 @@ def generate_grid(
         total_cost = result.cost_estimate or MODEL_COSTS.get(model, 0.002)
 
         # Upscale if requested
-        if upscale_factor and local_path:
+        if upscale_factor and (local_path or image_url):
             print(f"\n📈 Upscaling {upscale_factor}x...")
             upscale_result = upscale_image(
-                image_path=local_path,
+                image_path=local_path or image_url,
                 factor=upscale_factor,
                 output_dir=output_dir,
             )
