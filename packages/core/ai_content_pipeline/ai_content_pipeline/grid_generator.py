@@ -9,6 +9,7 @@ import os
 import sys
 import json
 import re
+import time
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Tuple
@@ -132,34 +133,29 @@ def parse_prompt_file(file_path: str) -> Dict[str, Any]:
                           for line in style_text.split('\n') if line.strip() and not line.strip().startswith('```')]
             result["style"] = ", ".join(filter(None, style_lines))
 
-    # Extract panels - try table format first (look for PANELS section with table)
-    panels_section = re.search(
+    # Extract panels - search for section once, then try table format, then list format
+    panels_section_match = re.search(
         r'##\s*(?:PANELS|PANELS\s*&\s*LAYOUT).*?\n(.*?)(?=##|\Z)',
         content, re.DOTALL | re.IGNORECASE
     )
-    if panels_section:
-        section_content = panels_section.group(1)
-        # Check if it contains a markdown table with Panel rows
+    if panels_section_match:
+        section_content = panels_section_match.group(1)
+        # Try table format first
         if '|' in section_content and 'Panel' in section_content:
             # Parse markdown table - match rows like | **Panel 1** | Description text |
             rows = re.findall(
                 r'\|\s*\*?\*?Panel\s*\d+\*?\*?\s*\|\s*(.+?)\s*\|',
                 section_content, re.MULTILINE
             )
-            result["panels"] = [row.strip() for row in rows if row.strip()]
+            if rows:
+                result["panels"] = [row.strip() for row in rows if row.strip()]
 
-    # If no table panels, try list format
-    if not result["panels"]:
-        panels_match = re.search(
-            r'##\s*(?:Panels|PANELS|PANELS & LAYOUT).*?\n(.*?)(?=##|\Z)',
-            content, re.DOTALL | re.IGNORECASE
-        )
-        if panels_match:
-            panels_text = panels_match.group(1)
+        # If no table panels, try list format from the same section
+        if not result["panels"]:
             # Match various formats: "1.", "* **Panel 1:**", "- Panel 1:", etc.
             panel_items = re.findall(
                 r'(?:^|\n)\s*(?:\d+\.|\*|\-)\s*\*?\*?(?:Panel\s*\d+:?\s*\*?\*?)?\s*(.+?)(?=\n\s*(?:\d+\.|\*|\-)|\n\n|\Z)',
-                panels_text, re.DOTALL
+                section_content, re.DOTALL
             )
             result["panels"] = [p.strip().replace('\n', ' ') for p in panel_items if p.strip()]
 
@@ -252,7 +248,6 @@ def upscale_image(
     Returns:
         UpscaleResult with upscaled image details
     """
-    import time
     start_time = time.time()
 
     if not FAL_CLIENT_AVAILABLE:
@@ -267,6 +262,16 @@ def upscale_image(
 
     if not target and not factor:
         factor = 2  # Default to 2x
+
+    # Validate parameters before API call to prevent errors and unnecessary costs
+    if target and target not in UPSCALE_TARGETS:
+        return UpscaleResult(success=False, error=f"Invalid target: {target}. Use {UPSCALE_TARGETS}")
+    if factor is not None and not (1 <= factor <= 8):
+        return UpscaleResult(success=False, error=f"Invalid factor: {factor}. Must be between 1-8.")
+    if not (0.0 <= noise_scale <= 1.0):
+        return UpscaleResult(success=False, error="noise_scale must be between 0 and 1")
+    if output_format not in {"png", "jpg", "webp"}:
+        return UpscaleResult(success=False, error=f"Invalid output_format: {output_format}. Use png, jpg, or webp")
 
     try:
         # Upload if local
@@ -370,7 +375,6 @@ def generate_grid(
     Returns:
         GridGenerationResult with image details
     """
-    import time
     start_time = time.time()
 
     # Validate grid size
