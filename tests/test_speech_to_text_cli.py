@@ -227,6 +227,92 @@ class TestTranscriptionCLIResult:
         assert result.cost is None
         assert result.metadata is None
 
+    def test_raw_response_field(self):
+        """Test raw_response field for word-level timestamps."""
+        mock_raw_response = {
+            "text": "Hello world",
+            "language_code": "eng",
+            "language_probability": 0.99,
+            "words": [
+                {"text": "Hello", "start": 0.0, "end": 0.5, "type": "word", "speaker_id": "speaker_0"},
+                {"text": " ", "start": 0.5, "end": 0.6, "type": "spacing", "speaker_id": "speaker_0"},
+                {"text": "world", "start": 0.6, "end": 1.0, "type": "word", "speaker_id": "speaker_0"},
+            ]
+        }
+        result = TranscriptionCLIResult(
+            success=True,
+            text="Hello world",
+            raw_response=mock_raw_response,
+            language_probability=0.99,
+        )
+        assert result.raw_response is not None
+        assert "words" in result.raw_response
+        assert len(result.raw_response["words"]) == 3
+        assert result.raw_response["words"][0]["type"] == "word"
+        assert result.raw_response["words"][1]["type"] == "spacing"
+        assert result.language_probability == 0.99
+
+
+class TestRawJsonOutput:
+    """Tests for raw JSON output with word-level timestamps."""
+
+    @patch('ai_content_pipeline.speech_to_text.check_dependencies')
+    @patch('ai_content_pipeline.speech_to_text.upload_if_local')
+    @patch('ai_content_pipeline.speech_to_text.FALSpeechToTextGenerator')
+    def test_raw_response_passthrough(self, mock_generator_class, mock_upload, mock_check, tmp_path):
+        """Test raw API response is passed through to result."""
+        mock_check.return_value = (True, "")
+        mock_upload.return_value = "https://fal.media/audio.mp3"
+
+        # Mock raw API response with word-level timestamps
+        mock_raw_response = {
+            "text": "Hello world",
+            "language_code": "eng",
+            "language_probability": 0.98,
+            "words": [
+                {"text": "Hello", "start": 0.0, "end": 0.5, "type": "word", "speaker_id": "speaker_0"},
+                {"text": " ", "start": 0.5, "end": 0.6, "type": "spacing", "speaker_id": "speaker_0"},
+                {"text": "world", "start": 0.6, "end": 1.0, "type": "word", "speaker_id": "speaker_0"},
+            ]
+        }
+
+        # Mock generator and result
+        mock_generator = MagicMock()
+        mock_generator_class.return_value = mock_generator
+        mock_result = MagicMock()
+        mock_result.success = True
+        mock_result.text = "Hello world"
+        mock_result.speakers = ["speaker_0"]
+        mock_result.duration = 1.0
+        mock_result.cost = 0.001
+        mock_result.processing_time = 0.5
+        mock_result.language_detected = "eng"
+        mock_result.language_probability = 0.98
+        mock_result.words = []
+        mock_result.audio_events = []
+        mock_result.raw_response = mock_raw_response
+        mock_generator.transcribe.return_value = mock_result
+
+        result = transcribe("audio.mp3", output_dir=str(tmp_path))
+
+        assert result.success is True
+        assert result.raw_response is not None
+        assert result.raw_response["language_probability"] == 0.98
+        assert len(result.raw_response["words"]) == 3
+        assert result.raw_response["words"][0]["type"] == "word"
+        assert result.raw_response["words"][1]["type"] == "spacing"
+
+    def test_word_timestamp_format(self):
+        """Test word timestamp format matches expected structure."""
+        word_data = {"text": "Hello", "start": 0.0, "end": 0.5, "type": "word", "speaker_id": "speaker_0"}
+
+        assert "text" in word_data
+        assert "start" in word_data
+        assert "end" in word_data
+        assert "type" in word_data
+        assert "speaker_id" in word_data
+        assert word_data["type"] in ["word", "spacing", "audio_event"]
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

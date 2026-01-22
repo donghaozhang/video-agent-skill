@@ -772,6 +772,11 @@ Examples:
         metavar="FILENAME",
         help="Save detailed metadata as JSON file"
     )
+    transcribe_parser.add_argument(
+        "--raw-json",
+        metavar="FILENAME",
+        help="Save raw API response with word-level timestamps as JSON"
+    )
 
     # List speech models command
     subparsers.add_parser(

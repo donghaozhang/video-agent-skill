@@ -75,8 +75,10 @@ class TranscriptionCLIResult:
     cost: Optional[float] = None
     processing_time: Optional[float] = None
     language_detected: Optional[str] = None
+    language_probability: Optional[float] = None
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
+    raw_response: Optional[Dict[str, Any]] = None
 
 
 def check_dependencies() -> Tuple[bool, str]:
@@ -211,6 +213,7 @@ def transcribe(
             cost=result.cost,
             processing_time=result.processing_time,
             language_detected=result.language_detected,
+            language_probability=result.language_probability,
             metadata={
                 "model": model,
                 "diarize": diarize,
@@ -219,6 +222,7 @@ def transcribe(
                 "words_count": len(result.words) if result.words else 0,
                 "audio_events_count": len(result.audio_events) if result.audio_events else 0,
             },
+            raw_response=result.raw_response,
         )
 
     except FileNotFoundError as e:
@@ -301,6 +305,14 @@ def transcribe_command(args) -> None:
                     "metadata": result.metadata,
                 }, f, indent=2)
             print(f"📄 Metadata: {json_path}")
+
+        # Save raw API response if requested (includes word-level timestamps)
+        if args.raw_json and result.raw_response:
+            raw_json_path = Path(args.output) / args.raw_json
+            raw_json_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(raw_json_path, 'w', encoding='utf-8') as f:
+                json.dump(result.raw_response, f, indent=2)
+            print(f"📄 Raw JSON: {raw_json_path}")
     else:
         print(f"\n❌ Transcription failed!")
         print(f"   Error: {result.error}")

@@ -2,7 +2,7 @@
 
 **Feature:** Add `--raw-json` flag to output complete FAL API response with word-level timestamps
 **Created:** 2026-01-22
-**Status:** 📋 PLANNED
+**Status:** ✅ IMPLEMENTED
 **Priority:** Medium
 **Estimated Time:** 15 minutes (no subtasks needed)
 **Branch:** shot
