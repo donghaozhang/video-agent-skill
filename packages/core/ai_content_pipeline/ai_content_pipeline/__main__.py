@@ -45,6 +45,14 @@ from .speech_to_text import (
     list_speech_models,
 )
 
+# Import grid generator module
+from .grid_generator import (
+    generate_grid_command,
+    upscale_image_command,
+    GRID_CONFIGS,
+    UPSCALE_TARGETS,
+)
+
 
 def print_models():
     """Print information about all supported models."""
@@ -549,6 +557,18 @@ Examples:
 
   # List motion models
   python -m ai_content_pipeline list-motion-models
+
+  # Generate 3x3 image grid from prompt file
+  python -m ai_content_pipeline generate-grid --prompt-file storyboard.md
+
+  # Generate 2x2 grid with style override
+  python -m ai_content_pipeline generate-grid -f storyboard.md --grid 2x2 --style "anime style"
+
+  # Upscale image 2x
+  python -m ai_content_pipeline upscale-image -i image.png --factor 2
+
+  # Upscale to 4K resolution
+  python -m ai_content_pipeline upscale-image -i image.png --target 2160p
         """
     )
     
@@ -759,6 +779,85 @@ Examples:
         help="List available speech-to-text models"
     )
 
+    # Generate grid command
+    grid_parser = subparsers.add_parser(
+        "generate-grid",
+        help="Generate 2x2 or 3x3 image grid from prompt file"
+    )
+    grid_parser.add_argument(
+        "--prompt-file", "-f",
+        required=True,
+        help="Markdown file with panel descriptions"
+    )
+    grid_parser.add_argument(
+        "--grid", "-g",
+        choices=list(GRID_CONFIGS.keys()),
+        default="3x3",
+        help="Grid size: 2x2 (4 panels) or 3x3 (9 panels). Default: 3x3"
+    )
+    grid_parser.add_argument(
+        "--style", "-s",
+        help="Style override (replaces prompt file style)"
+    )
+    grid_parser.add_argument(
+        "--model", "-m",
+        default="nano_banana_pro",
+        help="Model to use (default: nano_banana_pro)"
+    )
+    grid_parser.add_argument(
+        "--upscale",
+        type=float,
+        help="Upscale factor after generation (e.g., 2 for 2x)"
+    )
+    grid_parser.add_argument(
+        "-o", "--output",
+        default="output",
+        help="Output directory (default: output)"
+    )
+    grid_parser.add_argument(
+        "--save-json",
+        metavar="FILENAME",
+        help="Save metadata as JSON file"
+    )
+
+    # Upscale image command
+    upscale_parser = subparsers.add_parser(
+        "upscale-image",
+        help="Upscale image using SeedVR2"
+    )
+    upscale_parser.add_argument(
+        "-i", "--input",
+        required=True,
+        help="Input image path or URL"
+    )
+    upscale_parser.add_argument(
+        "--factor",
+        type=float,
+        default=2,
+        help="Upscale factor 2-10 (default: 2)"
+    )
+    upscale_parser.add_argument(
+        "--target",
+        choices=UPSCALE_TARGETS,
+        help="Target resolution (720p, 1080p, 1440p, 2160p). Overrides --factor"
+    )
+    upscale_parser.add_argument(
+        "--format",
+        choices=["png", "jpg", "webp"],
+        default="png",
+        help="Output format (default: png)"
+    )
+    upscale_parser.add_argument(
+        "-o", "--output",
+        default="output",
+        help="Output directory (default: output)"
+    )
+    upscale_parser.add_argument(
+        "--save-json",
+        metavar="FILENAME",
+        help="Save metadata as JSON file"
+    )
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -791,6 +890,10 @@ Examples:
         transcribe_command(args)
     elif args.command == "list-speech-models":
         list_speech_models()
+    elif args.command == "generate-grid":
+        generate_grid_command(args)
+    elif args.command == "upscale-image":
+        upscale_image_command(args)
     else:
         parser.print_help()
         sys.exit(1)

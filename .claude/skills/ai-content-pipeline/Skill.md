@@ -155,6 +155,65 @@ Transcribe audio files using ElevenLabs Scribe v2 with speaker diarization.
 
 **Pricing:** $0.008/minute (+30% with keyterms)
 
+### Generate Image Grid
+Generate 2x2 or 3x3 image grids from structured prompt files.
+
+```bash
+# Generate 3x3 grid (default)
+./venv/Scripts/aicp.exe generate-grid --prompt-file storyboard.md
+
+# Generate 2x2 grid
+./venv/Scripts/aicp.exe generate-grid -f storyboard.md --grid 2x2
+
+# With style override
+./venv/Scripts/aicp.exe generate-grid -f storyboard.md --style "anime, vibrant"
+
+# Generate and upscale 2x
+./venv/Scripts/aicp.exe generate-grid -f storyboard.md --upscale 2
+```
+
+**Options:**
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--prompt-file` | `-f` | required | Markdown file with panels |
+| `--grid` | `-g` | 3x3 | Grid size (2x2 or 3x3) |
+| `--style` | `-s` | | Style override |
+| `--model` | `-m` | nano_banana_pro | Model to use |
+| `--upscale` | | | Upscale factor (2-10) |
+| `--output` | `-o` | output/ | Output directory |
+
+**Pricing:** $0.002/grid + $0.01 if upscaled
+
+### Upscale Image (SeedVR2)
+Upscale images using SeedVR2 API.
+
+```bash
+# Upscale 2x (default)
+./venv/Scripts/aicp.exe upscale-image -i image.png
+
+# Upscale 4x
+./venv/Scripts/aicp.exe upscale-image -i image.png --factor 4
+
+# Upscale to 1080p
+./venv/Scripts/aicp.exe upscale-image -i image.png --target 1080p
+
+# Upscale to 4K
+./venv/Scripts/aicp.exe upscale-image -i image.png --target 2160p
+```
+
+**Options:**
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--input` | `-i` | required | Image path or URL |
+| `--factor` | | 2 | Upscale factor (2-10) |
+| `--target` | | | Target: 720p/1080p/1440p/2160p |
+| `--format` | | png | Output format (png/jpg/webp) |
+| `--output` | `-o` | output/ | Output directory |
+
+**Pricing:** ~$0.01/image
+
 ## Available AI Models (51 Total)
 
 ### Text-to-Image (8 models)
