@@ -200,7 +200,8 @@ class ContentCreationChain:
             StepType.UPSCALE_IMAGE: "image",
             StepType.SPLIT_IMAGE: "image",
             StepType.GENERATE_SUBTITLES: "video",
-            StepType.PARALLEL_GROUP: "any"
+            StepType.PARALLEL_GROUP: "any",
+            StepType.REPLICATE_MULTITALK: "image"
         }
         return input_types.get(step_type, "unknown")
     
@@ -219,7 +220,8 @@ class ContentCreationChain:
             StepType.UPSCALE_IMAGE: "image",
             StepType.SPLIT_IMAGE: "images",  # Multiple images output
             StepType.GENERATE_SUBTITLES: "video",
-            StepType.PARALLEL_GROUP: "parallel_result"
+            StepType.PARALLEL_GROUP: "parallel_result",
+            StepType.REPLICATE_MULTITALK: "video"
         }
         return output_types.get(step_type, "unknown")
     

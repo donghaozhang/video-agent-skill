@@ -134,7 +134,7 @@ class ImageToVideoExecutor(BaseStepExecutor):
 
         params = self._merge_params(
             step.params, chain_config, kwargs,
-            exclude_keys=["prompt"]
+            exclude_keys=["prompt", "prompts"]
         )
 
         # Handle multiple images from split_image step
@@ -184,6 +184,11 @@ class ImageToVideoExecutor(BaseStepExecutor):
         """Process multiple images to videos (from split_image step)."""
         print(f"Processing {len(image_paths)} images to videos...")
 
+        # Check for per-image prompts array
+        prompts_array = step.params.get("prompts", [])
+        if prompts_array:
+            print(f"Using {len(prompts_array)} individual prompts for {len(image_paths)} images")
+
         all_results = []
         output_paths = []
         output_urls = []
@@ -192,10 +197,17 @@ class ImageToVideoExecutor(BaseStepExecutor):
         errors = []
 
         for i, image_path in enumerate(image_paths):
-            print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} ---")
+            # Use individual prompt if available, otherwise fall back to default
+            if prompts_array and i < len(prompts_array):
+                current_prompt = prompts_array[i]
+                print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} ---")
+                print(f"   Prompt: {current_prompt[:80]}...")
+            else:
+                current_prompt = prompt
+                print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} ---")
 
             input_dict = {
-                "prompt": prompt,
+                "prompt": current_prompt,
                 "image_path": image_path
             }
 
