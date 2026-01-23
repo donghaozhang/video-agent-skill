@@ -101,12 +101,13 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
         Returns:
             ModelResult with generation results
         """
-        self._start_timing()
-        
+        # Use local variable for thread-safe timing (not self.start_time)
+        start_time = time.time()
+
         try:
             # Validate input
             if not self.validate_input(input_data, model, **kwargs):
-                return self._create_error_result(model, "Invalid input parameters")
+                return self._create_error_result(model, "Invalid input parameters", start_time)
             
             # Extract required parameters
             prompt = input_data.get("prompt", "")
@@ -129,7 +130,7 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
                     image_url = image_path
             
             if not image_url and not image_path:
-                return self._create_error_result(model, "No image URL or path provided")
+                return self._create_error_result(model, "No image URL or path provided", start_time)
             
             # Auto-select model if needed
             if model == "auto":
@@ -146,19 +147,19 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
                 "veo_3_1_fast", "wan_2_6"
             ]
             if model in fal_models:
-                return self._generate_with_fal(prompt, image_url, model, **kwargs)
+                return self._generate_with_fal(prompt, image_url, model, start_time, **kwargs)
             elif model in ["veo3", "veo3_fast", "veo2"]:
-                return self._generate_with_veo(prompt, image_url, model, **kwargs)
+                return self._generate_with_veo(prompt, image_url, model, start_time, **kwargs)
             else:
-                return self._create_error_result(model, f"Unsupported model: {model}")
-                
+                return self._create_error_result(model, f"Unsupported model: {model}", start_time)
+
         except Exception as e:
-            return self._create_error_result(model, f"Generation failed: {str(e)}")
+            return self._create_error_result(model, f"Generation failed: {e!s}", start_time)
     
-    def _generate_with_fal(self, prompt: str, image_url: str, model: str, **kwargs) -> ModelResult:
+    def _generate_with_fal(self, prompt: str, image_url: str, model: str, start_time: float, **kwargs) -> ModelResult:
         """Generate video using FAL AI models."""
         if not self._fal_generator:
-            return self._create_error_result(model, "FAL generator not available")
+            return self._create_error_result(model, "FAL generator not available", start_time)
 
         try:
             # Map old model names to new FAL model keys if needed
@@ -202,6 +203,7 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
                     model=model,
                     output_path=result.get("local_path"),
                     output_url=result.get("video", {}).get("url"),
+                    start_time=start_time,
                     metadata={
                         "prompt": prompt,
                         "image_url": image_url,
@@ -214,14 +216,14 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
                 )
             else:
                 error_msg = "FAL generation failed" if result else "No result returned"
-                return self._create_error_result(model, error_msg)
-                
+                return self._create_error_result(model, error_msg, start_time)
+
         except Exception as e:
-            return self._create_error_result(model, f"FAL generation error: {str(e)}")
+            return self._create_error_result(model, f"FAL generation error: {e!s}", start_time)
     
-    def _generate_with_veo(self, prompt: str, image_url: str, model: str, **kwargs) -> ModelResult:
+    def _generate_with_veo(self, prompt: str, image_url: str, model: str, start_time: float, **kwargs) -> ModelResult:
         """Generate video using Google Veo (planned)."""
-        return self._create_error_result(model, "Google Veo integration not yet implemented")
+        return self._create_error_result(model, "Google Veo integration not yet implemented", start_time)
     
     def get_available_models(self) -> List[str]:
         """Get list of available image-to-video models."""
@@ -329,13 +331,16 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
         
         return comparison
     
-    def _start_timing(self):
-        """Start timing for processing time calculation."""
-        self.start_time = time.time()
-    
-    def _create_success_result(self, model: str, output_path: str = None, output_url: str = None, metadata: Dict[str, Any] = None) -> ModelResult:
-        """Create a successful result."""
-        processing_time = time.time() - self.start_time if self.start_time else 0
+    def _create_success_result(
+        self,
+        model: str,
+        output_path: str = None,
+        output_url: str = None,
+        start_time: float = None,
+        metadata: Dict[str, Any] = None
+    ) -> ModelResult:
+        """Create a successful result (thread-safe with explicit start_time)."""
+        processing_time = time.time() - start_time if start_time else 0
         return ModelResult(
             success=True,
             model_used=model,
@@ -345,10 +350,10 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
             output_url=output_url,
             metadata=metadata
         )
-    
-    def _create_error_result(self, model: str, error: str) -> ModelResult:
-        """Create an error result."""
-        processing_time = time.time() - self.start_time if self.start_time else 0
+
+    def _create_error_result(self, model: str, error: str, start_time: float = None) -> ModelResult:
+        """Create an error result (thread-safe with explicit start_time)."""
+        processing_time = time.time() - start_time if start_time else 0
         return ModelResult(
             success=False,
             model_used=model,
