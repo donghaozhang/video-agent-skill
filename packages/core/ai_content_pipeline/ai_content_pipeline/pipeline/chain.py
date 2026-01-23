@@ -23,6 +23,7 @@ class StepType(Enum):
     GENERATE_SUBTITLES = "generate_subtitles"
     PARALLEL_GROUP = "parallel_group"
     REPLICATE_MULTITALK = "replicate_multitalk"
+    CONCAT_VIDEOS = "concat_videos"
 
 
 @dataclass
@@ -201,10 +202,11 @@ class ContentCreationChain:
             StepType.SPLIT_IMAGE: "image",
             StepType.GENERATE_SUBTITLES: "video",
             StepType.PARALLEL_GROUP: "any",
-            StepType.REPLICATE_MULTITALK: "image"
+            StepType.REPLICATE_MULTITALK: "image",
+            StepType.CONCAT_VIDEOS: "videos",  # List of video paths
         }
         return input_types.get(step_type, "unknown")
-    
+
     def _get_step_output_type(self, step_type: StepType) -> str:
         """Get the output type for a step."""
         output_types = {
@@ -221,7 +223,8 @@ class ContentCreationChain:
             StepType.SPLIT_IMAGE: "images",  # Multiple images output
             StepType.GENERATE_SUBTITLES: "video",
             StepType.PARALLEL_GROUP: "parallel_result",
-            StepType.REPLICATE_MULTITALK: "video"
+            StepType.REPLICATE_MULTITALK: "video",
+            StepType.CONCAT_VIDEOS: "video",  # Single combined video output
         }
         return output_types.get(step_type, "unknown")
     

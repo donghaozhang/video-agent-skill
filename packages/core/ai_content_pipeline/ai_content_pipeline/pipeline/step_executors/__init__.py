@@ -19,6 +19,7 @@ from .video_steps import (
     AddAudioExecutor,
     UpscaleVideoExecutor,
     GenerateSubtitlesExecutor,
+    ConcatVideosExecutor,
 )
 from .audio_steps import (
     TextToSpeechExecutor,
@@ -42,6 +43,7 @@ __all__ = [
     "AddAudioExecutor",
     "UpscaleVideoExecutor",
     "GenerateSubtitlesExecutor",
+    "ConcatVideosExecutor",
     # Audio executors
     "TextToSpeechExecutor",
     "ReplicateMultiTalkExecutor",

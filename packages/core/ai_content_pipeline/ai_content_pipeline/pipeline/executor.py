@@ -24,6 +24,7 @@ from .step_executors import (
     ReplicateMultiTalkExecutor,
     SplitImageExecutor,
     UpscaleImageExecutor,
+    ConcatVideosExecutor,
 )
 from ..models.text_to_image import UnifiedTextToImageGenerator
 from ..models.image_understanding import UnifiedImageUnderstandingGenerator
@@ -77,6 +78,7 @@ class ChainExecutor:
             StepType.SPLIT_IMAGE: SplitImageExecutor(),
             StepType.GENERATE_SUBTITLES: GenerateSubtitlesExecutor(),
             StepType.REPLICATE_MULTITALK: ReplicateMultiTalkExecutor(replicate_multitalk),
+            StepType.CONCAT_VIDEOS: ConcatVideosExecutor(),
         }
 
         # Optional parallel execution support
@@ -263,8 +265,11 @@ class ChainExecutor:
             return current_data, current_type
 
         # Normal data flow for other steps
-        # For split_image, pass the list of paths so next step can process all
+        # For split_image and image_to_video, pass the list of paths so next step can process all
         if step.step_type == StepType.SPLIT_IMAGE and step_result.get("output_paths"):
+            new_data = step_result.get("output_paths")
+        elif step.step_type == StepType.IMAGE_TO_VIDEO and step_result.get("output_paths"):
+            # Pass list of video paths for concat_videos step
             new_data = step_result.get("output_paths")
         else:
             new_data = (
@@ -291,6 +296,7 @@ class ChainExecutor:
             StepType.SPLIT_IMAGE: "images",
             StepType.GENERATE_SUBTITLES: "video",
             StepType.REPLICATE_MULTITALK: "video",
+            StepType.CONCAT_VIDEOS: "video",
         }
         return output_types.get(step_type, "unknown")
 
