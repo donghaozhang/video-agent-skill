@@ -700,8 +700,8 @@ def check_gemini_requirements() -> tuple[bool, str]:
     try:
         # Test API connection with new SDK
         client = genai.Client(api_key=api_key)
-        # List models to test connection
-        models = list(client.models.list())
+        # Consume iterator to verify connection works
+        next(iter(client.models.list()), None)
         return True, "Gemini API ready"
     except Exception as e:
-        return False, f"Gemini API error: {str(e)}"
+        return False, f"Gemini API error: {e!s}"
