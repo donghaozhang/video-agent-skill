@@ -162,6 +162,9 @@ class ContentCreationChain:
             if step.step_type == StepType.PROMPT_GENERATION:
                 # Keep the actual_data_type unchanged
                 pass
+            elif step.step_type == StepType.IMAGE_TO_VIDEO and actual_data_type == "images":
+                # image_to_video with multiple images produces multiple videos
+                actual_data_type = "videos"
             else:
                 # Normal steps change the data type
                 actual_data_type = step_output
