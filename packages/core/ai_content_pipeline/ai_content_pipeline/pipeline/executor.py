@@ -22,6 +22,9 @@ from .step_executors import (
     GenerateSubtitlesExecutor,
     TextToSpeechExecutor,
     ReplicateMultiTalkExecutor,
+    SplitImageExecutor,
+    UpscaleImageExecutor,
+    ConcatVideosExecutor,
 )
 from ..models.text_to_image import UnifiedTextToImageGenerator
 from ..models.image_understanding import UnifiedImageUnderstandingGenerator
@@ -71,8 +74,11 @@ class ChainExecutor:
             StepType.TEXT_TO_SPEECH: TextToSpeechExecutor(text_to_speech),
             StepType.ADD_AUDIO: AddAudioExecutor(),
             StepType.UPSCALE_VIDEO: UpscaleVideoExecutor(),
+            StepType.UPSCALE_IMAGE: UpscaleImageExecutor(),
+            StepType.SPLIT_IMAGE: SplitImageExecutor(),
             StepType.GENERATE_SUBTITLES: GenerateSubtitlesExecutor(),
             StepType.REPLICATE_MULTITALK: ReplicateMultiTalkExecutor(replicate_multitalk),
+            StepType.CONCAT_VIDEOS: ConcatVideosExecutor(),
         }
 
         # Optional parallel execution support
@@ -259,11 +265,18 @@ class ChainExecutor:
             return current_data, current_type
 
         # Normal data flow for other steps
-        new_data = (
-            step_result.get("output_path") or
-            step_result.get("output_url") or
-            step_result.get("output_text")
-        )
+        # For split_image and image_to_video, pass the list of paths so next step can process all
+        if step.step_type == StepType.SPLIT_IMAGE and step_result.get("output_paths"):
+            new_data = step_result.get("output_paths")
+        elif step.step_type == StepType.IMAGE_TO_VIDEO and step_result.get("output_paths"):
+            # Pass list of video paths for concat_videos step
+            new_data = step_result.get("output_paths")
+        else:
+            new_data = (
+                step_result.get("output_path") or
+                step_result.get("output_url") or
+                step_result.get("output_text")
+            )
         new_type = self._get_step_output_type(step.step_type)
         return new_data, new_type
 
@@ -279,8 +292,11 @@ class ChainExecutor:
             StepType.TEXT_TO_SPEECH: "audio",
             StepType.ADD_AUDIO: "video",
             StepType.UPSCALE_VIDEO: "video",
+            StepType.UPSCALE_IMAGE: "image",
+            StepType.SPLIT_IMAGE: "images",
             StepType.GENERATE_SUBTITLES: "video",
             StepType.REPLICATE_MULTITALK: "video",
+            StepType.CONCAT_VIDEOS: "video",
         }
         return output_types.get(step_type, "unknown")
 

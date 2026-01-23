@@ -10,6 +10,8 @@ from .image_steps import (
     ImageUnderstandingExecutor,
     PromptGenerationExecutor,
     ImageToImageExecutor,
+    SplitImageExecutor,
+    UpscaleImageExecutor,
 )
 from .video_steps import (
     TextToVideoExecutor,
@@ -17,6 +19,7 @@ from .video_steps import (
     AddAudioExecutor,
     UpscaleVideoExecutor,
     GenerateSubtitlesExecutor,
+    ConcatVideosExecutor,
 )
 from .audio_steps import (
     TextToSpeechExecutor,
@@ -32,12 +35,15 @@ __all__ = [
     "ImageUnderstandingExecutor",
     "PromptGenerationExecutor",
     "ImageToImageExecutor",
+    "SplitImageExecutor",
+    "UpscaleImageExecutor",
     # Video executors
     "TextToVideoExecutor",
     "ImageToVideoExecutor",
     "AddAudioExecutor",
     "UpscaleVideoExecutor",
     "GenerateSubtitlesExecutor",
+    "ConcatVideosExecutor",
     # Audio executors
     "TextToSpeechExecutor",
     "ReplicateMultiTalkExecutor",

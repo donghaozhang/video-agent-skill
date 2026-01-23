@@ -135,6 +135,12 @@ Transcribe audio files using ElevenLabs Scribe v2 with speaker diarization.
 # Save detailed JSON metadata
 ./venv/Scripts/aicp.exe transcribe -i audio.mp3 --save-json metadata.json
 
+# Save raw JSON with word-level timestamps (for lip-sync, subtitles)
+./venv/Scripts/aicp.exe transcribe -i audio.mp3 --raw-json words.json
+
+# Both metadata and raw output
+./venv/Scripts/aicp.exe transcribe -i audio.mp3 --save-json meta.json --raw-json words.json
+
 # List speech models
 ./venv/Scripts/aicp.exe list-speech-models
 ```
@@ -152,8 +158,84 @@ Transcribe audio files using ElevenLabs Scribe v2 with speaker diarization.
 | `--no-tag-events` | | | Disable event tagging |
 | `--keyterms` | | | Terms to bias toward (+30% cost) |
 | `--save-json` | | | Save metadata as JSON |
+| `--raw-json` | | | Save raw API response with word timestamps |
+
+**Raw JSON Output Format (--raw-json):**
+```json
+{
+  "language_code": "eng",
+  "language_probability": 0.99,
+  "text": "Hello world...",
+  "words": [
+    {"text": "Hello", "start": 0.0, "end": 0.5, "type": "word", "speaker_id": "speaker_0"},
+    {"text": " ", "start": 0.5, "end": 0.6, "type": "spacing", "speaker_id": "speaker_0"},
+    {"text": "world", "start": 0.6, "end": 1.0, "type": "word", "speaker_id": "speaker_0"}
+  ]
+}
+```
 
 **Pricing:** $0.008/minute (+30% with keyterms)
+
+### Generate Image Grid
+Generate 2x2 or 3x3 image grids from structured prompt files.
+
+```bash
+# Generate 3x3 grid (default)
+./venv/Scripts/aicp.exe generate-grid --prompt-file storyboard.md
+
+# Generate 2x2 grid
+./venv/Scripts/aicp.exe generate-grid -f storyboard.md --grid 2x2
+
+# With style override
+./venv/Scripts/aicp.exe generate-grid -f storyboard.md --style "anime, vibrant"
+
+# Generate and upscale 2x
+./venv/Scripts/aicp.exe generate-grid -f storyboard.md --upscale 2
+```
+
+**Options:**
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--prompt-file` | `-f` | required | Markdown file with panels |
+| `--grid` | `-g` | 3x3 | Grid size (2x2 or 3x3) |
+| `--style` | `-s` | | Style override |
+| `--model` | `-m` | nano_banana_pro | Model to use |
+| `--upscale` | | | Upscale factor (1-8) |
+| `--output` | `-o` | output/ | Output directory |
+| `--save-json` | | | Save metadata as JSON file |
+
+**Pricing:** $0.002/grid + $0.01 if upscaled
+
+### Upscale Image (SeedVR2)
+Upscale images using SeedVR2 API.
+
+```bash
+# Upscale 2x (default)
+./venv/Scripts/aicp.exe upscale-image -i image.png
+
+# Upscale 4x
+./venv/Scripts/aicp.exe upscale-image -i image.png --factor 4
+
+# Upscale to 1080p
+./venv/Scripts/aicp.exe upscale-image -i image.png --target 1080p
+
+# Upscale to 4K
+./venv/Scripts/aicp.exe upscale-image -i image.png --target 2160p
+```
+
+**Options:**
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--input` | `-i` | required | Image path or URL |
+| `--factor` | | 2 | Upscale factor (1-8) |
+| `--target` | | | Target: 720p/1080p/1440p/2160p |
+| `--format` | | png | Output format (png/jpg/webp) |
+| `--output` | `-o` | output/ | Output directory |
+| `--save-json` | | | Save metadata as JSON file |
+
+**Pricing:** ~$0.01/image
 
 ## Available AI Models (51 Total)
 
@@ -277,6 +359,44 @@ steps:
       prompt: "Camera slowly pans across the landscape"
       duration: 5
 ```
+
+### Example: Parallel Image-to-Video (from split_image)
+
+When using `split_image` followed by `image_to_video`, enable parallel processing for 4x speedup:
+
+```yaml
+name: "Storyboard Animation"
+description: "Split grid and animate scenes in parallel"
+
+steps:
+  - name: "generate_grid"
+    type: "text_to_image"
+    model: "nano_banana_pro"
+    params:
+      prompt: "A 2x2 grid of 4 cinematic scenes"
+      aspect_ratio: "16:9"
+
+  - name: "split_panels"
+    type: "split_image"
+    model: "local"
+    params:
+      grid: "2x2"
+
+  - name: "animate_all"
+    type: "image_to_video"
+    model: "kling_2_6_pro"
+    params:
+      parallel: true        # Process all images concurrently
+      max_workers: 4        # Maximum concurrent generations (default: 4)
+      duration: "5"
+      prompts:              # Optional per-image prompts
+        - "Scene 1 motion: camera push in, dramatic reveal"
+        - "Scene 2 motion: slow pan left, ambient movement"
+        - "Scene 3 motion: zoom out, establishing shot"
+        - "Scene 4 motion: tracking shot, character focus"
+```
+
+**Performance:** 4 images sequential (~8 min) → parallel (~2 min)
 
 ### Example: Multi-step Pipeline
 ```yaml

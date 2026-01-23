@@ -46,8 +46,10 @@ class TranscriptionResult:
     processing_time: Optional[float] = None
     model_used: Optional[str] = None
     language_detected: Optional[str] = None
+    language_probability: Optional[float] = None  # Confidence in language detection
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = field(default_factory=dict)
+    raw_response: Optional[Dict[str, Any]] = None  # Complete API response for raw output
 
 
 class BaseSpeechToTextModel(ABC):

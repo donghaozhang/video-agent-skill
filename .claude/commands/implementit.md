@@ -1,0 +1,2 @@
+# Create a project command
+echo "1. Implement the MD file step by step for long-term maintainability rather than short-term gain. 2. Ensure the implementation is well-documented and includes relevant file paths for future reference. 3. Test the implemented functionality, specifying the relevant file paths for test cases. 4. Do not break existing features."
