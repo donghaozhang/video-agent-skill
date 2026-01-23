@@ -239,7 +239,7 @@ def upscale_image(
 
     Args:
         image_path: Local path or URL to image
-        factor: Upscale factor (2-10), mutually exclusive with target
+        factor: Upscale factor (1-8), mutually exclusive with target
         target: Target resolution (720p, 1080p, 1440p, 2160p)
         output_dir: Output directory
         output_format: Output format (png, jpg, webp)
