@@ -14,6 +14,8 @@ from typing import Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass
 from dotenv import load_dotenv
 
+from .subtitle_converter import words_to_srt, SubtitleConfig
+
 # Try to import FAL client for file uploads
 try:
     import fal_client
@@ -313,6 +315,26 @@ def transcribe_command(args) -> None:
             with open(raw_json_path, 'w', encoding='utf-8') as f:
                 json.dump(result.raw_response, f, indent=2)
             print(f"📄 Raw JSON: {raw_json_path}")
+        elif args.raw_json and not result.raw_response:
+            print("⚠️  Warning: --raw-json specified but raw response data unavailable")
+
+        # Generate SRT subtitles if requested
+        if hasattr(args, 'srt') and args.srt and result.raw_response:
+            words = result.raw_response.get("words", [])
+            if words:
+                config = SubtitleConfig(
+                    max_words_per_line=getattr(args, 'srt_max_words', 8),
+                    max_duration=getattr(args, 'srt_max_duration', 4.0),
+                )
+                srt_content = words_to_srt(words, config)
+                srt_path = Path(args.output) / args.srt
+                srt_path.parent.mkdir(parents=True, exist_ok=True)
+                srt_path.write_text(srt_content, encoding='utf-8')
+                print(f"📄 SRT: {srt_path}")
+            else:
+                print("⚠️  Warning: --srt specified but no word timestamps available")
+        elif hasattr(args, 'srt') and args.srt and not result.raw_response:
+            print("⚠️  Warning: --srt specified but raw response data unavailable")
     else:
         print(f"\n❌ Transcription failed!")
         print(f"   Error: {result.error}")

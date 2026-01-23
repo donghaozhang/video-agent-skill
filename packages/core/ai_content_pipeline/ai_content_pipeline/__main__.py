@@ -777,6 +777,23 @@ Examples:
         metavar="FILENAME",
         help="Save raw API response with word-level timestamps as JSON"
     )
+    transcribe_parser.add_argument(
+        "--srt",
+        metavar="FILENAME",
+        help="Generate SRT subtitle file from word timestamps"
+    )
+    transcribe_parser.add_argument(
+        "--srt-max-words",
+        type=int,
+        default=8,
+        help="Max words per subtitle line (default: 8)"
+    )
+    transcribe_parser.add_argument(
+        "--srt-max-duration",
+        type=float,
+        default=4.0,
+        help="Max seconds per subtitle (default: 4.0)"
+    )
 
     # List speech models command
     subparsers.add_parser(
@@ -839,7 +856,7 @@ Examples:
         "--factor",
         type=float,
         default=2,
-        help="Upscale factor 2-10 (default: 2)"
+        help="Upscale factor 1-8 (default: 2)"
     )
     upscale_parser.add_argument(
         "--target",
