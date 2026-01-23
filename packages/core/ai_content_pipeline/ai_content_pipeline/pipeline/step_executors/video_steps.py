@@ -7,6 +7,7 @@ Contains executors for image-to-video, add-audio, upscale-video, and subtitle ge
 import os
 import time
 import shutil
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -134,11 +135,15 @@ class ImageToVideoExecutor(BaseStepExecutor):
 
         params = self._merge_params(
             step.params, chain_config, kwargs,
-            exclude_keys=["prompt", "prompts"]
+            exclude_keys=["prompt", "prompts", "parallel", "max_workers"]
         )
 
         # Handle multiple images from split_image step
         if isinstance(input_data, list):
+            # Check for parallel processing flag
+            parallel = step.params.get("parallel", False)
+            if parallel:
+                return self._process_multiple_images_parallel(step, input_data, prompt, params)
             return self._process_multiple_images(step, input_data, prompt, params)
 
         # Single image processing
@@ -244,6 +249,131 @@ class ImageToVideoExecutor(BaseStepExecutor):
             "cost": total_cost,
             "model": step.model,
             "metadata": {
+                "total_images": len(image_paths),
+                "videos_generated": len(output_paths),
+                "video_paths": output_paths,
+            },
+            "error": "; ".join(errors) if errors else None
+        }
+
+    def _process_multiple_images_parallel(
+        self,
+        step,
+        image_paths: list,
+        default_prompt: str,
+        params: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Process multiple images to videos in parallel using ThreadPoolExecutor.
+
+        Args:
+            step: The pipeline step configuration.
+            image_paths: List of image file paths to process.
+            default_prompt: Default prompt to use if no per-image prompt is provided.
+            params: Additional parameters for video generation.
+
+        Returns:
+            Dict containing success status, output paths/urls, cost, and metadata.
+        """
+        # Get parallel processing configuration
+        max_workers = step.params.get("max_workers", 4)
+        prompts_array = step.params.get("prompts", [])
+
+        print(f"Processing {len(image_paths)} images in PARALLEL (max_workers={max_workers})...")
+        if prompts_array:
+            print(f"Using {len(prompts_array)} individual prompts")
+
+        # Thread-safe storage for results
+        results_dict = {}
+        errors = []
+
+        def process_single(index: int, image_path: str) -> tuple:
+            """
+            Process a single image and return (index, result).
+
+            Args:
+                index: Image index for ordering results.
+                image_path: Path to the image file.
+
+            Returns:
+                Tuple of (index, GenerationResult).
+            """
+            # Get prompt for this image
+            if prompts_array and index < len(prompts_array):
+                prompt = prompts_array[index]
+            else:
+                prompt = default_prompt
+
+            print(f"   [Thread {index+1}] Starting: {Path(image_path).name}")
+            if prompts_array and index < len(prompts_array):
+                print(f"   [Thread {index+1}] Prompt: {prompt[:60]}...")
+
+            input_dict = {
+                "prompt": prompt,
+                "image_path": image_path
+            }
+
+            result = self.generator.generate(
+                input_data=input_dict,
+                model=step.model,
+                **params
+            )
+            return (index, result)
+
+        # Execute in parallel using ThreadPoolExecutor
+        start_time = time.time()
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            futures = {
+                executor.submit(process_single, i, path): i
+                for i, path in enumerate(image_paths)
+            }
+
+            # Collect results as they complete
+            for future in as_completed(futures):
+                index = futures[future]
+                try:
+                    idx, result = future.result()
+                    results_dict[idx] = result
+                    if result.success:
+                        print(f"   ✅ [Thread {idx+1}] Completed: {result.output_path}")
+                    else:
+                        errors.append(f"Image {idx+1}: {result.error}")
+                        print(f"   ❌ [Thread {idx+1}] Failed: {result.error}")
+                except Exception as e:
+                    errors.append(f"Image {index+1}: {str(e)}")
+                    print(f"   ❌ [Thread {index+1}] Exception: {str(e)}")
+
+        total_time = time.time() - start_time
+
+        # Collect results in original order
+        output_paths = []
+        output_urls = []
+        total_cost = 0
+
+        for i in range(len(image_paths)):
+            if i in results_dict and results_dict[i].success:
+                output_paths.append(results_dict[i].output_path)
+                output_urls.append(results_dict[i].output_url)
+                total_cost += results_dict[i].cost_estimate or 0
+
+        success = len(output_paths) > 0
+
+        print(f"\nParallel processing complete: {len(output_paths)}/{len(image_paths)} videos in {total_time:.1f}s")
+
+        return {
+            "success": success,
+            "output_path": output_paths[0] if output_paths else None,
+            "output_paths": output_paths,
+            "output_url": output_urls[0] if output_urls else None,
+            "output_urls": output_urls,
+            "processing_time": total_time,
+            "cost": total_cost,
+            "model": step.model,
+            "metadata": {
+                "parallel": True,
+                "max_workers": max_workers,
                 "total_images": len(image_paths),
                 "videos_generated": len(output_paths),
                 "video_paths": output_paths,

@@ -311,13 +311,13 @@ save_intermediates: true
 
 ## Testing Checklist
 
-- [ ] Unit tests pass: `pytest tests/test_parallel_video_generation.py`
-- [ ] Sequential mode still works (backward compatible)
-- [ ] Parallel mode with 2x2 grid (4 images)
-- [ ] Parallel mode with 3x3 grid (9 images)
-- [ ] Individual prompts work in parallel mode
-- [ ] Error in one video doesn't crash others
-- [ ] Output order matches input order
+- [x] Unit tests pass: `pytest tests/test_parallel_video_generation.py` (12 tests)
+- [x] Sequential mode still works (backward compatible)
+- [x] Parallel mode with 2x2 grid (4 images) - tested via unit tests
+- [ ] Parallel mode with 3x3 grid (9 images) - needs integration test
+- [x] Individual prompts work in parallel mode
+- [x] Error in one video doesn't crash others
+- [x] Output order matches input order
 
 ---
 

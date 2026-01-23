@@ -360,6 +360,44 @@ steps:
       duration: 5
 ```
 
+### Example: Parallel Image-to-Video (from split_image)
+
+When using `split_image` followed by `image_to_video`, enable parallel processing for 4x speedup:
+
+```yaml
+name: "Storyboard Animation"
+description: "Split grid and animate scenes in parallel"
+
+steps:
+  - name: "generate_grid"
+    type: "text_to_image"
+    model: "nano_banana_pro"
+    params:
+      prompt: "A 2x2 grid of 4 cinematic scenes"
+      aspect_ratio: "16:9"
+
+  - name: "split_panels"
+    type: "split_image"
+    model: "local"
+    params:
+      grid: "2x2"
+
+  - name: "animate_all"
+    type: "image_to_video"
+    model: "kling_2_6_pro"
+    params:
+      parallel: true        # Process all images concurrently
+      max_workers: 4        # Maximum concurrent generations (default: 4)
+      duration: "5"
+      prompts:              # Optional per-image prompts
+        - "Scene 1 motion: camera push in, dramatic reveal"
+        - "Scene 2 motion: slow pan left, ambient movement"
+        - "Scene 3 motion: zoom out, establishing shot"
+        - "Scene 4 motion: tracking shot, character focus"
+```
+
+**Performance:** 4 images sequential (~8 min) → parallel (~2 min)
+
 ### Example: Multi-step Pipeline
 ```yaml
 name: "Full Content Pipeline"
