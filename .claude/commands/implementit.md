@@ -1,2 +1,2 @@
 # Create a project command
-echo "1 implement the md file step by step long term maintain rather than short term gain 2. Ensure the implementation is well-documented and includes relevant file paths for future reference 3. test the implemented functionality, specifying the relevant file paths for test cases"
+echo "1 implement the md file step by step long term maintain rather than short term gain 2. Ensure the implementation is well-documented and includes relevant file paths for future reference 3. test the implemented functionality, specifying the relevant file paths for test cases 4 not breaking existing features"

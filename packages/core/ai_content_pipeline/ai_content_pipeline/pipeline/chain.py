@@ -145,7 +145,13 @@ class ContentCreationChain:
                     errors.append(f"First step expects {step_input} input, but pipeline starts with {initial_input_type}")
             else:
                 # Check if this step can accept the actual data type available
-                if step_input != actual_data_type and step_input != "any":
+                # Allow "images" to flow into steps expecting "image" (uses first image)
+                is_compatible = (
+                    step_input == actual_data_type or
+                    step_input == "any" or
+                    (actual_data_type == "images" and step_input == "image")
+                )
+                if not is_compatible:
                     errors.append(
                         f"Step {i+1} expects {step_input} but available data is {actual_data_type}"
                     )

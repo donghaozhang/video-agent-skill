@@ -263,11 +263,15 @@ class ChainExecutor:
             return current_data, current_type
 
         # Normal data flow for other steps
-        new_data = (
-            step_result.get("output_path") or
-            step_result.get("output_url") or
-            step_result.get("output_text")
-        )
+        # For split_image, pass the list of paths so next step can process all
+        if step.step_type == StepType.SPLIT_IMAGE and step_result.get("output_paths"):
+            new_data = step_result.get("output_paths")
+        else:
+            new_data = (
+                step_result.get("output_path") or
+                step_result.get("output_url") or
+                step_result.get("output_text")
+            )
         new_type = self._get_step_output_type(step.step_type)
         return new_data, new_type
 

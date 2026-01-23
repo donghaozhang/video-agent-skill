@@ -137,10 +137,24 @@ class ImageToVideoExecutor(BaseStepExecutor):
             exclude_keys=["prompt"]
         )
 
-        # Prepare input data for the unified generator
+        # Handle multiple images from split_image step
+        if isinstance(input_data, list):
+            return self._process_multiple_images(step, input_data, prompt, params)
+
+        # Single image processing
+        return self._process_single_image(step, input_data, prompt, params)
+
+    def _process_single_image(
+        self,
+        step,
+        image_path: str,
+        prompt: str,
+        params: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Process a single image to video."""
         input_dict = {
             "prompt": prompt,
-            "image_path": input_data
+            "image_path": image_path
         }
 
         result = self.generator.generate(
@@ -158,6 +172,71 @@ class ImageToVideoExecutor(BaseStepExecutor):
             "model": result.model_used,
             "metadata": result.metadata,
             "error": result.error
+        }
+
+    def _process_multiple_images(
+        self,
+        step,
+        image_paths: list,
+        prompt: str,
+        params: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Process multiple images to videos (from split_image step)."""
+        print(f"Processing {len(image_paths)} images to videos...")
+
+        all_results = []
+        output_paths = []
+        output_urls = []
+        total_time = 0
+        total_cost = 0
+        errors = []
+
+        for i, image_path in enumerate(image_paths):
+            print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} ---")
+
+            input_dict = {
+                "prompt": prompt,
+                "image_path": image_path
+            }
+
+            try:
+                result = self.generator.generate(
+                    input_data=input_dict,
+                    model=step.model,
+                    **params
+                )
+
+                all_results.append(result)
+                if result.success:
+                    output_paths.append(result.output_path)
+                    output_urls.append(result.output_url)
+                    total_time += result.processing_time or 0
+                    total_cost += result.cost_estimate or 0
+                    print(f"   Video saved: {result.output_path}")
+                else:
+                    errors.append(f"Image {i+1}: {result.error}")
+                    print(f"   Failed: {result.error}")
+            except Exception as e:
+                errors.append(f"Image {i+1}: {str(e)}")
+                print(f"   Exception: {str(e)}")
+
+        success = len(output_paths) > 0
+
+        return {
+            "success": success,
+            "output_path": output_paths[0] if output_paths else None,
+            "output_paths": output_paths,
+            "output_url": output_urls[0] if output_urls else None,
+            "output_urls": output_urls,
+            "processing_time": total_time,
+            "cost": total_cost,
+            "model": step.model,
+            "metadata": {
+                "total_images": len(image_paths),
+                "videos_generated": len(output_paths),
+                "video_paths": output_paths,
+            },
+            "error": "; ".join(errors) if errors else None
         }
 
 
