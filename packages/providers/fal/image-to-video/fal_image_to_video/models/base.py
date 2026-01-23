@@ -152,7 +152,9 @@ class BaseVideoModel(ABC):
             duration = validated_params.get("duration", 5)
             if isinstance(duration, str):
                 duration = int(duration.replace("s", ""))
-            cost_estimate = self.estimate_cost(duration, **validated_params)
+            # Remove duration from kwargs to avoid duplicate argument error
+            cost_params = {k: v for k, v in validated_params.items() if k != "duration"}
+            cost_estimate = self.estimate_cost(duration, **cost_params)
 
             return {
                 "success": True,
