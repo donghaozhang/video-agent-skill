@@ -60,10 +60,15 @@ class GeminiVideoAnalyzer:
             video_file = self.client.files.upload(file=str(video_path))
             print(f"Upload complete. File ID: {video_file.name}")
 
-            # Wait for processing
+            # Wait for processing with timeout
+            max_wait_seconds = 600  # 10 minutes timeout
+            elapsed = 0
             while video_file.state.name == "PROCESSING":
+                if elapsed >= max_wait_seconds:
+                    raise TimeoutError(f"Video processing timed out after {max_wait_seconds} seconds")
                 print("Processing video...")
                 time.sleep(2)
+                elapsed += 2
                 video_file = self.client.files.get(name=video_file.name)
 
             if video_file.state.name == "FAILED":
@@ -92,10 +97,15 @@ class GeminiVideoAnalyzer:
             audio_file = self.client.files.upload(file=str(audio_path))
             print(f"Upload complete. File ID: {audio_file.name}")
 
-            # Wait for processing
+            # Wait for processing with timeout
+            max_wait_seconds = 300  # 5 minutes timeout for audio
+            elapsed = 0
             while audio_file.state.name == "PROCESSING":
+                if elapsed >= max_wait_seconds:
+                    raise TimeoutError(f"Audio processing timed out after {max_wait_seconds} seconds")
                 print("Processing audio...")
                 time.sleep(2)
+                elapsed += 2
                 audio_file = self.client.files.get(name=audio_file.name)
 
             if audio_file.state.name == "FAILED":
