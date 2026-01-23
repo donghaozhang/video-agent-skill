@@ -10,6 +10,8 @@ from .image_steps import (
     ImageUnderstandingExecutor,
     PromptGenerationExecutor,
     ImageToImageExecutor,
+    SplitImageExecutor,
+    UpscaleImageExecutor,
 )
 from .video_steps import (
     TextToVideoExecutor,
@@ -32,6 +34,8 @@ __all__ = [
     "ImageUnderstandingExecutor",
     "PromptGenerationExecutor",
     "ImageToImageExecutor",
+    "SplitImageExecutor",
+    "UpscaleImageExecutor",
     # Video executors
     "TextToVideoExecutor",
     "ImageToVideoExecutor",

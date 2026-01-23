@@ -18,6 +18,8 @@ class StepType(Enum):
     TEXT_TO_SPEECH = "text_to_speech"
     ADD_AUDIO = "add_audio"
     UPSCALE_VIDEO = "upscale_video"
+    UPSCALE_IMAGE = "upscale_image"
+    SPLIT_IMAGE = "split_image"
     GENERATE_SUBTITLES = "generate_subtitles"
     PARALLEL_GROUP = "parallel_group"
     REPLICATE_MULTITALK = "replicate_multitalk"
@@ -189,6 +191,8 @@ class ContentCreationChain:
             StepType.TEXT_TO_SPEECH: "text",
             StepType.ADD_AUDIO: "video",
             StepType.UPSCALE_VIDEO: "video",
+            StepType.UPSCALE_IMAGE: "image",
+            StepType.SPLIT_IMAGE: "image",
             StepType.GENERATE_SUBTITLES: "video",
             StepType.PARALLEL_GROUP: "any"
         }
@@ -206,6 +210,8 @@ class ContentCreationChain:
             StepType.TEXT_TO_SPEECH: "audio",
             StepType.ADD_AUDIO: "video",
             StepType.UPSCALE_VIDEO: "video",
+            StepType.UPSCALE_IMAGE: "image",
+            StepType.SPLIT_IMAGE: "images",  # Multiple images output
             StepType.GENERATE_SUBTITLES: "video",
             StepType.PARALLEL_GROUP: "parallel_result"
         }

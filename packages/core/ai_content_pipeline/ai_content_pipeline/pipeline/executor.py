@@ -22,6 +22,8 @@ from .step_executors import (
     GenerateSubtitlesExecutor,
     TextToSpeechExecutor,
     ReplicateMultiTalkExecutor,
+    SplitImageExecutor,
+    UpscaleImageExecutor,
 )
 from ..models.text_to_image import UnifiedTextToImageGenerator
 from ..models.image_understanding import UnifiedImageUnderstandingGenerator
@@ -71,6 +73,8 @@ class ChainExecutor:
             StepType.TEXT_TO_SPEECH: TextToSpeechExecutor(text_to_speech),
             StepType.ADD_AUDIO: AddAudioExecutor(),
             StepType.UPSCALE_VIDEO: UpscaleVideoExecutor(),
+            StepType.UPSCALE_IMAGE: UpscaleImageExecutor(),
+            StepType.SPLIT_IMAGE: SplitImageExecutor(),
             StepType.GENERATE_SUBTITLES: GenerateSubtitlesExecutor(),
             StepType.REPLICATE_MULTITALK: ReplicateMultiTalkExecutor(replicate_multitalk),
         }
@@ -279,6 +283,8 @@ class ChainExecutor:
             StepType.TEXT_TO_SPEECH: "audio",
             StepType.ADD_AUDIO: "video",
             StepType.UPSCALE_VIDEO: "video",
+            StepType.UPSCALE_IMAGE: "image",
+            StepType.SPLIT_IMAGE: "images",
             StepType.GENERATE_SUBTITLES: "video",
             StepType.REPLICATE_MULTITALK: "video",
         }

@@ -3,9 +3,414 @@
 **Feature:** Add CLI commands for image grid generation (2x2, 3x3) and upscaling
 **Created:** 2026-01-22
 **Completed:** 2026-01-22
-**Status:** ✅ IMPLEMENTED
+**Status:** ✅ IMPLEMENTED (CLI) | ✅ IMPLEMENTED (YAML Pipeline Split)
 **Priority:** Medium
 **Branch:** shot
+
+---
+
+# Phase 2: YAML Pipeline with Split & Upscale
+
+**Feature:** Enable complete grid workflow (generate → split → upscale) via single YAML pipeline
+**Created:** 2026-01-23
+**Completed:** 2026-01-23
+**Status:** ✅ IMPLEMENTED
+
+## Overview
+
+Add `split_image` and `upscale_image` step types to the YAML pipeline system, enabling:
+
+```
+Text Prompt → Generate 2x2/3x3 Grid → Split into 4/9 Panels → Upscale Each Panel
+```
+
+All configurable via a single YAML file.
+
+## Current Gap
+
+**What exists:**
+- `generate-grid` CLI generates 2x2/3x3 composite images ✅
+- `upscale-image` CLI upscales single images ✅
+- YAML pipeline with 12+ step types ✅
+
+**Now implemented:**
+- `split_image` step type to divide grid into individual panels ✅
+- `upscale_image` step type for image upscaling ✅
+
+## Target YAML Configuration
+
+```yaml
+name: "grid_split_upscale_pipeline"
+description: "Generate 2x2 grid, split into panels, upscale each"
+
+steps:
+  # Step 1: Generate 2x2 grid image
+  - name: "generate_grid"
+    type: "text_to_image"
+    model: "nano_banana_pro"
+    params:
+      prompt: |
+        A 2x2 grid of 4 panels showing:
+        Panel 1 (top-left): A sunrise over mountains
+        Panel 2 (top-right): A forest at noon
+        Panel 3 (bottom-left): A beach at sunset
+        Panel 4 (bottom-right): A city at night
+        Style: cinematic, vibrant colors
+
+  # Step 2: Split grid into individual panels
+  - name: "split_panels"
+    type: "split_image"
+    params:
+      grid: "2x2"           # or "3x3"
+      output_format: "png"
+      naming: "panel_{n}"   # panel_1.png, panel_2.png, etc.
+
+output_dir: "output/grid_pipeline"
+save_intermediates: true
+```
+
+## Implementation Plan
+
+### Subtask 2.1: Create Image Splitter Utility (15 min)
+
+**File:** `packages/core/ai_content_pipeline/ai_content_pipeline/image_splitter.py`
+
+```python
+"""
+Image splitting utility for grid images.
+Splits 2x2 or 3x3 grid images into individual panels.
+"""
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List, Optional, Tuple
+from PIL import Image
+
+
+@dataclass
+class SplitConfig:
+    """Configuration for image splitting."""
+    grid: str = "2x2"              # "2x2" or "3x3"
+    output_format: str = "png"     # png, jpg, webp
+    naming_pattern: str = "panel_{n}"  # {n} = panel number
+    quality: int = 95              # JPEG quality
+
+
+GRID_CONFIGS = {
+    "2x2": {"rows": 2, "cols": 2, "panels": 4},
+    "3x3": {"rows": 3, "cols": 3, "panels": 9},
+}
+
+
+def split_grid_image(
+    image_path: str,
+    output_dir: str,
+    config: Optional[SplitConfig] = None
+) -> List[str]:
+    """
+    Split a grid image into individual panels.
+
+    Args:
+        image_path: Path to the grid image
+        output_dir: Directory to save split panels
+        config: Split configuration
+
+    Returns:
+        List of paths to the split panel images
+    """
+    config = config or SplitConfig()
+
+    if config.grid not in GRID_CONFIGS:
+        raise ValueError(f"Invalid grid: {config.grid}")
+
+    grid_info = GRID_CONFIGS[config.grid]
+    rows, cols = grid_info["rows"], grid_info["cols"]
+
+    img = Image.open(image_path)
+    width, height = img.size
+    panel_width = width // cols
+    panel_height = height // rows
+
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    panel_paths = []
+    panel_num = 1
+
+    for row in range(rows):
+        for col in range(cols):
+            left = col * panel_width
+            upper = row * panel_height
+            right = left + panel_width
+            lower = upper + panel_height
+
+            panel = img.crop((left, upper, right, lower))
+
+            filename = config.naming_pattern.replace("{n}", str(panel_num))
+            filename = f"{filename}.{config.output_format}"
+            panel_path = output_path / filename
+
+            if config.output_format.lower() == "jpg":
+                panel.save(panel_path, "JPEG", quality=config.quality)
+            else:
+                panel.save(panel_path)
+
+            panel_paths.append(str(panel_path))
+            panel_num += 1
+
+    return panel_paths
+```
+
+---
+
+### Subtask 2.2: Add Step Types to Chain (5 min)
+
+**File:** `packages/core/ai_content_pipeline/ai_content_pipeline/pipeline/chain.py`
+
+Add to `StepType` enum:
+```python
+class StepType(Enum):
+    # ... existing ...
+    SPLIT_IMAGE = "split_image"
+    UPSCALE_IMAGE = "upscale_image"
+```
+
+Add type mappings:
+```python
+STEP_INPUT_TYPES = {
+    # ... existing ...
+    StepType.SPLIT_IMAGE: "image",
+    StepType.UPSCALE_IMAGE: "image",
+}
+
+STEP_OUTPUT_TYPES = {
+    # ... existing ...
+    StepType.SPLIT_IMAGE: "images",  # Multiple outputs
+    StepType.UPSCALE_IMAGE: "image",
+}
+```
+
+---
+
+### Subtask 2.3: Create Step Executors (15 min)
+
+**File:** `packages/core/ai_content_pipeline/ai_content_pipeline/pipeline/step_executors/image_steps.py`
+
+```python
+from ...image_splitter import split_grid_image, SplitConfig
+from ...grid_generator import upscale_image
+
+class SplitImageExecutor(BaseStepExecutor):
+    """Executor for splitting grid images into panels."""
+
+    def execute(self, step, input_data, chain_config, step_context, **kwargs):
+        start_time = time.time()
+        params = step.params or {}
+
+        try:
+            image_path = input_data
+            if isinstance(input_data, dict):
+                image_path = input_data.get("output_path") or input_data.get("path")
+
+            if not image_path:
+                return {"success": False, "error": "No input image"}
+
+            config = SplitConfig(
+                grid=params.get("grid", "2x2"),
+                output_format=params.get("output_format", "png"),
+                naming_pattern=params.get("naming", "panel_{n}"),
+            )
+
+            output_dir = chain_config.get("output_dir", "output")
+            step_output_dir = Path(output_dir) / step.name
+
+            panel_paths = split_grid_image(image_path, str(step_output_dir), config)
+
+            return {
+                "success": True,
+                "output_paths": panel_paths,
+                "output_path": panel_paths[0] if panel_paths else None,
+                "panel_count": len(panel_paths),
+                "processing_time": time.time() - start_time,
+                "cost": 0,  # Local operation
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+
+class UpscaleImageExecutor(BaseStepExecutor):
+    """Executor for upscaling images using SeedVR2."""
+
+    def execute(self, step, input_data, chain_config, step_context, **kwargs):
+        start_time = time.time()
+        params = step.params or {}
+
+        try:
+            image_path = input_data
+            if isinstance(input_data, dict):
+                image_path = input_data.get("output_path") or input_data.get("path")
+
+            if not image_path:
+                return {"success": False, "error": "No input image"}
+
+            output_dir = chain_config.get("output_dir", "output")
+
+            result = upscale_image(
+                image_path=image_path,
+                factor=params.get("factor", 2),
+                target=params.get("target"),
+                output_dir=output_dir,
+                output_format=params.get("output_format", "png"),
+            )
+
+            if not result.success:
+                return {"success": False, "error": result.error}
+
+            return {
+                "success": True,
+                "output_path": result.local_path,
+                "output_url": result.image_url,
+                "upscaled_size": result.upscaled_size,
+                "processing_time": result.processing_time,
+                "cost": result.cost,
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+```
+
+---
+
+### Subtask 2.4: Register Executors (5 min)
+
+**File:** `packages/core/ai_content_pipeline/ai_content_pipeline/pipeline/manager.py`
+
+```python
+from .step_executors.image_steps import (
+    # ... existing ...
+    SplitImageExecutor,
+    UpscaleImageExecutor,
+)
+
+# In _get_step_executor method:
+step_executors = {
+    # ... existing ...
+    StepType.SPLIT_IMAGE: SplitImageExecutor,
+    StepType.UPSCALE_IMAGE: UpscaleImageExecutor,
+}
+```
+
+---
+
+### Subtask 2.5: Unit Tests (10 min)
+
+**File:** `tests/test_image_splitter.py`
+
+```python
+"""Unit tests for image_splitter module."""
+
+import pytest
+from pathlib import Path
+from PIL import Image
+import tempfile
+import shutil
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages/core/ai_content_pipeline"))
+
+from ai_content_pipeline.image_splitter import (
+    split_grid_image, SplitConfig, GRID_CONFIGS
+)
+
+
+@pytest.fixture
+def temp_dir():
+    d = tempfile.mkdtemp()
+    yield d
+    shutil.rmtree(d)
+
+
+@pytest.fixture
+def sample_2x2_image(temp_dir):
+    """Create sample 2x2 grid image."""
+    img = Image.new("RGB", (1024, 1024), "white")
+    path = Path(temp_dir) / "grid.png"
+    img.save(path)
+    return str(path)
+
+
+class TestSplitGridImage:
+    def test_split_2x2(self, sample_2x2_image, temp_dir):
+        """2x2 grid splits into 4 panels."""
+        output_dir = Path(temp_dir) / "output"
+        paths = split_grid_image(sample_2x2_image, str(output_dir), SplitConfig(grid="2x2"))
+
+        assert len(paths) == 4
+        for p in paths:
+            assert Path(p).exists()
+            img = Image.open(p)
+            assert img.size == (512, 512)
+
+    def test_split_3x3(self, temp_dir):
+        """3x3 grid splits into 9 panels."""
+        img = Image.new("RGB", (900, 900), "white")
+        path = Path(temp_dir) / "grid3x3.png"
+        img.save(path)
+
+        output_dir = Path(temp_dir) / "output"
+        paths = split_grid_image(str(path), str(output_dir), SplitConfig(grid="3x3"))
+
+        assert len(paths) == 9
+
+    def test_invalid_grid_raises(self, sample_2x2_image, temp_dir):
+        """Invalid grid raises ValueError."""
+        with pytest.raises(ValueError):
+            split_grid_image(sample_2x2_image, temp_dir, SplitConfig(grid="5x5"))
+
+
+class TestSplitConfig:
+    def test_defaults(self):
+        config = SplitConfig()
+        assert config.grid == "2x2"
+        assert config.output_format == "png"
+        assert config.naming_pattern == "panel_{n}"
+```
+
+---
+
+## File Summary (Phase 2)
+
+| File | Action | Est. Time |
+|------|--------|-----------|
+| `ai_content_pipeline/image_splitter.py` | **Create** | 15 min |
+| `ai_content_pipeline/pipeline/chain.py` | Modify | 5 min |
+| `ai_content_pipeline/pipeline/step_executors/image_steps.py` | Modify | 15 min |
+| `ai_content_pipeline/pipeline/manager.py` | Modify | 5 min |
+| `tests/test_image_splitter.py` | **Create** | 10 min |
+
+**Total Phase 2:** ~45 minutes
+
+---
+
+## CLI Usage After Phase 2
+
+```bash
+# Run grid split pipeline
+./venv/Scripts/aicp.exe run-chain --config input/pipelines/grid_2x2_split.yaml
+```
+
+---
+
+## Benefits
+
+1. **Single YAML File**: Complete workflow in one configuration
+2. **Reusable Module**: Split utility works standalone or in pipelines
+3. **Extensible**: Easy to add more grid sizes
+4. **Cost Efficient**: Splitting is local (free)
+5. **Follows Patterns**: Consistent with existing pipeline architecture
+
+---
+
+# Phase 1: CLI Commands (Original Implementation Below)
 
 ## Overview
 
