@@ -112,6 +112,11 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
             prompt = input_data.get("prompt", "")
             image_url = input_data.get("image_url")
             image_path = input_data.get("image_path")
+            output_filename = input_data.get("output_filename")
+
+            # Pass output_filename through kwargs if provided
+            if output_filename:
+                kwargs["output_filename"] = output_filename
             
             # Convert local image path to URL if needed
             if image_path and not image_url:

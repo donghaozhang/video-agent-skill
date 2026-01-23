@@ -88,6 +88,7 @@ class BaseVideoModel(ABC):
         prompt: str,
         image_url: str,
         output_dir: Optional[str] = None,
+        output_filename: Optional[str] = None,
         use_async: bool = False,
         **kwargs
     ) -> Dict[str, Any]:
@@ -98,6 +99,7 @@ class BaseVideoModel(ABC):
             prompt: Text description for video generation
             image_url: URL of input image
             output_dir: Custom output directory
+            output_filename: Custom output filename (e.g., "scene_1.mp4")
             use_async: Whether to use async processing
             **kwargs: Model-specific parameters
 
@@ -145,7 +147,8 @@ class BaseVideoModel(ABC):
             local_path = download_video(
                 video_info["url"],
                 output_directory,
-                self.model_key
+                self.model_key,
+                filename=output_filename
             )
 
             # Calculate cost estimate using model-specific estimate_cost method

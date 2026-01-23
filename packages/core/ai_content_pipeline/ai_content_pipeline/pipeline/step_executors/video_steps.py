@@ -202,18 +202,23 @@ class ImageToVideoExecutor(BaseStepExecutor):
         errors = []
 
         for i, image_path in enumerate(image_paths):
+            # Derive video filename from image filename (scene_1.png -> scene_1.mp4)
+            image_name = Path(image_path).stem
+            output_filename = f"{image_name}.mp4"
+
             # Use individual prompt if available, otherwise fall back to default
             if prompts_array and i < len(prompts_array):
                 current_prompt = prompts_array[i]
-                print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} ---")
+                print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} -> {output_filename} ---")
                 print(f"   Prompt: {current_prompt[:80]}...")
             else:
                 current_prompt = prompt
-                print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} ---")
+                print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} -> {output_filename} ---")
 
             input_dict = {
                 "prompt": current_prompt,
-                "image_path": image_path
+                "image_path": image_path,
+                "output_filename": output_filename
             }
 
             try:
@@ -304,13 +309,18 @@ class ImageToVideoExecutor(BaseStepExecutor):
             else:
                 prompt = default_prompt
 
-            print(f"   [Thread {index+1}] Starting: {Path(image_path).name}")
+            # Derive video filename from image filename (scene_1.png -> scene_1.mp4)
+            image_name = Path(image_path).stem
+            output_filename = f"{image_name}.mp4"
+
+            print(f"   [Thread {index+1}] Starting: {Path(image_path).name} -> {output_filename}")
             if prompts_array and index < len(prompts_array):
                 print(f"   [Thread {index+1}] Prompt: {prompt[:60]}...")
 
             input_dict = {
                 "prompt": prompt,
-                "image_path": image_path
+                "image_path": image_path,
+                "output_filename": output_filename
             }
 
             result = self.generator.generate(
