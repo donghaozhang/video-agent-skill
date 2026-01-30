@@ -41,6 +41,11 @@ def cmd_generate(args):
         if args.model == "sora_2_pro" and args.resolution:
             kwargs["resolution"] = args.resolution
 
+    elif args.model == "grok_imagine":
+        kwargs["duration"] = int(args.duration) if args.duration else 6
+        kwargs["aspect_ratio"] = args.aspect_ratio
+        kwargs["resolution"] = args.resolution
+
     result = generator.generate_video(
         prompt=args.prompt,
         model=args.model,
@@ -127,6 +132,9 @@ def cmd_estimate_cost(args):
             if args.model == "sora_2_pro" and args.resolution:
                 kwargs["resolution"] = args.resolution
 
+        elif args.model == "grok_imagine":
+            kwargs["duration"] = int(args.duration) if args.duration else 6
+
         cost = generator.estimate_cost(model=args.model, **kwargs)
 
         print(f"\n💰 Cost Estimate for {args.model}:")
@@ -187,16 +195,16 @@ Examples:
     gen_parser.add_argument("--prompt", "-p", required=True,
                            help="Text prompt for video generation")
     gen_parser.add_argument("--model", "-m", default="kling_2_6_pro",
-                           choices=["kling_2_6_pro", "sora_2", "sora_2_pro"],
+                           choices=["kling_2_6_pro", "sora_2", "sora_2_pro", "grok_imagine"],
                            help="Model to use (default: kling_2_6_pro)")
     gen_parser.add_argument("--duration", "-d", default="5",
                            help="Video duration (default: 5)")
     gen_parser.add_argument("--aspect-ratio", "-a", default="16:9",
-                           choices=["16:9", "9:16", "1:1"],
+                           choices=["16:9", "9:16", "1:1", "4:3", "3:2", "2:3", "3:4"],
                            help="Aspect ratio (default: 16:9)")
     gen_parser.add_argument("--resolution", "-r", default="720p",
-                           choices=["720p", "1080p"],
-                           help="Resolution for Sora 2 Pro (default: 720p)")
+                           choices=["480p", "720p", "1080p"],
+                           help="Resolution (default: 720p)")
     gen_parser.add_argument("--output", "-o", default="output",
                            help="Output directory")
     gen_parser.add_argument("--negative-prompt", help="Negative prompt (Kling only)")
@@ -216,14 +224,14 @@ Examples:
 
     # Model info command
     info_parser = subparsers.add_parser("model-info", help="Show model information")
-    info_parser.add_argument("model", choices=["kling_2_6_pro", "sora_2", "sora_2_pro"],
+    info_parser.add_argument("model", choices=["kling_2_6_pro", "sora_2", "sora_2_pro", "grok_imagine"],
                             help="Model key")
     info_parser.set_defaults(func=cmd_model_info)
 
     # Estimate cost command
     cost_parser = subparsers.add_parser("estimate-cost", help="Estimate generation cost")
     cost_parser.add_argument("--model", "-m", default="kling_2_6_pro",
-                            choices=["kling_2_6_pro", "sora_2", "sora_2_pro"],
+                            choices=["kling_2_6_pro", "sora_2", "sora_2_pro", "grok_imagine"],
                             help="Model to estimate (default: kling_2_6_pro)")
     cost_parser.add_argument("--duration", "-d", default="5",
                             help="Video duration")

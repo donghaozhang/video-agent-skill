@@ -17,7 +17,8 @@ from .models import (
     BaseTextToVideoModel,
     Kling26ProModel,
     Sora2Model,
-    Sora2ProModel
+    Sora2ProModel,
+    GrokImagineModel
 )
 from .config import SUPPORTED_MODELS, MODEL_INFO
 
@@ -26,7 +27,8 @@ from .config import SUPPORTED_MODELS, MODEL_INFO
 MODEL_CLASSES: Dict[str, Type[BaseTextToVideoModel]] = {
     "kling_2_6_pro": Kling26ProModel,
     "sora_2": Sora2Model,
-    "sora_2_pro": Sora2ProModel
+    "sora_2_pro": Sora2ProModel,
+    "grok_imagine": GrokImagineModel
 }
 
 
