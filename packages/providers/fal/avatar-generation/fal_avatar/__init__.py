@@ -7,6 +7,9 @@ This package provides unified access to FAL avatar and video generation models:
 - Kling O1 Reference-to-Video - Character consistency
 - Kling O1 V2V Reference - Style-guided video
 - Kling O1 V2V Edit - Targeted video modifications
+- Kling v2.6 Motion Control - Motion transfer from video to image
+- AI Avatar Multi - Multi-person conversational video
+- xAI Grok Video Edit - Video-to-video editing
 """
 
 from .generator import FALAvatarGenerator
@@ -19,6 +22,9 @@ from .models import (
     KlingRefToVideoModel,
     KlingV2VReferenceModel,
     KlingV2VEditModel,
+    KlingMotionControlModel,
+    MultiTalkModel,
+    GrokVideoEditModel,
 )
 
 __all__ = [
@@ -31,6 +37,9 @@ __all__ = [
     "KlingRefToVideoModel",
     "KlingV2VReferenceModel",
     "KlingV2VEditModel",
+    "KlingMotionControlModel",
+    "MultiTalkModel",
+    "GrokVideoEditModel",
 ]
 
 __version__ = "1.0.0"
