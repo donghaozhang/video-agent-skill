@@ -7,6 +7,7 @@ from .seedance import SeedanceModel
 from .sora import Sora2Model, Sora2ProModel
 from .veo import Veo31FastModel
 from .wan import Wan26Model
+from .grok import GrokImagineModel
 
 __all__ = [
     "BaseVideoModel",
@@ -17,5 +18,6 @@ __all__ = [
     "Sora2Model",
     "Sora2ProModel",
     "Veo31FastModel",
-    "Wan26Model"
+    "Wan26Model",
+    "GrokImagineModel"
 ]

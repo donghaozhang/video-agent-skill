@@ -179,7 +179,8 @@ class TestConstants:
         """Verify expected supported models are present."""
         expected_models = {
             "hailuo_pro", "veo3", "veo3_fast",
-            "kling_2_6_pro", "sora_2", "sora_2_pro"
+            "kling_2_6_pro", "sora_2", "sora_2_pro",
+            "grok_imagine"
         }
         assert set(SUPPORTED_MODELS) == expected_models
 

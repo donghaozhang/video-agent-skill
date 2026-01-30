@@ -11,7 +11,8 @@ ModelType = Literal[
     "veo3_fast",
     "kling_2_6_pro",
     "sora_2",
-    "sora_2_pro"
+    "sora_2_pro",
+    "grok_imagine"
 ]
 
 SUPPORTED_MODELS: List[str] = [
@@ -20,7 +21,8 @@ SUPPORTED_MODELS: List[str] = [
     "veo3_fast",
     "kling_2_6_pro",
     "sora_2",
-    "sora_2_pro"
+    "sora_2_pro",
+    "grok_imagine"
 ]
 
 # Model endpoints
@@ -30,7 +32,8 @@ MODEL_ENDPOINTS = {
     "veo3_fast": "fal-ai/veo3/fast",
     "kling_2_6_pro": "fal-ai/kling-video/v2.6/pro/text-to-video",
     "sora_2": "fal-ai/sora-2/text-to-video",
-    "sora_2_pro": "fal-ai/sora-2/text-to-video/pro"
+    "sora_2_pro": "fal-ai/sora-2/text-to-video/pro",
+    "grok_imagine": "xai/grok-imagine-video/text-to-video"
 }
 
 # Display names
@@ -40,7 +43,8 @@ MODEL_DISPLAY_NAMES = {
     "veo3_fast": "Google Veo 3 Fast",
     "kling_2_6_pro": "Kling Video v2.6 Pro",
     "sora_2": "Sora 2",
-    "sora_2_pro": "Sora 2 Pro"
+    "sora_2_pro": "Sora 2 Pro",
+    "grok_imagine": "xAI Grok Imagine Video"
 }
 
 # Pricing (USD)
@@ -72,6 +76,11 @@ MODEL_PRICING = {
         "type": "per_second",
         "cost_720p": 0.30,
         "cost_1080p": 0.50
+    },
+    "grok_imagine": {
+        "type": "per_second",
+        "base_cost_6s": 0.30,
+        "cost_per_additional_second": 0.05
     }
 }
 
@@ -82,7 +91,8 @@ DURATION_OPTIONS = {
     "veo3_fast": ["5s", "6s", "7s", "8s"],
     "kling_2_6_pro": ["5", "10"],
     "sora_2": [4, 8, 12],
-    "sora_2_pro": [4, 8, 12]
+    "sora_2_pro": [4, 8, 12],
+    "grok_imagine": list(range(1, 16))  # 1-15 seconds
 }
 
 # Resolution options per model
@@ -92,7 +102,8 @@ RESOLUTION_OPTIONS = {
     "veo3_fast": ["720p"],
     "kling_2_6_pro": ["720p"],  # Text-to-video only supports 720p
     "sora_2": ["720p"],
-    "sora_2_pro": ["720p", "1080p"]
+    "sora_2_pro": ["720p", "1080p"],
+    "grok_imagine": ["480p", "720p"]
 }
 
 # Aspect ratio options
@@ -102,7 +113,8 @@ ASPECT_RATIO_OPTIONS = {
     "veo3_fast": ["16:9", "9:16", "1:1"],
     "kling_2_6_pro": ["16:9", "9:16", "1:1"],
     "sora_2": ["16:9", "9:16"],
-    "sora_2_pro": ["16:9", "9:16"]
+    "sora_2_pro": ["16:9", "9:16"],
+    "grok_imagine": ["16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16"]
 }
 
 # Default values per model
@@ -139,6 +151,11 @@ DEFAULT_VALUES = {
         "resolution": "1080p",
         "aspect_ratio": "16:9",
         "delete_video": True
+    },
+    "grok_imagine": {
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "16:9"
     }
 }
 
@@ -185,5 +202,12 @@ MODEL_INFO = {
         "description": "Professional Sora with 1080p support",
         "max_duration": 12,
         "features": ["aspect_ratio", "1080p", "long_duration"]
+    },
+    "grok_imagine": {
+        "name": "xAI Grok Imagine Video",
+        "provider": "xAI (via FAL)",
+        "description": "xAI's text-to-video with native audio generation",
+        "max_duration": 15,
+        "features": ["audio_generation", "flexible_duration", "multiple_aspect_ratios"]
     }
 }

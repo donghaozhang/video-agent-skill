@@ -13,7 +13,8 @@ ModelType = Literal[
     "sora_2",
     "sora_2_pro",
     "veo_3_1_fast",
-    "wan_2_6"
+    "wan_2_6",
+    "grok_imagine"
 ]
 
 SUPPORTED_MODELS: List[str] = [
@@ -24,7 +25,8 @@ SUPPORTED_MODELS: List[str] = [
     "sora_2",
     "sora_2_pro",
     "veo_3_1_fast",
-    "wan_2_6"
+    "wan_2_6",
+    "grok_imagine"
 ]
 
 # Model endpoints
@@ -36,7 +38,8 @@ MODEL_ENDPOINTS = {
     "sora_2": "fal-ai/sora-2/image-to-video",
     "sora_2_pro": "fal-ai/sora-2/image-to-video/pro",
     "veo_3_1_fast": "fal-ai/veo3.1/fast/image-to-video",
-    "wan_2_6": "wan/v2.6/image-to-video"
+    "wan_2_6": "wan/v2.6/image-to-video",
+    "grok_imagine": "xai/grok-imagine-video/image-to-video"
 }
 
 # Display names
@@ -48,7 +51,8 @@ MODEL_DISPLAY_NAMES = {
     "sora_2": "Sora 2",
     "sora_2_pro": "Sora 2 Pro",
     "veo_3_1_fast": "Veo 3.1 Fast",
-    "wan_2_6": "Wan v2.6"
+    "wan_2_6": "Wan v2.6",
+    "grok_imagine": "xAI Grok Imagine Video"
 }
 
 # Pricing per second (USD)
@@ -60,7 +64,8 @@ MODEL_PRICING = {
     "sora_2": 0.10,
     "sora_2_pro": 0.30,
     "veo_3_1_fast": 0.10,
-    "wan_2_6": 0.10  # Base price, 1080p is 0.15/s
+    "wan_2_6": 0.10,  # Base price, 1080p is 0.15/s
+    "grok_imagine": 0.05  # $0.05/s + $0.002 image input
 }
 
 # Duration options per model
@@ -72,7 +77,8 @@ DURATION_OPTIONS = {
     "sora_2": [4, 8, 12],
     "sora_2_pro": [4, 8, 12],
     "veo_3_1_fast": ["4s", "6s", "8s"],
-    "wan_2_6": ["5", "10", "15"]
+    "wan_2_6": ["5", "10", "15"],
+    "grok_imagine": list(range(1, 16))  # 1-15 seconds
 }
 
 # Resolution options per model
@@ -84,7 +90,8 @@ RESOLUTION_OPTIONS = {
     "sora_2": ["auto", "720p"],
     "sora_2_pro": ["auto", "720p", "1080p"],
     "veo_3_1_fast": ["720p", "1080p"],
-    "wan_2_6": ["720p", "1080p"]
+    "wan_2_6": ["720p", "1080p"],
+    "grok_imagine": ["480p", "720p"]
 }
 
 # Aspect ratio options
@@ -92,7 +99,8 @@ ASPECT_RATIO_OPTIONS = {
     "sora_2": ["auto", "9:16", "16:9"],
     "sora_2_pro": ["auto", "9:16", "16:9"],
     "veo_3_1_fast": ["auto", "16:9", "9:16"],
-    "wan_2_6": ["16:9", "9:16", "1:1"]
+    "wan_2_6": ["16:9", "9:16", "1:1"],
+    "grok_imagine": ["auto", "16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16"]
 }
 
 # Default values per model
@@ -142,6 +150,11 @@ DEFAULT_VALUES = {
         "multi_shots": False,
         "seed": None,
         "enable_safety_checker": True
+    },
+    "grok_imagine": {
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "auto"
     }
 }
 
@@ -210,6 +223,14 @@ MODEL_INFO = {
         "max_duration": 15,
         "features": ["prompt_expansion", "multi_shots", "audio_input", "seed_control", "safety_checker"],
         "extended_params": ["start_frame", "audio_input"]
+    },
+    "grok_imagine": {
+        "name": "xAI Grok Imagine Video",
+        "provider": "xAI (via FAL)",
+        "description": "xAI's image-to-video with native audio generation",
+        "max_duration": 15,
+        "features": ["audio_generation", "flexible_duration", "multiple_aspect_ratios"],
+        "extended_params": ["start_frame"]
     }
 }
 
@@ -278,6 +299,14 @@ MODEL_EXTENDED_FEATURES = {
         "ref_images": False,
         "audio_input": True,  # Supports audio_url
         "audio_generate": False,
+        "ref_video": False,
+    },
+    "grok_imagine": {
+        "start_frame": True,
+        "end_frame": False,
+        "ref_images": False,
+        "audio_input": False,
+        "audio_generate": False,  # Audio is auto-generated
         "ref_video": False,
     },
 }
