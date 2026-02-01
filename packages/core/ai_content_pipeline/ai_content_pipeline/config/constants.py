@@ -343,6 +343,7 @@ PROCESSING_TIME_ESTIMATES = {
         "kling_v2v_reference": 90,     # 90 seconds for 5s video
         "kling_v2v_edit": 60,          # 60 seconds for editing
         "kling_motion_control": 60,    # 60 seconds for motion transfer
+        "grok_video_edit": 45,         # 45 seconds for video editing
     },
     "speech_to_text": {
         "scribe_v2": 15,               # ~15 seconds for average audio
