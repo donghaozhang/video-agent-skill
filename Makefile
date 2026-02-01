@@ -1,6 +1,7 @@
 # AI Content Generation Suite Makefile
 
-.PHONY: install install-dev install-deps test-all build-all clean format lint
+.PHONY: install install-dev install-deps test-all build-all clean format lint \
+        release-patch release-minor release-major release-check version
 
 # Install dependencies and all packages
 install: install-deps install-dev
@@ -54,3 +55,44 @@ lint:
 	@flake8 packages/
 	@black --check packages/
 	@isort --check-only packages/
+
+# Show current version
+version:
+	@grep -m1 'VERSION = ' setup.py | cut -d'"' -f2
+
+# Check version consistency across all files
+release-check:
+	@echo "🔍 Checking version consistency..."
+	@SETUP_VER=$$(grep -m1 'VERSION = ' setup.py | cut -d'"' -f2); \
+	PIPE_VER=$$(grep -m1 '__version__ = ' packages/core/ai_content_pipeline/ai_content_pipeline/__init__.py | cut -d'"' -f2); \
+	PLAT_VER=$$(grep -m1 '__version__ = ' packages/core/ai_content_platform/__version__.py | cut -d'"' -f2); \
+	echo "  setup.py:              $$SETUP_VER"; \
+	echo "  ai_content_pipeline:   $$PIPE_VER"; \
+	echo "  ai_content_platform:   $$PLAT_VER"; \
+	if [ "$$SETUP_VER" = "$$PIPE_VER" ] && [ "$$SETUP_VER" = "$$PLAT_VER" ]; then \
+		echo "✅ All versions match: $$SETUP_VER"; \
+	else \
+		echo "❌ Version mismatch detected!"; \
+		exit 1; \
+	fi
+
+# Release: bump patch version (1.0.18 -> 1.0.19)
+release-patch: release-check
+	@echo "🚀 Releasing patch version..."
+	bump2version patch
+	git push origin HEAD --tags
+	@echo "✅ Patch release complete! Create GitHub release to trigger PyPI publish."
+
+# Release: bump minor version (1.0.18 -> 1.1.0)
+release-minor: release-check
+	@echo "🚀 Releasing minor version..."
+	bump2version minor
+	git push origin HEAD --tags
+	@echo "✅ Minor release complete! Create GitHub release to trigger PyPI publish."
+
+# Release: bump major version (1.0.18 -> 2.0.0)
+release-major: release-check
+	@echo "🚀 Releasing major version..."
+	bump2version major
+	git push origin HEAD --tags
+	@echo "✅ Major release complete! Create GitHub release to trigger PyPI publish."
