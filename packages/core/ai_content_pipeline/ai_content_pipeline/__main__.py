@@ -53,8 +53,8 @@ from .grid_generator import (
     UPSCALE_TARGETS,
 )
 
-# Import project structure module
-from .project_structure import (
+# Import project structure CLI commands
+from .project_structure_cli import (
     init_project_command,
     organize_project_command,
     structure_info_command,

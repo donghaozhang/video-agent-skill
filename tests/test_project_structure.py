@@ -194,35 +194,30 @@ class TestGetDestinationFolder:
 
     def test_image_extensions(self):
         """Test that image extensions map to input/images."""
-        root = Path("/project")
         for ext in [".jpg", ".png", ".gif", ".webp"]:
             file_path = Path(f"/project/test{ext}")
             assert get_destination_folder(file_path) == "input/images"
 
     def test_video_extensions(self):
         """Test that video extensions map to input/videos."""
-        root = Path("/project")
         for ext in [".mp4", ".mov", ".webm"]:
             file_path = Path(f"/project/test{ext}")
             assert get_destination_folder(file_path) == "input/videos"
 
     def test_audio_extensions(self):
         """Test that audio extensions map to input/audio."""
-        root = Path("/project")
         for ext in [".mp3", ".wav", ".aac"]:
             file_path = Path(f"/project/test{ext}")
             assert get_destination_folder(file_path) == "input/audio"
 
     def test_pipeline_extensions(self):
         """Test that YAML extensions map to input/pipelines."""
-        root = Path("/project")
         for ext in [".yaml", ".yml"]:
             file_path = Path(f"/project/test{ext}")
             assert get_destination_folder(file_path) == "input/pipelines"
 
     def test_unknown_extension_returns_none(self):
         """Test that unknown extensions return None."""
-        root = Path("/project")
         file_path = Path("/project/test.xyz")
         assert get_destination_folder(file_path) is None
 
@@ -290,6 +285,8 @@ class TestGetAllDirectories:
     def test_returns_all_paths(self):
         """Test that all directory paths are returned."""
         directories = get_all_directories(DEFAULT_STRUCTURE)
+        # Normalize paths for cross-platform comparison
+        directories = [d.replace("\\", "/") for d in directories]
 
         assert "input" in directories
         assert "output" in directories
@@ -300,6 +297,8 @@ class TestGetAllDirectories:
     def test_output_subfolders_included(self):
         """Test that output subfolders are in structure."""
         directories = get_all_directories(DEFAULT_STRUCTURE)
+        # Normalize paths for cross-platform comparison
+        directories = [d.replace("\\", "/") for d in directories]
 
         assert "output/images" in directories
         assert "output/videos" in directories
