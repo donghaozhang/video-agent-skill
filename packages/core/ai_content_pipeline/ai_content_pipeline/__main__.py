@@ -942,6 +942,11 @@ Examples:
         action="store_true",
         help="Recursively scan subdirectories"
     )
+    organize_parser.add_argument(
+        "--include-output",
+        action="store_true",
+        help="Also organize files in output/ folder into subfolders"
+    )
 
     # Structure info command
     info_parser = subparsers.add_parser(

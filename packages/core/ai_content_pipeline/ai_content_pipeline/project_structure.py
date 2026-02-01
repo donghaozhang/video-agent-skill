@@ -32,12 +32,55 @@ DEFAULT_STRUCTURE = {
         "text": [],        # Text content files
         "metadata": [],    # Project metadata
     },
-    "output": {},          # Generated content (per-pipeline subfolders)
+    "output": {            # Generated content (organized by type)
+        "images": [],      # Generated images
+        "videos": [],      # Generated videos
+        "audio": [],       # Generated audio/TTS
+        "transcripts": [], # Transcription outputs (.txt, .srt, .json)
+        "analysis": [],    # Video analysis results
+        "pipelines": [],   # Per-pipeline output folders
+        "temp": [],        # Temporary processing files
+    },
     "issues": {
         "todo": [],        # Planned features
         "implemented": [], # Completed features
     },
     "docs": [],            # Project documentation
+}
+
+# Output folder structure definition
+OUTPUT_STRUCTURE = {
+    "images": [],      # Generated images (generated_image_*.png)
+    "videos": [],      # Generated videos (generated_video_*.mp4)
+    "audio": [],       # Generated audio/TTS (generated_audio_*.mp3)
+    "transcripts": [], # Transcription outputs
+    "analysis": [],    # Video analysis results
+    "pipelines": [],   # Per-pipeline outputs
+    "temp": [],        # Temporary files
+}
+
+# Output file extension/pattern mappings
+OUTPUT_FILE_PATTERNS = {
+    "images": {
+        "extensions": [".png", ".jpg", ".jpeg", ".webp", ".gif"],
+        "patterns": ["generated_image_*", "upscaled_*", "grid_*"],
+    },
+    "videos": {
+        "extensions": [".mp4", ".webm", ".mov"],
+        "patterns": ["generated_video_*", "motion_*", "avatar_*"],
+    },
+    "audio": {
+        "extensions": [".mp3", ".wav", ".m4a"],
+        "patterns": ["generated_audio_*", "tts_*", "voice_*"],
+    },
+    "transcripts": {
+        "extensions": [".srt", ".vtt"],
+        "patterns": ["*_transcript*", "*_words.json", "*_raw.json"],
+    },
+    "analysis": {
+        "extensions": [],
+        "patterns": ["*_analysis*", "*_timeline*", "*_describe*"],
+    },
 }
 
 # File extension mappings for organization
@@ -269,6 +312,98 @@ def organize_project(
     return result
 
 
+def get_output_destination(file_path: Path) -> Optional[str]:
+    """
+    Determine the output subfolder for a file based on extension and name pattern.
+
+    Args:
+        file_path: Path to the file
+
+    Returns:
+        Output subfolder name (e.g., "images", "videos"), or None if unknown
+    """
+    name = file_path.name.lower()
+    ext = file_path.suffix.lower()
+
+    for folder, config in OUTPUT_FILE_PATTERNS.items():
+        # Check extension match
+        if ext in config["extensions"]:
+            return folder
+
+        # Check pattern match
+        import fnmatch
+        for pattern in config["patterns"]:
+            if fnmatch.fnmatch(name, pattern.lower()):
+                return folder
+
+    return None
+
+
+def organize_output(
+    root_dir: str = ".",
+    dry_run: bool = False
+) -> OrganizeResult:
+    """
+    Organize files in output/ folder into categorized subfolders.
+
+    Moves files from output/ root into appropriate subfolders
+    (images/, videos/, audio/, transcripts/, analysis/) based on
+    file extension and naming patterns.
+
+    Args:
+        root_dir: Root directory of the project
+        dry_run: If True, only report what would be moved
+
+    Returns:
+        OrganizeResult with move details
+    """
+    result = OrganizeResult(success=True)
+    root = Path(root_dir).resolve()
+    output_dir = root / "output"
+
+    if not output_dir.exists():
+        result.add_error("Output directory does not exist")
+        return result
+
+    # Ensure output subfolders exist
+    if not dry_run:
+        for subfolder in OUTPUT_STRUCTURE.keys():
+            (output_dir / subfolder).mkdir(exist_ok=True)
+
+    # Get files in output root (not in subfolders)
+    for file_path in output_dir.glob("*"):
+        if not file_path.is_file():
+            continue
+
+        # Determine destination subfolder
+        dest_folder = get_output_destination(file_path)
+
+        if dest_folder is None:
+            result.add_skip()
+            continue
+
+        dest_path = output_dir / dest_folder / file_path.name
+
+        # Check if destination already exists
+        if dest_path.exists():
+            result.add_error(f"Destination exists, skipping: {file_path.name}")
+            result.add_skip()
+            continue
+
+        # Move file
+        if not dry_run:
+            try:
+                shutil.move(str(file_path), str(dest_path))
+                result.add_move(str(file_path), str(dest_path))
+            except Exception as e:
+                result.add_error(f"Failed to move {file_path}: {e}")
+                result.success = False
+        else:
+            result.add_move(str(file_path), str(dest_path))
+
+    return result
+
+
 def cleanup_temp_files(
     root_dir: str = ".",
     dry_run: bool = False
@@ -342,6 +477,7 @@ def get_structure_info(root_dir: str = ".") -> Dict[str, any]:
         "has_structure": False,
         "directories": {},
         "file_counts": {},
+        "output_counts": {},
     }
 
     # Check for key directories
@@ -367,9 +503,21 @@ def get_structure_info(root_dir: str = ".") -> Dict[str, any]:
                 count = len(list(folder_path.glob("*")))
                 info["file_counts"][folder] = count
 
-    # Count output files
+    # Count output files by category
     output_dir = root / "output"
     if output_dir.exists():
+        # Count files in output root (unorganized)
+        root_files = len([f for f in output_dir.glob("*") if f.is_file()])
+        info["output_counts"]["root_files"] = root_files
+
+        # Count files in each output subfolder
+        for folder in ["images", "videos", "audio", "transcripts", "analysis", "pipelines"]:
+            folder_path = output_dir / folder
+            if folder_path.exists():
+                count = len(list(folder_path.rglob("*")))
+                info["output_counts"][folder] = count
+
+        # Total output files
         info["file_counts"]["output"] = len(list(output_dir.rglob("*")))
 
     return info
@@ -413,17 +561,21 @@ def organize_project_command(args) -> None:
     source_dir = args.source if hasattr(args, 'source') and args.source else None
     dry_run = args.dry_run if hasattr(args, 'dry_run') else False
     recursive = args.recursive if hasattr(args, 'recursive') else False
+    include_output = args.include_output if hasattr(args, 'include_output') else False
 
     print(f"{'[DRY RUN] ' if dry_run else ''}Organizing project files...")
     if source_dir:
         print(f"  Source: {Path(source_dir).resolve()}")
     print(f"  Root: {Path(root_dir).resolve()}")
+    if include_output:
+        print(f"  Including output folder organization")
     print()
 
+    # Organize input files
     result = organize_project(root_dir, source_dir, dry_run=dry_run, recursive=recursive)
 
     if result.files_moved > 0:
-        print(f"{'Would move' if dry_run else 'Moved'} {result.files_moved} files:")
+        print(f"{'Would move' if dry_run else 'Moved'} {result.files_moved} input files:")
         for source, dest in result.moves[:10]:  # Show first 10
             print(f"  {Path(source).name} -> {dest}")
         if len(result.moves) > 10:
@@ -431,6 +583,24 @@ def organize_project_command(args) -> None:
 
     if result.files_skipped > 0:
         print(f"\nSkipped {result.files_skipped} files (already organized or unknown type)")
+
+    # Organize output files if requested
+    if include_output:
+        print(f"\n{'[DRY RUN] ' if dry_run else ''}Organizing output files...")
+        output_result = organize_output(root_dir, dry_run=dry_run)
+
+        if output_result.files_moved > 0:
+            print(f"{'Would move' if dry_run else 'Moved'} {output_result.files_moved} output files:")
+            for source, dest in output_result.moves[:10]:
+                print(f"  {Path(source).name} -> {Path(dest).name}")
+            if len(output_result.moves) > 10:
+                print(f"  ... and {len(output_result.moves) - 10} more")
+
+        if output_result.files_skipped > 0:
+            print(f"\nSkipped {output_result.files_skipped} output files")
+
+        if output_result.errors:
+            result.errors.extend(output_result.errors)
 
     if result.errors:
         print(f"\nWarnings:")
@@ -460,6 +630,18 @@ def structure_info_command(args) -> None:
         print(f"  {dir_name}: {status}")
 
     if info['file_counts']:
-        print("\nFile counts:")
+        print("\nInput file counts:")
         for folder, count in info['file_counts'].items():
-            print(f"  {folder}: {count} files")
+            if folder != "output":
+                print(f"  {folder}: {count} files")
+
+    if info.get('output_counts'):
+        print("\nOutput file counts:")
+        output_counts = info['output_counts']
+        if output_counts.get('root_files', 0) > 0:
+            print(f"  root (unorganized): {output_counts['root_files']} files")
+        for folder in ["images", "videos", "audio", "transcripts", "analysis", "pipelines"]:
+            if folder in output_counts and output_counts[folder] > 0:
+                print(f"  {folder}: {output_counts[folder]} files")
+        if info['file_counts'].get('output'):
+            print(f"  total: {info['file_counts']['output']} files")

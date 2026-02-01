@@ -15,12 +15,16 @@ try:
     from ai_content_pipeline.project_structure import (
         init_project,
         organize_project,
+        organize_output,
         cleanup_temp_files,
         get_structure_info,
         get_destination_folder,
+        get_output_destination,
         get_all_directories,
         DEFAULT_STRUCTURE,
         FILE_EXTENSIONS,
+        OUTPUT_STRUCTURE,
+        OUTPUT_FILE_PATTERNS,
         InitResult,
         OrganizeResult,
     )
@@ -30,12 +34,16 @@ except ImportError:
     from ai_content_pipeline.project_structure import (
         init_project,
         organize_project,
+        organize_output,
         cleanup_temp_files,
         get_structure_info,
         get_destination_folder,
+        get_output_destination,
         get_all_directories,
         DEFAULT_STRUCTURE,
         FILE_EXTENSIONS,
+        OUTPUT_STRUCTURE,
+        OUTPUT_FILE_PATTERNS,
         InitResult,
         OrganizeResult,
     )
@@ -297,6 +305,145 @@ class TestGetAllDirectories:
         assert "input/images" in directories
         assert "input/pipelines" in directories
         assert "input/pipelines/video" in directories
+
+    def test_output_subfolders_included(self):
+        """Test that output subfolders are in structure."""
+        directories = get_all_directories(DEFAULT_STRUCTURE)
+
+        assert "output/images" in directories
+        assert "output/videos" in directories
+        assert "output/audio" in directories
+        assert "output/transcripts" in directories
+
+
+class TestGetOutputDestination:
+    """Tests for get_output_destination function."""
+
+    def test_generated_image_files(self):
+        """Test that generated image files map to images folder."""
+        assert get_output_destination(Path("generated_image_123.png")) == "images"
+        assert get_output_destination(Path("generated_image_456.jpg")) == "images"
+        assert get_output_destination(Path("upscaled_image.png")) == "images"
+
+    def test_generated_video_files(self):
+        """Test that generated video files map to videos folder."""
+        assert get_output_destination(Path("generated_video_123.mp4")) == "videos"
+        assert get_output_destination(Path("motion_transfer.mp4")) == "videos"
+        assert get_output_destination(Path("avatar_output.webm")) == "videos"
+
+    def test_transcript_files(self):
+        """Test that transcript files map to transcripts folder."""
+        assert get_output_destination(Path("video_transcript.srt")) == "transcripts"
+        assert get_output_destination(Path("audio_words.json")) == "transcripts"
+        assert get_output_destination(Path("speech_transcript.vtt")) == "transcripts"
+
+    def test_audio_files(self):
+        """Test that audio files map to audio folder."""
+        assert get_output_destination(Path("generated_audio_123.mp3")) == "audio"
+        assert get_output_destination(Path("tts_output.wav")) == "audio"
+
+    def test_unknown_files_return_none(self):
+        """Test that unknown file patterns return None."""
+        assert get_output_destination(Path("random_file.xyz")) is None
+        assert get_output_destination(Path("document.pdf")) is None
+
+
+class TestOrganizeOutput:
+    """Tests for organize_output function."""
+
+    def test_organize_moves_generated_images(self):
+        """Test that generated images are moved to output/images."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            init_project(tmpdir)
+
+            # Create generated image in output root
+            output_dir = Path(tmpdir) / "output"
+            test_file = output_dir / "generated_image_123.png"
+            test_file.write_text("fake image")
+
+            result = organize_output(tmpdir)
+
+            assert result.success is True
+            assert result.files_moved == 1
+            assert not test_file.exists()
+            assert (output_dir / "images" / "generated_image_123.png").exists()
+
+    def test_organize_moves_generated_videos(self):
+        """Test that generated videos are moved to output/videos."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            init_project(tmpdir)
+
+            output_dir = Path(tmpdir) / "output"
+            test_file = output_dir / "generated_video_456.mp4"
+            test_file.write_text("fake video")
+
+            result = organize_output(tmpdir)
+
+            assert result.files_moved == 1
+            assert (output_dir / "videos" / "generated_video_456.mp4").exists()
+
+    def test_organize_moves_transcripts(self):
+        """Test that transcript files are moved to output/transcripts."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            init_project(tmpdir)
+
+            output_dir = Path(tmpdir) / "output"
+            test_file = output_dir / "video_transcript.srt"
+            test_file.write_text("subtitle content")
+
+            result = organize_output(tmpdir)
+
+            assert result.files_moved == 1
+            assert (output_dir / "transcripts" / "video_transcript.srt").exists()
+
+    def test_organize_dry_run_does_not_move(self):
+        """Test that dry_run mode doesn't move files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            init_project(tmpdir)
+
+            output_dir = Path(tmpdir) / "output"
+            test_file = output_dir / "generated_image_789.png"
+            test_file.write_text("fake image")
+
+            result = organize_output(tmpdir, dry_run=True)
+
+            assert result.files_moved == 1  # Reports what would be moved
+            assert test_file.exists()  # But file should remain
+
+    def test_organize_skips_unknown_files(self):
+        """Test that unknown file types are skipped."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            init_project(tmpdir)
+
+            output_dir = Path(tmpdir) / "output"
+            test_file = output_dir / "random_document.pdf"
+            test_file.write_text("pdf content")
+
+            result = organize_output(tmpdir)
+
+            assert result.files_moved == 0
+            assert result.files_skipped == 1
+            assert test_file.exists()
+
+
+class TestOutputStructureConstants:
+    """Tests for output structure constants."""
+
+    def test_output_structure_has_required_folders(self):
+        """Test OUTPUT_STRUCTURE has all required folders."""
+        assert "images" in OUTPUT_STRUCTURE
+        assert "videos" in OUTPUT_STRUCTURE
+        assert "audio" in OUTPUT_STRUCTURE
+        assert "transcripts" in OUTPUT_STRUCTURE
+        assert "analysis" in OUTPUT_STRUCTURE
+        assert "pipelines" in OUTPUT_STRUCTURE
+
+    def test_output_file_patterns_defined(self):
+        """Test OUTPUT_FILE_PATTERNS has patterns for each folder."""
+        assert "images" in OUTPUT_FILE_PATTERNS
+        assert "videos" in OUTPUT_FILE_PATTERNS
+        assert "audio" in OUTPUT_FILE_PATTERNS
+        assert "transcripts" in OUTPUT_FILE_PATTERNS
 
 
 if __name__ == "__main__":
