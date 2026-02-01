@@ -48,6 +48,9 @@ notebook>=7.0.0           # Jupyter notebook
 pytest>=7.0.0             # Testing framework
 pytest-asyncio>=0.21.0    # Async test support
 
+# Release Management
+bump2version>=1.0.1       # Automated version bumping
+
 # ===== Additional Tools =====
 # mcp>=1.0.0                # MCP server support (not available on PyPI)
 

@@ -53,6 +53,13 @@ from .grid_generator import (
     UPSCALE_TARGETS,
 )
 
+# Import project structure CLI commands
+from .project_structure_cli import (
+    init_project_command,
+    organize_project_command,
+    structure_info_command,
+)
+
 
 def print_models():
     """Print information about all supported models."""
@@ -569,6 +576,21 @@ Examples:
 
   # Upscale to 4K resolution
   python -m ai_content_pipeline upscale-image -i image.png --target 2160p
+
+  # Initialize project structure
+  python -m ai_content_pipeline init-project
+
+  # Initialize in specific directory
+  python -m ai_content_pipeline init-project --directory /path/to/project
+
+  # Organize files into structure
+  python -m ai_content_pipeline organize-project
+
+  # Preview organization (dry run)
+  python -m ai_content_pipeline organize-project --dry-run
+
+  # Show project structure info
+  python -m ai_content_pipeline structure-info
         """
     )
     
@@ -880,6 +902,63 @@ Examples:
         help="Save metadata as JSON file"
     )
 
+    # Init project command
+    init_parser = subparsers.add_parser(
+        "init-project",
+        help="Initialize project with standard directory structure"
+    )
+    init_parser.add_argument(
+        "-d", "--directory",
+        default=".",
+        help="Directory to initialize (default: current directory)"
+    )
+    init_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be created without making changes"
+    )
+
+    # Organize project command
+    organize_parser = subparsers.add_parser(
+        "organize-project",
+        help="Organize files into standard project structure"
+    )
+    organize_parser.add_argument(
+        "-d", "--directory",
+        default=".",
+        help="Project root directory (default: current directory)"
+    )
+    organize_parser.add_argument(
+        "-s", "--source",
+        help="Source directory to organize from (default: root directory)"
+    )
+    organize_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be moved without making changes"
+    )
+    organize_parser.add_argument(
+        "-r", "--recursive",
+        action="store_true",
+        help="Recursively scan subdirectories"
+    )
+    organize_parser.add_argument(
+        "--include-output",
+        action="store_true",
+        help="Also organize files in output/ folder into subfolders"
+    )
+
+    # Structure info command
+    info_parser = subparsers.add_parser(
+        "structure-info",
+        help="Show project structure information"
+    )
+    info_parser.add_argument(
+        "-d", "--directory",
+        default=".",
+        help="Project directory (default: current directory)"
+    )
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -916,6 +995,12 @@ Examples:
         generate_grid_command(args)
     elif args.command == "upscale-image":
         upscale_image_command(args)
+    elif args.command == "init-project":
+        init_project_command(args)
+    elif args.command == "organize-project":
+        organize_project_command(args)
+    elif args.command == "structure-info":
+        structure_info_command(args)
     else:
         parser.print_help()
         sys.exit(1)

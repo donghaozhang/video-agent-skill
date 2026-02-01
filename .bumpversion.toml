@@ -1,0 +1,29 @@
+# bump2version configuration
+# Usage: bump2version patch|minor|major
+# Install: pip install bump2version
+
+[tool.bumpversion]
+current_version = "1.0.18"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+message = "release: Bump version {current_version} → {new_version}"
+allow_dirty = false
+
+# setup.py - main version source
+[[tool.bumpversion.files]]
+filename = "setup.py"
+search = 'VERSION = "{current_version}"'
+replace = 'VERSION = "{new_version}"'
+
+# ai_content_pipeline package version
+[[tool.bumpversion.files]]
+filename = "packages/core/ai_content_pipeline/ai_content_pipeline/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+# ai_content_platform package version
+[[tool.bumpversion.files]]
+filename = "packages/core/ai_content_platform/__version__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
