@@ -23,6 +23,7 @@ SUPPORTED_MODELS = {
         "veo3",               # Google Veo 3 (via FAL)
         "veo3_fast",          # Google Veo 3 Fast (via FAL)
         "hailuo_pro",         # MiniMax Hailuo-02 Pro
+        "grok_imagine",       # xAI Grok Imagine Video (1-15s, with audio)
     ],
     "text_to_speech": [
         "elevenlabs",         # ElevenLabs TTS (high quality)
@@ -201,6 +202,7 @@ COST_ESTIMATES = {
         "veo3": 4.00,             # $0.50/sec * 8sec default
         "veo3_fast": 2.00,        # $0.25/sec * 8sec default
         "hailuo_pro": 0.08,       # Fixed per video
+        "grok_imagine": 0.30,     # $0.05/sec * 6sec base
     },
     "text_to_speech": {
         "elevenlabs": 0.05,
@@ -284,6 +286,7 @@ PROCESSING_TIME_ESTIMATES = {
         "veo3": 300,              # ~5 min for 8sec video
         "veo3_fast": 120,         # ~2 min for 8sec video
         "hailuo_pro": 60,         # ~1 min for 6sec video
+        "grok_imagine": 60,       # ~1 min for 6sec video
     },
     "text_to_speech": {
         "elevenlabs": 15,
