@@ -7,6 +7,7 @@ Contains executors for image-to-video, add-audio, upscale-video, and subtitle ge
 import os
 import time
 import shutil
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -134,13 +135,31 @@ class ImageToVideoExecutor(BaseStepExecutor):
 
         params = self._merge_params(
             step.params, chain_config, kwargs,
-            exclude_keys=["prompt"]
+            exclude_keys=["prompt", "prompts", "parallel", "max_workers"]
         )
 
-        # Prepare input data for the unified generator
+        # Handle multiple images from split_image step
+        if isinstance(input_data, list):
+            # Check for parallel processing flag
+            parallel = step.params.get("parallel", False)
+            if parallel:
+                return self._process_multiple_images_parallel(step, input_data, prompt, params)
+            return self._process_multiple_images(step, input_data, prompt, params)
+
+        # Single image processing
+        return self._process_single_image(step, input_data, prompt, params)
+
+    def _process_single_image(
+        self,
+        step,
+        image_path: str,
+        prompt: str,
+        params: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Process a single image to video."""
         input_dict = {
             "prompt": prompt,
-            "image_path": input_data
+            "image_path": image_path
         }
 
         result = self.generator.generate(
@@ -158,6 +177,218 @@ class ImageToVideoExecutor(BaseStepExecutor):
             "model": result.model_used,
             "metadata": result.metadata,
             "error": result.error
+        }
+
+    def _process_multiple_images(
+        self,
+        step,
+        image_paths: list,
+        prompt: str,
+        params: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Process multiple images to videos (from split_image step)."""
+        print(f"Processing {len(image_paths)} images to videos...")
+
+        # Check for per-image prompts array
+        prompts_array = step.params.get("prompts", [])
+        if prompts_array:
+            print(f"Using {len(prompts_array)} individual prompts for {len(image_paths)} images")
+
+        all_results = []
+        output_paths = []
+        output_urls = []
+        total_time = 0
+        total_cost = 0
+        errors = []
+
+        for i, image_path in enumerate(image_paths):
+            # Derive video filename from image filename (scene_1.png -> scene_1.mp4)
+            image_name = Path(image_path).stem
+            output_filename = f"{image_name}.mp4"
+
+            # Use individual prompt if available, otherwise fall back to default
+            if prompts_array and i < len(prompts_array):
+                current_prompt = prompts_array[i]
+                print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} -> {output_filename} ---")
+                print(f"   Prompt: {current_prompt[:80]}...")
+            else:
+                current_prompt = prompt
+                print(f"\n--- Video {i+1}/{len(image_paths)}: {Path(image_path).name} -> {output_filename} ---")
+
+            input_dict = {
+                "prompt": current_prompt,
+                "image_path": image_path,
+                "output_filename": output_filename
+            }
+
+            try:
+                result = self.generator.generate(
+                    input_data=input_dict,
+                    model=step.model,
+                    **params
+                )
+
+                all_results.append(result)
+                if result.success:
+                    output_paths.append(result.output_path)
+                    output_urls.append(result.output_url)
+                    total_time += result.processing_time or 0
+                    total_cost += result.cost_estimate or 0
+                    print(f"   Video saved: {result.output_path}")
+                else:
+                    errors.append(f"Image {i+1}: {result.error}")
+                    print(f"   Failed: {result.error}")
+            except Exception as e:
+                errors.append(f"Image {i+1}: {str(e)}")
+                print(f"   Exception: {str(e)}")
+
+        success = len(output_paths) > 0
+
+        return {
+            "success": success,
+            "output_path": output_paths[0] if output_paths else None,
+            "output_paths": output_paths,
+            "output_url": output_urls[0] if output_urls else None,
+            "output_urls": output_urls,
+            "processing_time": total_time,
+            "cost": total_cost,
+            "model": step.model,
+            "metadata": {
+                "total_images": len(image_paths),
+                "videos_generated": len(output_paths),
+                "video_paths": output_paths,
+            },
+            "error": "; ".join(errors) if errors else None
+        }
+
+    def _process_multiple_images_parallel(
+        self,
+        step,
+        image_paths: list,
+        default_prompt: str,
+        params: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Process multiple images to videos in parallel using ThreadPoolExecutor.
+
+        Args:
+            step: The pipeline step configuration.
+            image_paths: List of image file paths to process.
+            default_prompt: Default prompt to use if no per-image prompt is provided.
+            params: Additional parameters for video generation.
+
+        Returns:
+            Dict containing success status, output paths/urls, cost, and metadata.
+        """
+        # Get parallel processing configuration
+        max_workers = step.params.get("max_workers", 4)
+        prompts_array = step.params.get("prompts", [])
+
+        print(f"Processing {len(image_paths)} images in PARALLEL (max_workers={max_workers})...")
+        if prompts_array:
+            print(f"Using {len(prompts_array)} individual prompts")
+
+        # Thread-safe storage for results
+        results_dict = {}
+        errors = []
+
+        def process_single(index: int, image_path: str) -> tuple:
+            """
+            Process a single image and return (index, result).
+
+            Args:
+                index: Image index for ordering results.
+                image_path: Path to the image file.
+
+            Returns:
+                Tuple of (index, GenerationResult).
+            """
+            # Get prompt for this image
+            if prompts_array and index < len(prompts_array):
+                prompt = prompts_array[index]
+            else:
+                prompt = default_prompt
+
+            # Derive video filename from image filename (scene_1.png -> scene_1.mp4)
+            image_name = Path(image_path).stem
+            output_filename = f"{image_name}.mp4"
+
+            print(f"   [Thread {index+1}] Starting: {Path(image_path).name} -> {output_filename}")
+            if prompts_array and index < len(prompts_array):
+                print(f"   [Thread {index+1}] Prompt: {prompt[:60]}...")
+
+            input_dict = {
+                "prompt": prompt,
+                "image_path": image_path,
+                "output_filename": output_filename
+            }
+
+            result = self.generator.generate(
+                input_data=input_dict,
+                model=step.model,
+                **params
+            )
+            return (index, result)
+
+        # Execute in parallel using ThreadPoolExecutor
+        start_time = time.time()
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            futures = {
+                executor.submit(process_single, i, path): i
+                for i, path in enumerate(image_paths)
+            }
+
+            # Collect results as they complete
+            for future in as_completed(futures):
+                index = futures[future]
+                try:
+                    idx, result = future.result()
+                    results_dict[idx] = result
+                    if result.success:
+                        print(f"   ✅ [Thread {idx+1}] Completed: {result.output_path}")
+                    else:
+                        errors.append(f"Image {idx+1}: {result.error}")
+                        print(f"   ❌ [Thread {idx+1}] Failed: {result.error}")
+                except Exception as e:
+                    errors.append(f"Image {index+1}: {str(e)}")
+                    print(f"   ❌ [Thread {index+1}] Exception: {str(e)}")
+
+        total_time = time.time() - start_time
+
+        # Collect results in original order
+        output_paths = []
+        output_urls = []
+        total_cost = 0
+
+        for i in range(len(image_paths)):
+            if i in results_dict and results_dict[i].success:
+                output_paths.append(results_dict[i].output_path)
+                output_urls.append(results_dict[i].output_url)
+                total_cost += results_dict[i].cost_estimate or 0
+
+        success = len(output_paths) > 0
+
+        print(f"\nParallel processing complete: {len(output_paths)}/{len(image_paths)} videos in {total_time:.1f}s")
+
+        return {
+            "success": success,
+            "output_path": output_paths[0] if output_paths else None,
+            "output_paths": output_paths,
+            "output_url": output_urls[0] if output_urls else None,
+            "output_urls": output_urls,
+            "processing_time": total_time,
+            "cost": total_cost,
+            "model": step.model,
+            "metadata": {
+                "parallel": True,
+                "max_workers": max_workers,
+                "total_images": len(image_paths),
+                "videos_generated": len(output_paths),
+                "video_paths": output_paths,
+            },
+            "error": "; ".join(errors) if errors else None
         }
 
 
@@ -414,3 +645,164 @@ class GenerateSubtitlesExecutor(BaseStepExecutor):
                 f"Subtitle generation failed: {str(e)}",
                 step.model
             )
+
+
+class ConcatVideosExecutor(BaseStepExecutor):
+    """
+    Executor for concatenating multiple videos into a single video.
+
+    Uses FFmpeg to combine video files in sequence. This is useful for
+    creating a final video from multiple animated scenes (e.g., from
+    split_image -> image_to_video pipeline).
+    """
+
+    def execute(
+        self,
+        step,
+        input_data: Any,
+        chain_config: Dict[str, Any],
+        step_context: Optional[Dict[str, Any]] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Concatenate videos from previous step into a single video.
+
+        Args:
+            step: Pipeline step configuration.
+            input_data: List of video paths from image_to_video step.
+            chain_config: Pipeline configuration.
+            step_context: Context from previous steps.
+
+        Params (from step.params):
+            output_filename: Custom output filename (default: "combined.mp4").
+
+        Returns:
+            Dict with success, output_path, processing_time, cost, metadata.
+        """
+        import subprocess
+        import tempfile
+
+        start_time = time.time()
+
+        # Handle input - can be list or single path
+        video_paths = []
+        if isinstance(input_data, list):
+            video_paths = input_data
+        elif isinstance(input_data, str):
+            # Single video path - wrap in list
+            video_paths = [input_data]
+        else:
+            return self._create_error_result(
+                "No video paths provided. Expected list of video file paths.",
+                step.model
+            )
+
+        # Filter out None values and non-existent files
+        valid_paths = []
+        for path in video_paths:
+            if path and os.path.exists(path):
+                valid_paths.append(path)
+            else:
+                print(f"   Warning: Skipping invalid path: {path}")
+
+        if not valid_paths:
+            return self._create_error_result(
+                "No valid video files found to concatenate.",
+                step.model
+            )
+
+        # Sort paths to ensure consistent ordering (scene_1, scene_2, etc.)
+        valid_paths.sort()
+
+        print(f"Concatenating {len(valid_paths)} videos...")
+        for i, path in enumerate(valid_paths, 1):
+            print(f"   {i}. {Path(path).name}")
+
+        # Get output directory and filename
+        output_dir = chain_config.get("output_dir", "output")
+        output_filename = step.params.get("output_filename", "combined.mp4")
+        output_path = Path(output_dir) / output_filename
+
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Create filelist for FFmpeg concat
+        filelist_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode='w', suffix='.txt', delete=False
+            ) as f:
+                for video_path in valid_paths:
+                    # Use absolute paths for reliability
+                    abs_path = str(Path(video_path).absolute())
+                    f.write(f"file '{abs_path}'\n")
+                filelist_path = f.name
+
+            # Run FFmpeg concat
+            cmd = [
+                "ffmpeg", "-y",
+                "-f", "concat",
+                "-safe", "0",
+                "-i", filelist_path,
+                "-c", "copy",
+                str(output_path)
+            ]
+
+            print(f"   Running FFmpeg concat...")
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
+            )
+
+            if result.returncode != 0:
+                error_msg = result.stderr[-500:] if len(result.stderr) > 500 else result.stderr
+                return self._create_error_result(
+                    f"FFmpeg concat failed: {error_msg}",
+                    step.model
+                )
+
+            processing_time = time.time() - start_time
+
+            # Get output file size
+            output_size = output_path.stat().st_size if output_path.exists() else 0
+            output_size_mb = output_size / (1024 * 1024)
+
+            print(f"   ✅ Combined video saved: {output_path}")
+            print(f"   Size: {output_size_mb:.1f} MB")
+
+            return {
+                "success": True,
+                "output_path": str(output_path.absolute()),
+                "processing_time": processing_time,
+                "cost": 0.0,  # Local processing, no API cost
+                "model": "ffmpeg",
+                "metadata": {
+                    "input_count": len(valid_paths),
+                    "input_paths": valid_paths,
+                    "output_size_bytes": output_size,
+                    "output_size_mb": round(output_size_mb, 2),
+                },
+                "error": None
+            }
+
+        except subprocess.TimeoutExpired:
+            return self._create_error_result(
+                "FFmpeg concat timed out after 5 minutes",
+                step.model
+            )
+        except FileNotFoundError:
+            return self._create_error_result(
+                "FFmpeg not found. Please install FFmpeg and ensure it's in your PATH.",
+                step.model
+            )
+        except Exception as e:
+            return self._create_error_result(
+                f"Video concatenation failed: {e!s}",
+                step.model
+            )
+        finally:
+            # Clean up temp file
+            if filelist_path:
+                Path(filelist_path).unlink(missing_ok=True)

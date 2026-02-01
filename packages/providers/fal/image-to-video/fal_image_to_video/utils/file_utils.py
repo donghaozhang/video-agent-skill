@@ -53,7 +53,8 @@ def download_video(
     """
     try:
         if filename is None:
-            timestamp = int(time.time())
+            # Use nanoseconds for unique filenames in parallel execution
+            timestamp = time.time_ns()
             filename = f"{model_key}_video_{timestamp}.mp4"
 
         print("📥 Downloading video...")

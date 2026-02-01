@@ -23,7 +23,8 @@ openai>=1.0.0,<2.0.0      # OpenAI API client (for OpenRouter integration)
 google-cloud-aiplatform>=1.20.0  # Vertex AI client (relaxed for Python 3.8)
 google-cloud-storage>=2.0.0      # Google Cloud Storage (relaxed for Python 3.8)
 google-auth>=2.0.0                # Google authentication (relaxed for Python 3.8)
-google-generativeai>=0.2.0      # Google Generative AI
+google-generativeai>=0.2.0      # Google Generative AI (used by legacy code)
+google-genai>=1.0.0             # Google GenAI SDK (new unified SDK)
 
 # Text-to-Speech
 elevenlabs>=1.0.0         # ElevenLabs TTS API

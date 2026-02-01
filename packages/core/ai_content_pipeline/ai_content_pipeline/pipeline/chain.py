@@ -18,9 +18,12 @@ class StepType(Enum):
     TEXT_TO_SPEECH = "text_to_speech"
     ADD_AUDIO = "add_audio"
     UPSCALE_VIDEO = "upscale_video"
+    UPSCALE_IMAGE = "upscale_image"
+    SPLIT_IMAGE = "split_image"
     GENERATE_SUBTITLES = "generate_subtitles"
     PARALLEL_GROUP = "parallel_group"
     REPLICATE_MULTITALK = "replicate_multitalk"
+    CONCAT_VIDEOS = "concat_videos"
 
 
 @dataclass
@@ -143,7 +146,13 @@ class ContentCreationChain:
                     errors.append(f"First step expects {step_input} input, but pipeline starts with {initial_input_type}")
             else:
                 # Check if this step can accept the actual data type available
-                if step_input != actual_data_type and step_input != "any":
+                # Allow "images" to flow into steps expecting "image" (uses first image)
+                is_compatible = (
+                    step_input == actual_data_type or
+                    step_input == "any" or
+                    (actual_data_type == "images" and step_input == "image")
+                )
+                if not is_compatible:
                     errors.append(
                         f"Step {i+1} expects {step_input} but available data is {actual_data_type}"
                     )
@@ -153,6 +162,9 @@ class ContentCreationChain:
             if step.step_type == StepType.PROMPT_GENERATION:
                 # Keep the actual_data_type unchanged
                 pass
+            elif step.step_type == StepType.IMAGE_TO_VIDEO and actual_data_type == "images":
+                # image_to_video with multiple images produces multiple videos
+                actual_data_type = "videos"
             else:
                 # Normal steps change the data type
                 actual_data_type = step_output
@@ -189,11 +201,15 @@ class ContentCreationChain:
             StepType.TEXT_TO_SPEECH: "text",
             StepType.ADD_AUDIO: "video",
             StepType.UPSCALE_VIDEO: "video",
+            StepType.UPSCALE_IMAGE: "image",
+            StepType.SPLIT_IMAGE: "image",
             StepType.GENERATE_SUBTITLES: "video",
-            StepType.PARALLEL_GROUP: "any"
+            StepType.PARALLEL_GROUP: "any",
+            StepType.REPLICATE_MULTITALK: "image",
+            StepType.CONCAT_VIDEOS: "videos",  # List of video paths
         }
         return input_types.get(step_type, "unknown")
-    
+
     def _get_step_output_type(self, step_type: StepType) -> str:
         """Get the output type for a step."""
         output_types = {
@@ -206,8 +222,12 @@ class ContentCreationChain:
             StepType.TEXT_TO_SPEECH: "audio",
             StepType.ADD_AUDIO: "video",
             StepType.UPSCALE_VIDEO: "video",
+            StepType.UPSCALE_IMAGE: "image",
+            StepType.SPLIT_IMAGE: "images",  # Multiple images output
             StepType.GENERATE_SUBTITLES: "video",
-            StepType.PARALLEL_GROUP: "parallel_result"
+            StepType.PARALLEL_GROUP: "parallel_result",
+            StepType.REPLICATE_MULTITALK: "video",
+            StepType.CONCAT_VIDEOS: "video",  # Single combined video output
         }
         return output_types.get(step_type, "unknown")
     

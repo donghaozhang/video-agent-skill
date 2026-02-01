@@ -147,6 +147,41 @@ Analyze an image with AI.
 
 ---
 
+### split_image
+
+Split a grid image into individual panels. Useful for storyboard workflows.
+
+```yaml
+- name: "split_panels"
+  type: "split_image"
+  model: "local"
+  input_from: "grid_image"  # Grid image from previous step
+  params:
+    grid_type: "2x2"        # Grid layout: "2x2", "3x3", "1x4", "4x1"
+    output_prefix: "scene"  # Output files: scene_1.png, scene_2.png, etc.
+```
+
+**Output:** Returns list of image paths (output_paths) for next step.
+
+---
+
+### concat_videos
+
+Concatenate multiple videos into a single video using FFmpeg.
+
+```yaml
+- name: "combine"
+  type: "concat_videos"
+  model: "ffmpeg"
+  input_from: "animate_panels"  # List of videos from image_to_video
+  params:
+    output_filename: "final.mp4"
+```
+
+**Requirements:** FFmpeg must be installed and in PATH.
+
+---
+
 ### parallel_group
 
 Execute multiple steps in parallel.

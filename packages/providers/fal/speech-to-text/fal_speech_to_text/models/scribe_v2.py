@@ -213,11 +213,13 @@ class ScribeV2Model(BaseSpeechToTextModel):
             processing_time=processing_time,
             model_used=self.model_name,
             language_detected=result.get("language_code"),
+            language_probability=result.get("language_probability"),
             metadata={
                 "diarize": params["diarize"],
                 "tag_audio_events": params["tag_audio_events"],
                 "keyterms_used": bool(keyterms),
             },
+            raw_response=result,
         )
 
     def estimate_cost(
