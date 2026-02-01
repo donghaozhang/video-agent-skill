@@ -67,6 +67,7 @@ SUPPORTED_MODELS = {
         "sora_2",             # OpenAI Sora 2
         "sora_2_pro",         # OpenAI Sora 2 Pro
         "seedance_1_5_pro",   # ByteDance Seedance v1.5 Pro
+        "grok_imagine",       # xAI Grok Imagine Video (1-15s, with audio)
     ],
     "add_audio": [
         "thinksound",         # ThinksSound AI audio generation
@@ -243,6 +244,7 @@ COST_ESTIMATES = {
         "sora_2": 0.40,           # $0.10/sec * 4sec
         "sora_2_pro": 2.00,       # $0.50/sec * 4sec (1080p)
         "seedance_1_5_pro": 0.80, # $0.08/sec * 10sec
+        "grok_imagine": 0.30,     # $0.05/sec * 6sec + $0.002 image
     },
     "add_audio": {
         "thinksound": 0.05,
