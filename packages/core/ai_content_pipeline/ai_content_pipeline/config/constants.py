@@ -84,6 +84,7 @@ SUPPORTED_MODELS = {
         "kling_v2v_reference",  # Kling O1 - style-guided video
         "kling_v2v_edit",       # Kling O1 - targeted video modifications
         "kling_motion_control", # Kling v2.6 - motion transfer from video to image
+        "grok_video_edit",      # xAI Grok - video editing with prompts
     ],
     "speech_to_text": [
         "scribe_v2",            # ElevenLabs Scribe v2 via FAL
@@ -324,6 +325,7 @@ PROCESSING_TIME_ESTIMATES = {
         "sora_2": 120,
         "sora_2_pro": 180,
         "seedance_1_5_pro": 90,
+        "grok_imagine": 60,       # ~1 min for 6sec video
     },
     "add_audio": {
         "thinksound": 45,
