@@ -116,14 +116,17 @@ class GrokVideoEditModel(BaseAvatarModel):
 
             result = response["result"]
             video_info = result.get("video", {})
+            # Guard against None duration from API
+            video_duration = video_info.get("duration")
+            duration_for_cost = video_duration if video_duration is not None else 6
 
             return AvatarGenerationResult(
                 success=True,
                 video_url=video_info.get("url"),
-                duration=video_info.get("duration"),
+                duration=video_duration,
                 cost=self.estimate_cost(
-                    duration=video_info.get("duration", 6),
-                    input_duration=min(8, video_info.get("duration", 6)),
+                    duration=duration_for_cost,
+                    input_duration=min(8, duration_for_cost),
                 ),
                 processing_time=response.get("processing_time"),
                 model_used=self.model_name,

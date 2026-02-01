@@ -3,7 +3,7 @@
 **Issue ID:** GROK-002
 **Created:** 2026-01-30
 **Branch:** `feature/grok-imagine-video` (existing)
-**Status:** Planning
+**Status:** Completed
 **Estimated Total Time:** 35-45 minutes
 
 ---
@@ -18,16 +18,15 @@ Add xAI's Grok Imagine Video Edit model to the avatar-generation package for vid
 |-----------|-------|
 | **Endpoint** | `xai/grok-imagine-video/edit-video` |
 | **Category** | Video-to-Video editing |
-| **Input Video** | Resized to max 854x480, truncated to 8 seconds |
-| **Resolution** | auto, 480p, 720p (default: auto) |
+| **Input Video** | Downscaled to max 854x480 for processing, truncated to 8 seconds |
+| **Output Resolution** | auto, 480p, 720p (default: auto) - output can be upscaled from processed input |
 | **Max Prompt** | 4,096 characters |
 
 ### Pricing Structure
 
-- **Base cost (6s):** $0.36
 - **Per second input:** $0.01
 - **Per second output:** $0.05
-- **Per additional second:** $0.06
+- **Example (6s video):** $0.06 input + $0.30 output = **$0.36 total**
 
 ---
 
