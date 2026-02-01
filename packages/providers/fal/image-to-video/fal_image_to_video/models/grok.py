@@ -30,10 +30,12 @@ class GrokImagineModel(BaseVideoModel):
         - Total for 6s: $0.302
     """
 
-    def __init__(self):
+    IMAGE_INPUT_COST = 0.002  # Cost per image input in USD
+
+    def __init__(self) -> None:
         super().__init__("grok_imagine")
 
-    def validate_parameters(self, **kwargs) -> Dict[str, Any]:
+    def validate_parameters(self, **kwargs: Any) -> Dict[str, Any]:
         """
         Validate Grok Imagine parameters.
 
@@ -80,7 +82,7 @@ class GrokImagineModel(BaseVideoModel):
         self,
         prompt: str,
         image_url: str,
-        **kwargs
+        **kwargs: Any
     ) -> Dict[str, Any]:
         """
         Prepare API arguments for Grok Imagine Video.
@@ -114,7 +116,7 @@ class GrokImagineModel(BaseVideoModel):
             "price_per_second": self.price_per_second
         }
 
-    def estimate_cost(self, duration: int = 6, **kwargs) -> float:
+    def estimate_cost(self, duration: int = 6, **kwargs: Any) -> float:
         """
         Estimate cost based on duration.
 
@@ -127,6 +129,5 @@ class GrokImagineModel(BaseVideoModel):
         Returns:
             Estimated cost in USD
         """
-        image_cost = 0.002
         cost_per_second = self.price_per_second  # $0.05
-        return image_cost + (cost_per_second * duration)
+        return self.IMAGE_INPUT_COST + (cost_per_second * duration)

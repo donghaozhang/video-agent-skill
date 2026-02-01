@@ -28,10 +28,10 @@ class GrokImagineModel(BaseTextToVideoModel):
         - Additional seconds: $0.05 each
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("grok_imagine")
 
-    def validate_parameters(self, **kwargs) -> Dict[str, Any]:
+    def validate_parameters(self, **kwargs: Any) -> Dict[str, Any]:
         """
         Validate Grok Imagine parameters.
 
@@ -74,7 +74,7 @@ class GrokImagineModel(BaseTextToVideoModel):
             "aspect_ratio": aspect_ratio
         }
 
-    def prepare_arguments(self, prompt: str, **kwargs) -> Dict[str, Any]:
+    def prepare_arguments(self, prompt: str, **kwargs: Any) -> Dict[str, Any]:
         """
         Prepare API arguments for Grok Imagine Video.
 
@@ -105,7 +105,7 @@ class GrokImagineModel(BaseTextToVideoModel):
             "pricing": self.pricing
         }
 
-    def estimate_cost(self, duration: int = 6, **kwargs) -> float:
+    def estimate_cost(self, duration: int = 6, **kwargs: Any) -> float:
         """
         Estimate cost based on duration.
 

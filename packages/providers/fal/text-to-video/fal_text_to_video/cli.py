@@ -27,7 +27,7 @@ def cmd_generate(args):
     kwargs = {}
 
     if args.model == "kling_2_6_pro":
-        kwargs["duration"] = args.duration
+        kwargs["duration"] = int(args.duration) if args.duration else 5
         kwargs["aspect_ratio"] = args.aspect_ratio
         kwargs["cfg_scale"] = args.cfg_scale
         kwargs["generate_audio"] = args.audio
@@ -124,7 +124,7 @@ def cmd_estimate_cost(args):
         kwargs = {}
 
         if args.model == "kling_2_6_pro":
-            kwargs["duration"] = args.duration
+            kwargs["duration"] = int(args.duration) if args.duration else 5
             kwargs["generate_audio"] = args.audio
 
         elif args.model in ["sora_2", "sora_2_pro"]:
@@ -197,8 +197,8 @@ Examples:
     gen_parser.add_argument("--model", "-m", default="kling_2_6_pro",
                            choices=["kling_2_6_pro", "sora_2", "sora_2_pro", "grok_imagine"],
                            help="Model to use (default: kling_2_6_pro)")
-    gen_parser.add_argument("--duration", "-d", default="5",
-                           help="Video duration (default: 5)")
+    gen_parser.add_argument("--duration", "-d", default=None,
+                           help="Video duration (default: model-specific, grok_imagine=6, others=5)")
     gen_parser.add_argument("--aspect-ratio", "-a", default="16:9",
                            choices=["16:9", "9:16", "1:1", "4:3", "3:2", "2:3", "3:4"],
                            help="Aspect ratio (default: 16:9)")
@@ -233,8 +233,8 @@ Examples:
     cost_parser.add_argument("--model", "-m", default="kling_2_6_pro",
                             choices=["kling_2_6_pro", "sora_2", "sora_2_pro", "grok_imagine"],
                             help="Model to estimate (default: kling_2_6_pro)")
-    cost_parser.add_argument("--duration", "-d", default="5",
-                            help="Video duration")
+    cost_parser.add_argument("--duration", "-d", default=None,
+                            help="Video duration (default: model-specific)")
     cost_parser.add_argument("--resolution", "-r", default="720p",
                             choices=["720p", "1080p"],
                             help="Resolution (Sora 2 Pro only)")
