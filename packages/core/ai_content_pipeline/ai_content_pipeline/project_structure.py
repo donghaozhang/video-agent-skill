@@ -524,7 +524,7 @@ def get_structure_info(root_dir: str = ".") -> Dict[str, Any]:
 # CLI command functions
 def init_project_command(args) -> None:
     """Handle init-project CLI command."""
-    root_dir = args.directory if hasattr(args, 'directory') and args.directory else "."
+    root_dir = args.directory
     dry_run = args.dry_run if hasattr(args, 'dry_run') else False
 
     print(f"{'[DRY RUN] ' if dry_run else ''}Initializing project structure in: {Path(root_dir).resolve()}")
@@ -555,7 +555,7 @@ def init_project_command(args) -> None:
 
 def organize_project_command(args) -> None:
     """Handle organize-project CLI command."""
-    root_dir = args.directory if hasattr(args, 'directory') and args.directory else "."
+    root_dir = args.directory
     source_dir = args.source if hasattr(args, 'source') and args.source else None
     dry_run = args.dry_run if hasattr(args, 'dry_run') else False
     recursive = args.recursive if hasattr(args, 'recursive') else False
@@ -613,7 +613,7 @@ def organize_project_command(args) -> None:
 
 def structure_info_command(args) -> None:
     """Handle structure-info CLI command."""
-    root_dir = args.directory if hasattr(args, 'directory') and args.directory else "."
+    root_dir = args.directory
 
     info = get_structure_info(root_dir)
 

@@ -12,44 +12,32 @@ from pathlib import Path
 
 # Import the module under test
 try:
-    from ai_content_pipeline.project_structure import (
-        init_project,
-        organize_project,
-        organize_output,
-        cleanup_temp_files,
-        get_structure_info,
-        get_destination_folder,
-        get_output_destination,
-        get_all_directories,
-        DEFAULT_STRUCTURE,
-        FILE_EXTENSIONS,
-        OUTPUT_STRUCTURE,
-        OUTPUT_FILE_PATTERNS,
-        InitResult,
-        OrganizeResult,
-    )
+    # Check if package is installed
+    from ai_content_pipeline import project_structure as _check
 except ImportError:
+    # Fallback: add path for running tests directly from repo root
     import sys
     fallback_path = os.path.join(os.path.dirname(__file__), '..', 'packages', 'core', 'ai_content_pipeline')
     if not os.path.isdir(fallback_path):
         raise FileNotFoundError(f"Fallback import path not found: {fallback_path}")
     sys.path.insert(0, fallback_path)
-    from ai_content_pipeline.project_structure import (
-        init_project,
-        organize_project,
-        organize_output,
-        cleanup_temp_files,
-        get_structure_info,
-        get_destination_folder,
-        get_output_destination,
-        get_all_directories,
-        DEFAULT_STRUCTURE,
-        FILE_EXTENSIONS,
-        OUTPUT_STRUCTURE,
-        OUTPUT_FILE_PATTERNS,
-        InitResult,
-        OrganizeResult,
-    )
+
+from ai_content_pipeline.project_structure import (
+    init_project,
+    organize_project,
+    organize_output,
+    cleanup_temp_files,
+    get_structure_info,
+    get_destination_folder,
+    get_output_destination,
+    get_all_directories,
+    DEFAULT_STRUCTURE,
+    FILE_EXTENSIONS,
+    OUTPUT_STRUCTURE,
+    OUTPUT_FILE_PATTERNS,
+    InitResult,
+    OrganizeResult,
+)
 
 
 class TestInitProject:
