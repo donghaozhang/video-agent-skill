@@ -7,11 +7,14 @@ structures according to the standard input/output folder pattern.
 File: packages/core/ai_content_pipeline/ai_content_pipeline/project_structure.py
 """
 
+import logging
 import os
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
+
+logger = logging.getLogger(__name__)
 
 
 # Default project structure definition
@@ -142,7 +145,7 @@ def get_all_directories(structure: dict, prefix: str = "") -> List[str]:
     """
     paths = []
     for key, value in structure.items():
-        current_path = f"{prefix}/{key}" if prefix else key
+        current_path = os.path.join(prefix, key) if prefix else key
         paths.append(current_path)
         if isinstance(value, dict):
             paths.extend(get_all_directories(value, current_path))
@@ -183,7 +186,8 @@ def init_project(
                     full_path.mkdir(parents=True, exist_ok=True)
                     result.directories_created += 1
                     result.created_paths.append(str(full_path))
-                except Exception as e:
+                except OSError as e:
+                    logger.exception("Failed to create directory %s", full_path)
                     result.errors.append(f"Failed to create {full_path}: {e}")
                     result.success = False
             else:
@@ -193,16 +197,12 @@ def init_project(
     return result
 
 
-def get_destination_folder(
-    file_path: Path,
-    root_dir: Path
-) -> Optional[str]:
+def get_destination_folder(file_path: Path) -> Optional[str]:
     """
     Determine the destination folder for a file based on its extension.
 
     Args:
         file_path: Path to the file
-        root_dir: Project root directory
 
     Returns:
         Destination folder path relative to root, or None if unknown type
@@ -211,14 +211,7 @@ def get_destination_folder(
 
     for folder, extensions in FILE_EXTENSIONS.items():
         if ext in extensions:
-            if folder == "pipelines":
-                return "input/pipelines"
-            elif folder == "prompts":
-                return "input/prompts"
-            elif folder == "subtitles":
-                return "input/subtitles"
-            else:
-                return f"input/{folder}"
+            return f"input/{folder}"
 
     return None
 
@@ -253,6 +246,8 @@ def organize_project(
         init_result = init_project(root_dir)
         if not init_result.success:
             result.errors.extend(init_result.errors)
+            result.success = False
+            return result
 
     # Scan for files
     if recursive:
@@ -284,7 +279,7 @@ def organize_project(
             pass
 
         # Determine destination
-        dest_folder = get_destination_folder(file_path, root)
+        dest_folder = get_destination_folder(file_path)
 
         if dest_folder is None:
             result.add_skip()
@@ -303,7 +298,8 @@ def organize_project(
             try:
                 shutil.move(str(file_path), str(dest_path))
                 result.add_move(str(file_path), str(dest_path))
-            except Exception as e:
+            except (OSError, shutil.Error) as e:
+                logger.exception("Failed to move %s to %s", file_path, dest_path)
                 result.add_error(f"Failed to move {file_path}: {e}")
                 result.success = False
         else:
@@ -363,6 +359,7 @@ def organize_output(
 
     if not output_dir.exists():
         result.add_error("Output directory does not exist")
+        result.success = False
         return result
 
     # Ensure output subfolders exist
@@ -395,7 +392,8 @@ def organize_output(
             try:
                 shutil.move(str(file_path), str(dest_path))
                 result.add_move(str(file_path), str(dest_path))
-            except Exception as e:
+            except (OSError, shutil.Error) as e:
+                logger.exception("Failed to move %s to %s", file_path, dest_path)
                 result.add_error(f"Failed to move {file_path}: {e}")
                 result.success = False
         else:
@@ -440,8 +438,8 @@ def cleanup_temp_files(
                     try:
                         temp_file.unlink()
                         deleted.append(str(temp_file))
-                    except Exception:
-                        pass
+                    except OSError as e:
+                        logger.warning("Failed to delete %s: %s", temp_file, e)
                 else:
                     deleted.append(str(temp_file))
 
@@ -452,15 +450,15 @@ def cleanup_temp_files(
                 try:
                     dirpath.rmdir()
                     deleted.append(str(dirpath))
-                except Exception:
-                    pass
+                except OSError as e:
+                    logger.warning("Failed to remove directory %s: %s", dirpath, e)
             else:
                 deleted.append(str(dirpath))
 
     return len(deleted), deleted
 
 
-def get_structure_info(root_dir: str = ".") -> Dict[str, any]:
+def get_structure_info(root_dir: str = ".") -> Dict[str, Any]:
     """
     Get information about the current project structure.
 
@@ -545,14 +543,14 @@ def init_project_command(args) -> None:
         print(f"\n{result.directories_existed} directories already exist")
 
     if result.errors:
-        print(f"\nErrors:")
+        print("\nErrors:")
         for error in result.errors:
             print(f"  ! {error}")
 
     if result.success:
         print(f"\n{'[DRY RUN] ' if dry_run else ''}Project structure initialized successfully!")
     else:
-        print(f"\nProject initialization completed with errors.")
+        print("\nProject initialization completed with errors.")
 
 
 def organize_project_command(args) -> None:
@@ -603,14 +601,14 @@ def organize_project_command(args) -> None:
             result.errors.extend(output_result.errors)
 
     if result.errors:
-        print(f"\nWarnings:")
+        print("\nWarnings:")
         for error in result.errors:
             print(f"  ! {error}")
 
     if result.success:
         print(f"\n{'[DRY RUN] ' if dry_run else ''}Organization complete!")
     else:
-        print(f"\nOrganization completed with errors.")
+        print("\nOrganization completed with errors.")
 
 
 def structure_info_command(args) -> None:

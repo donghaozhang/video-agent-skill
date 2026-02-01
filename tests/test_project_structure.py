@@ -30,7 +30,10 @@ try:
     )
 except ImportError:
     import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'packages', 'core', 'ai_content_pipeline'))
+    fallback_path = os.path.join(os.path.dirname(__file__), '..', 'packages', 'core', 'ai_content_pipeline')
+    if not os.path.isdir(fallback_path):
+        raise FileNotFoundError(f"Fallback import path not found: {fallback_path}")
+    sys.path.insert(0, fallback_path)
     from ai_content_pipeline.project_structure import (
         init_project,
         organize_project,
@@ -206,34 +209,34 @@ class TestGetDestinationFolder:
         root = Path("/project")
         for ext in [".jpg", ".png", ".gif", ".webp"]:
             file_path = Path(f"/project/test{ext}")
-            assert get_destination_folder(file_path, root) == "input/images"
+            assert get_destination_folder(file_path) == "input/images"
 
     def test_video_extensions(self):
         """Test that video extensions map to input/videos."""
         root = Path("/project")
         for ext in [".mp4", ".mov", ".webm"]:
             file_path = Path(f"/project/test{ext}")
-            assert get_destination_folder(file_path, root) == "input/videos"
+            assert get_destination_folder(file_path) == "input/videos"
 
     def test_audio_extensions(self):
         """Test that audio extensions map to input/audio."""
         root = Path("/project")
         for ext in [".mp3", ".wav", ".aac"]:
             file_path = Path(f"/project/test{ext}")
-            assert get_destination_folder(file_path, root) == "input/audio"
+            assert get_destination_folder(file_path) == "input/audio"
 
     def test_pipeline_extensions(self):
         """Test that YAML extensions map to input/pipelines."""
         root = Path("/project")
         for ext in [".yaml", ".yml"]:
             file_path = Path(f"/project/test{ext}")
-            assert get_destination_folder(file_path, root) == "input/pipelines"
+            assert get_destination_folder(file_path) == "input/pipelines"
 
     def test_unknown_extension_returns_none(self):
         """Test that unknown extensions return None."""
         root = Path("/project")
         file_path = Path("/project/test.xyz")
-        assert get_destination_folder(file_path, root) is None
+        assert get_destination_folder(file_path) is None
 
 
 class TestCleanupTempFiles:
@@ -250,7 +253,7 @@ class TestCleanupTempFiles:
             temp_file = output_dir / "step_1_output.txt"
             temp_file.write_text("temp data")
 
-            count, deleted = cleanup_temp_files(tmpdir)
+            count, _deleted = cleanup_temp_files(tmpdir)
 
             assert count >= 1
             assert not temp_file.exists()
@@ -264,7 +267,7 @@ class TestCleanupTempFiles:
             temp_file = output_dir / "step_1_output.txt"
             temp_file.write_text("temp data")
 
-            count, deleted = cleanup_temp_files(tmpdir, dry_run=True)
+            count, _deleted = cleanup_temp_files(tmpdir, dry_run=True)
 
             assert count >= 1
             assert temp_file.exists()  # File should remain

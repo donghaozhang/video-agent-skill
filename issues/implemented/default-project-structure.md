@@ -11,7 +11,7 @@ Implement the AI Content Pipeline's standard project structure as the default op
 
 ## Target Structure
 
-```
+```text
 {project-root}/
 ├── input/                        # All input assets and configurations
 │   ├── images/                   # Input images for processing

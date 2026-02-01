@@ -11,7 +11,7 @@ Extended the project structure implementation to organize the `output/` folder w
 
 ## Implemented Structure
 
-```
+```text
 output/
 ├── images/                        # Generated images
 │   └── generated_image_*.png
@@ -71,17 +71,17 @@ ai-content-pipeline structure-info
 
 | File Pattern | Destination |
 |-------------|-------------|
-| generated_image_*.png/jpg | output/images/ |
-| upscaled_*.png, grid_*.png | output/images/ |
-| generated_video_*.mp4/webm | output/videos/ |
-| motion_*.mp4, avatar_*.mp4 | output/videos/ |
-| generated_audio_*.mp3/wav | output/audio/ |
-| tts_*.mp3, voice_*.wav | output/audio/ |
-| *_transcript*.txt | output/transcripts/ |
-| *.srt, *.vtt | output/transcripts/ |
-| *_words.json, *_raw.json | output/transcripts/ |
-| *_analysis*.md/json | output/analysis/ |
-| *_timeline*.md/json | output/analysis/ |
+| `generated_image_*.png/jpg` | output/images/ |
+| `upscaled_*.png`, `grid_*.png` | output/images/ |
+| `generated_video_*.mp4/webm` | output/videos/ |
+| `motion_*.mp4`, `avatar_*.mp4` | output/videos/ |
+| `generated_audio_*.mp3/wav` | output/audio/ |
+| `tts_*.mp3`, `voice_*.wav` | output/audio/ |
+| `*_transcript*.txt` | output/transcripts/ |
+| `*.srt`, `*.vtt` | output/transcripts/ |
+| `*_words.json`, `*_raw.json` | output/transcripts/ |
+| `*_analysis*.md/json` | output/analysis/ |
+| `*_timeline*.md/json` | output/analysis/ |
 
 ## Acceptance Criteria
 
