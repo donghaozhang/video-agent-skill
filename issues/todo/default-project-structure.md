@@ -6,91 +6,106 @@
 
 ## Overview
 
-Implement QCut's standard project structure as the default option for new projects and workspace organization.
+Implement the AI Content Pipeline's standard project structure as the default option for new projects.
 
 ## Target Structure
 
 ```
-Documents/QCut/Projects/{project-name}/
-├── project.qcut              # Project metadata file
-├── media/                    # All media files
-│   ├── imported/             # User-imported media (videos, images, audio)
-│   ├── generated/            # AI-generated content (from skills)
-│   └── temp/                 # Temporary processing files
-├── skills/                   # Project-specific skills
-│   ├── ai-content-pipeline/  # AI content generation skill
-│   │   ├── Skill.md
-│   │   ├── REFERENCE.md
-│   │   └── EXAMPLES.md
-│   └── ffmpeg-skill/         # FFmpeg processing skill
-│       ├── Skill.md
-│       └── REFERENCE.md
-├── output/                   # Exported videos and renders
-├── cache/                    # FFmpeg and processing cache
-└── docs/                     # Project documentation (optional)
+{project-root}/
+├── input/                        # All input assets and configurations
+│   ├── images/                   # Input images for processing
+│   ├── videos/                   # Input videos for processing
+│   ├── audio/                    # Input audio files
+│   ├── pipelines/                # YAML pipeline configurations
+│   │   ├── video/                # Video generation pipelines
+│   │   ├── image/                # Image generation pipelines
+│   │   ├── storyboard/           # Multi-scene storyboard pipelines
+│   │   ├── analysis/             # Video analysis pipelines
+│   │   └── examples/             # Example/demo pipelines
+│   ├── prompts/                  # Text prompts and templates
+│   ├── subtitles/                # Subtitle files (.srt, .vtt)
+│   ├── text/                     # Text content files
+│   └── metadata/                 # Project metadata
+├── output/                       # All generated content
+│   ├── {pipeline_name}/          # Per-pipeline output folders
+│   │   ├── generated_image_*.png # Generated images
+│   │   ├── generated_video_*.mp4 # Generated videos
+│   │   └── step_*_output.*       # Intermediate step outputs
+│   └── generated_*.*             # Direct generation outputs
+├── .claude/                      # Claude Code configuration
+│   └── skills/                   # Project-specific skills
+├── issues/                       # Project planning and tracking
+│   ├── todo/                     # Planned features
+│   └── implemented/              # Completed features
+└── docs/                         # Project documentation
 ```
 
 ## Implementation Tasks
 
-### 1. Media Organization
-- [ ] Videos (.mp4, .mov, .webm, .avi) → `media/imported/` or `media/generated/`
-- [ ] Images (.jpg, .png, .webp, .gif) → `media/imported/` or `media/generated/`
-- [ ] Audio (.mp3, .wav, .aac, .m4a) → `media/imported/` or `media/generated/`
-- [ ] AI-generated content → `media/generated/`
-- [ ] User-imported content → `media/imported/`
+### 1. Input Organization
+- [ ] Images (.jpg, .png, .webp, .gif) → `input/images/`
+- [ ] Videos (.mp4, .mov, .webm) → `input/videos/`
+- [ ] Audio (.mp3, .wav, .aac) → `input/audio/`
+- [ ] Pipeline configs (.yaml) → `input/pipelines/{category}/`
+- [ ] Prompts (.txt, .md) → `input/prompts/`
+- [ ] Subtitles (.srt, .vtt) → `input/subtitles/`
 
-### 2. Hybrid Symlink Import System
-- [ ] Implement symlink-preferred imports (saves disk space)
-- [ ] Add copy fallback for Windows without admin/network drives
-- [ ] Track metadata: `importMethod`, `originalPath`, `fileSize`
+### 2. Output Organization
+- [ ] Pipeline outputs → `output/{pipeline_name}/`
+- [ ] Direct generations → `output/generated_*.*`
+- [ ] Naming pattern: `generated_{type}_{timestamp}.{ext}`
 
-### 3. Skills Organization
-- [ ] Each skill as folder with `Skill.md` entry point
-- [ ] Support reference files: `REFERENCE.md`, `EXAMPLES.md`, `CONCEPTS.md`
-- [ ] Support `scripts/` subfolder for helper scripts
+### 3. Pipeline Categories
+- [ ] `input/pipelines/video/` - Text/image to video workflows
+- [ ] `input/pipelines/image/` - Image generation/editing
+- [ ] `input/pipelines/storyboard/` - Multi-scene stories
+- [ ] `input/pipelines/analysis/` - Video analysis tasks
+- [ ] `input/pipelines/examples/` - Demo configurations
 
-### 4. Output Naming Convention
-- [ ] Final renders → `output/`
-- [ ] Naming pattern: `{project-name}_{date}_{resolution}.mp4`
-
-### 5. Temporary File Management
-- [ ] Processing intermediates → `media/temp/`
-- [ ] Cache files → `cache/`
-- [ ] Auto-cleanup after export
-
-### 6. Virtual Folder System
-- [ ] Metadata-only virtual folders
-- [ ] Items can belong to multiple folders (tags)
-- [ ] Special "Skills" folder for project skills
-- [ ] Max folder depth: 3 levels
-- [ ] Folder naming: max 50 characters
+### 4. Skills Organization
+- [ ] Skills folder: `.claude/skills/`
+- [ ] Each skill: `{skill-name}/Skill.md` entry point
+- [ ] Optional: `REFERENCE.md`, `EXAMPLES.md`
 
 ## Quick Setup Commands
 
 ```bash
-# Create standard structure
-mkdir -p media/{imported,generated,temp} output cache skills docs
+# Create default structure
+mkdir -p input/{images,videos,audio,pipelines,prompts,subtitles,text,metadata}
+mkdir -p input/pipelines/{video,image,storyboard,analysis,examples}
+mkdir -p output
+mkdir -p issues/{todo,implemented}
+mkdir -p docs
 
-# Move media files
-mv *.mp4 *.mov *.webm media/imported/ 2>/dev/null
-mv *.jpg *.png *.gif *.webp media/imported/ 2>/dev/null
-mv *.mp3 *.wav *.aac media/imported/ 2>/dev/null
+# Move input files
+mv *.jpg *.png *.gif *.webp input/images/ 2>/dev/null
+mv *.mp4 *.mov *.webm input/videos/ 2>/dev/null
+mv *.mp3 *.wav *.aac input/audio/ 2>/dev/null
+mv *.yaml *.yml input/pipelines/ 2>/dev/null
 
-# Symlink management
-find media/imported -type l              # List symlinks
-find media/imported -xtype l             # Find broken symlinks
-readlink media/imported/file.mp4         # Show symlink target
+# Cleanup outputs
+rm -rf output/*/step_*  # Remove intermediate files
+```
 
-# Cleanup
-rm -rf media/temp/* cache/*
+## Pipeline Configuration
+
+Each pipeline YAML specifies its output directory:
+```yaml
+pipeline_name: my_workflow
+output_dir: output/my_workflow
+
+steps:
+  - type: text_to_image
+    model: flux_dev
+    params:
+      prompt: "..."
 ```
 
 ## Acceptance Criteria
 
-- [ ] New projects automatically use this structure
+- [ ] New projects use `input/` and `output/` structure
+- [ ] Pipeline outputs organized by `output_dir` in YAML
+- [ ] Input assets categorized by type
+- [ ] Pipeline configs grouped by category
+- [ ] Generated files follow naming convention
 - [ ] Organize command restructures existing projects
-- [ ] Symlink import works on Unix/macOS
-- [ ] Copy fallback works on Windows
-- [ ] Virtual folders display correctly in UI
-- [ ] Output naming follows convention
-- [ ] Temp files cleaned after export
