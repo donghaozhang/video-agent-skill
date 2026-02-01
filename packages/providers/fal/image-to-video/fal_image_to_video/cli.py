@@ -173,7 +173,8 @@ Examples:
     gen_parser.add_argument("--image", "-i", required=True, help="Input image path or URL")
     gen_parser.add_argument("--model", "-m", default="kling_2_6_pro",
                            choices=["hailuo", "kling_2_1", "kling_2_6_pro",
-                                   "seedance_1_5_pro", "sora_2", "sora_2_pro", "veo_3_1_fast"],
+                                   "seedance_1_5_pro", "sora_2", "sora_2_pro",
+                                   "veo_3_1_fast", "wan_2_6", "grok_imagine"],
                            help="Model to use (default: kling_2_6_pro)")
     gen_parser.add_argument("--prompt", "-p", required=True, help="Text prompt for video generation")
     gen_parser.add_argument("--duration", "-d", default="5", help="Video duration (default: 5)")

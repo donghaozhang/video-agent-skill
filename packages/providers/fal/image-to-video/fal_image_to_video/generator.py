@@ -17,7 +17,8 @@ from .models import (
     Sora2Model,
     Sora2ProModel,
     Veo31FastModel,
-    Wan26Model
+    Wan26Model,
+    GrokImagineModel
 )
 from .utils.file_utils import (
     upload_image,
@@ -81,7 +82,8 @@ class FALImageToVideoGenerator:
             "sora_2": Sora2Model(),
             "sora_2_pro": Sora2ProModel(),
             "veo_3_1_fast": Veo31FastModel(),
-            "wan_2_6": Wan26Model()
+            "wan_2_6": Wan26Model(),
+            "grok_imagine": GrokImagineModel()
         }
 
         self.output_dir = ensure_output_directory("output")

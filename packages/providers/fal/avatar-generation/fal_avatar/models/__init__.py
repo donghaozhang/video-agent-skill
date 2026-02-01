@@ -5,6 +5,7 @@ from .omnihuman import OmniHumanModel
 from .fabric import FabricModel, FabricTextModel
 from .kling import KlingRefToVideoModel, KlingV2VReferenceModel, KlingV2VEditModel, KlingMotionControlModel
 from .multitalk import MultiTalkModel
+from .grok import GrokVideoEditModel
 
 __all__ = [
     "BaseAvatarModel",
@@ -17,4 +18,5 @@ __all__ = [
     "KlingV2VEditModel",
     "KlingMotionControlModel",
     "MultiTalkModel",
+    "GrokVideoEditModel",
 ]

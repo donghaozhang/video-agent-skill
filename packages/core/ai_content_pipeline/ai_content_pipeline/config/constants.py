@@ -23,6 +23,7 @@ SUPPORTED_MODELS = {
         "veo3",               # Google Veo 3 (via FAL)
         "veo3_fast",          # Google Veo 3 Fast (via FAL)
         "hailuo_pro",         # MiniMax Hailuo-02 Pro
+        "grok_imagine",       # xAI Grok Imagine Video (1-15s, with audio)
     ],
     "text_to_speech": [
         "elevenlabs",         # ElevenLabs TTS (high quality)
@@ -67,6 +68,7 @@ SUPPORTED_MODELS = {
         "sora_2",             # OpenAI Sora 2
         "sora_2_pro",         # OpenAI Sora 2 Pro
         "seedance_1_5_pro",   # ByteDance Seedance v1.5 Pro
+        "grok_imagine",       # xAI Grok Imagine Video (1-15s, with audio)
     ],
     "add_audio": [
         "thinksound",         # ThinksSound AI audio generation
@@ -83,6 +85,7 @@ SUPPORTED_MODELS = {
         "kling_v2v_reference",  # Kling O1 - style-guided video
         "kling_v2v_edit",       # Kling O1 - targeted video modifications
         "kling_motion_control", # Kling v2.6 - motion transfer from video to image
+        "grok_video_edit",      # xAI Grok - video editing with prompts
     ],
     "speech_to_text": [
         "scribe_v2",            # ElevenLabs Scribe v2 via FAL
@@ -199,6 +202,7 @@ COST_ESTIMATES = {
         "veo3": 4.00,             # $0.50/sec * 8sec default
         "veo3_fast": 2.00,        # $0.25/sec * 8sec default
         "hailuo_pro": 0.08,       # Fixed per video
+        "grok_imagine": 0.30,     # $0.05/sec * 6sec base
     },
     "text_to_speech": {
         "elevenlabs": 0.05,
@@ -243,6 +247,7 @@ COST_ESTIMATES = {
         "sora_2": 0.40,           # $0.10/sec * 4sec
         "sora_2_pro": 2.00,       # $0.50/sec * 4sec (1080p)
         "seedance_1_5_pro": 0.80, # $0.08/sec * 10sec
+        "grok_imagine": 0.302,    # $0.05/sec * 6sec + $0.002 image input
     },
     "add_audio": {
         "thinksound": 0.05,
@@ -259,6 +264,7 @@ COST_ESTIMATES = {
         "kling_v2v_reference": 0.84,   # ~$0.168/sec * 5sec
         "kling_v2v_edit": 0.84,        # ~$0.168/sec * 5sec
         "kling_motion_control": 0.60,  # ~$0.06/sec * 10sec
+        "grok_video_edit": 0.36,       # $0.01/sec input + $0.05/sec output * 6sec
     },
     "speech_to_text": {
         "scribe_v2": 0.08,             # ~$0.008/min * 10min average
@@ -280,6 +286,7 @@ PROCESSING_TIME_ESTIMATES = {
         "veo3": 300,              # ~5 min for 8sec video
         "veo3_fast": 120,         # ~2 min for 8sec video
         "hailuo_pro": 60,         # ~1 min for 6sec video
+        "grok_imagine": 60,       # ~1 min for 6sec video
     },
     "text_to_speech": {
         "elevenlabs": 15,
@@ -322,6 +329,7 @@ PROCESSING_TIME_ESTIMATES = {
         "sora_2": 120,
         "sora_2_pro": 180,
         "seedance_1_5_pro": 90,
+        "grok_imagine": 60,       # ~1 min for 6sec video
     },
     "add_audio": {
         "thinksound": 45,
@@ -338,6 +346,7 @@ PROCESSING_TIME_ESTIMATES = {
         "kling_v2v_reference": 90,     # 90 seconds for 5s video
         "kling_v2v_edit": 60,          # 60 seconds for editing
         "kling_motion_control": 60,    # 60 seconds for motion transfer
+        "grok_video_edit": 45,         # 45 seconds for video editing
     },
     "speech_to_text": {
         "scribe_v2": 15,               # ~15 seconds for average audio

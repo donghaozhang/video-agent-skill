@@ -11,6 +11,7 @@ MODEL_ENDPOINTS = {
     "kling_v2v_edit": "fal-ai/kling-video/o1/standard/video-to-video/edit",
     "kling_motion_control": "fal-ai/kling-video/v2.6/standard/motion-control",
     "multitalk": "fal-ai/ai-avatar/multi",
+    "grok_video_edit": "xai/grok-imagine-video/edit-video",
 }
 
 # Display names for UI/CLI
@@ -24,6 +25,7 @@ MODEL_DISPLAY_NAMES = {
     "kling_v2v_edit": "Kling O1 V2V Edit",
     "kling_motion_control": "Kling v2.6 Motion Control",
     "multitalk": "AI Avatar Multi (FAL)",
+    "grok_video_edit": "xAI Grok Video Edit",
 }
 
 # Pricing per second
@@ -37,6 +39,7 @@ MODEL_PRICING = {
     "kling_v2v_edit": {"per_second": 0.168},
     "kling_motion_control": {"per_second": 0.06},
     "multitalk": {"base": 0.10, "720p_multiplier": 2.0, "extended_frames_multiplier": 1.25},
+    "grok_video_edit": {"input_per_second": 0.01, "output_per_second": 0.05},
 }
 
 # Default values
@@ -74,6 +77,9 @@ MODEL_DEFAULTS = {
         "resolution": "480p",
         "acceleration": "regular",
     },
+    "grok_video_edit": {
+        "resolution": "auto",
+    },
 }
 
 # Supported resolutions per model
@@ -87,6 +93,7 @@ SUPPORTED_RESOLUTIONS = {
     "kling_v2v_edit": [],
     "kling_motion_control": [],  # Uses character_orientation instead
     "multitalk": ["480p", "720p"],
+    "grok_video_edit": ["auto", "480p", "720p"],
 }
 
 # Supported aspect ratios
@@ -107,6 +114,7 @@ MAX_DURATIONS = {
     "kling_v2v_reference": 10,
     "kling_v2v_edit": 10,
     "kling_motion_control": {"video": 30, "image": 10},
+    "grok_video_edit": 8,  # Input truncated to 8 seconds
 }
 
 # Processing time estimates (seconds)
@@ -120,6 +128,7 @@ PROCESSING_TIME_ESTIMATES = {
     "kling_v2v_edit": 30,
     "kling_motion_control": 60,
     "multitalk": 60,
+    "grok_video_edit": 45,
 }
 
 # Input requirements
@@ -160,13 +169,17 @@ INPUT_REQUIREMENTS = {
         "required": ["image_url", "first_audio_url", "prompt"],
         "optional": ["second_audio_url", "num_frames", "resolution", "seed", "acceleration", "use_only_first_audio"],
     },
+    "grok_video_edit": {
+        "required": ["video_url", "prompt"],
+        "optional": ["resolution"],
+    },
 }
 
 # Model categories
 MODEL_CATEGORIES = {
     "avatar_lipsync": ["omnihuman_v1_5", "fabric_1_0", "fabric_1_0_fast", "fabric_1_0_text"],
     "reference_to_video": ["kling_ref_to_video"],
-    "video_to_video": ["kling_v2v_reference", "kling_v2v_edit"],
+    "video_to_video": ["kling_v2v_reference", "kling_v2v_edit", "grok_video_edit"],
     "motion_transfer": ["kling_motion_control"],
     "conversational": ["multitalk"],
 }
@@ -185,4 +198,6 @@ MODEL_RECOMMENDATIONS = {
     "conversation": "multitalk",
     "multi_person": "multitalk",
     "podcast": "multitalk",
+    "colorize": "grok_video_edit",
+    "video_transform": "grok_video_edit",
 }

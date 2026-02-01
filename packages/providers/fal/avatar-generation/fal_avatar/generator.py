@@ -13,6 +13,7 @@ from .models import (
     KlingV2VEditModel,
     KlingMotionControlModel,
     MultiTalkModel,
+    GrokVideoEditModel,
 )
 from .config.constants import (
     MODEL_DISPLAY_NAMES,
@@ -35,6 +36,7 @@ class FALAvatarGenerator:
     - Kling O1 V2V Edit - Targeted video modifications
     - Kling v2.6 Motion Control - Motion transfer from video to image
     - AI Avatar Multi - Multi-person conversational video
+    - Grok Video Edit - xAI video-to-video editing
     """
 
     def __init__(self):
@@ -49,6 +51,7 @@ class FALAvatarGenerator:
             "kling_v2v_edit": KlingV2VEditModel(),
             "kling_motion_control": KlingMotionControlModel(),
             "multitalk": MultiTalkModel(),
+            "grok_video_edit": GrokVideoEditModel(),
         }
 
     def generate(
@@ -152,22 +155,27 @@ class FALAvatarGenerator:
         **kwargs,
     ) -> AvatarGenerationResult:
         """
-        Transform existing video (style transfer or edit).
+        Transform existing video (style transfer, edit, or grok edit).
 
         Args:
             video_url: Source video URL
             prompt: Transformation prompt
-            mode: "reference" for style-guided, "edit" for targeted modifications
+            mode: "reference" for style-guided, "edit" for Kling targeted modifications,
+                  "grok" for xAI Grok video editing
             **kwargs: Additional parameters
 
         Returns:
             AvatarGenerationResult with video URL
         """
-        valid_modes = {"reference": "kling_v2v_reference", "edit": "kling_v2v_edit"}
+        valid_modes = {
+            "reference": "kling_v2v_reference",
+            "edit": "kling_v2v_edit",
+            "grok": "grok_video_edit",
+        }
         if mode not in valid_modes:
             return AvatarGenerationResult(
                 success=False,
-                error=f"Invalid mode '{mode}'. Must be 'reference' or 'edit'.",
+                error=f"Invalid mode '{mode}'. Must be 'reference', 'edit', or 'grok'.",
                 model_used="unknown",
             )
         model = valid_modes[mode]

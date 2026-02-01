@@ -19,7 +19,7 @@ This is the **AI Content Pipeline** - a unified Python package for multi-modal A
 - **Unified Interface**: Single package with console commands `ai-content-pipeline` and `aicp`
 - **YAML Configuration**: Multi-step content generation workflows
 - **Parallel Execution**: 2-3x speedup with thread-based parallel processing
-- **Multi-Model Support**: 51 AI models across 9 categories
+- **Multi-Model Support**: 53 AI models across 9 categories
 - **Cost Management**: Built-in cost estimation and tracking
 - **Organized Output**: Structured output directories with proper file management
 
@@ -123,7 +123,7 @@ ai-content-pipeline/
 - **Unified Package**: Single installable package with console commands
 - **YAML Configuration**: Multi-step workflow definitions
 - **Parallel Execution**: Thread-based processing with `PIPELINE_PARALLEL_ENABLED=true`
-- **Multi-Model Support**: 51 AI models across 9 categories
+- **Multi-Model Support**: 53 AI models across 9 categories
 - **Cost Management**: Built-in estimation and tracking
 - **Organized Output**: Structured file management
 
@@ -226,11 +226,12 @@ python tests/run_all_tests.py --quick
 - **Nano Banana Pro Edit** - Fast image editing
 - **GPT Image 1.5 Edit** - GPT-powered image editing
 
-### 📦 Image-to-Video (11 models)
+### 📦 Image-to-Video (12 models)
 - **Veo 3** - Google's latest video model
 - **Veo 2** - Previous generation Veo
 - **Hailuo** - MiniMax video generation
 - **Kling** - High-quality video synthesis
+- **Grok Imagine** - xAI text/image-to-video with audio (1-15s, $0.05/s)
 
 ### 📦 Image Understanding (7 models)
 - **Gemini variants** - Description, classification, OCR, Q&A
