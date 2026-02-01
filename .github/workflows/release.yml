@@ -20,6 +20,13 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
+      - name: Get previous tag
+        id: prev_tag
+        run: |
+          # Get the tag before current one for changelog comparison
+          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed -n '2p')
+          echo "PREV_TAG=${PREV_TAG:-v0.0.0}" >> $GITHUB_OUTPUT
+
       - name: Extract changelog for version
         id: changelog
         run: |
@@ -35,7 +42,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: v${{ steps.version.outputs.VERSION }}
           body: |
@@ -45,7 +52,7 @@ jobs:
 
             ---
 
-            **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ steps.version.outputs.VERSION }}...HEAD
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.prev_tag.outputs.PREV_TAG }}...v${{ steps.version.outputs.VERSION }}
 
             **PyPI**: https://pypi.org/project/video-ai-studio/${{ steps.version.outputs.VERSION }}/
           draft: false

@@ -63,6 +63,14 @@ OUTPUT_FILE_PATTERNS = {
         "extensions": [],
         "patterns": ["*_analysis*", "*_timeline*", "*_describe*"],
     },
+    "pipelines": {
+        "extensions": [".yaml", ".yml"],
+        "patterns": ["*_pipeline*", "*_chain*", "*_config*"],
+    },
+    "temp": {
+        "extensions": [".tmp", ".temp"],
+        "patterns": ["step_*_output.*"],
+    },
 }
 
 # File extension mappings for organization
