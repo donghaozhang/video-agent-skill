@@ -262,6 +262,7 @@ COST_ESTIMATES = {
         "kling_v2v_reference": 0.84,   # ~$0.168/sec * 5sec
         "kling_v2v_edit": 0.84,        # ~$0.168/sec * 5sec
         "kling_motion_control": 0.60,  # ~$0.06/sec * 10sec
+        "grok_video_edit": 0.36,       # $0.01/sec input + $0.05/sec output * 6sec
     },
     "speech_to_text": {
         "scribe_v2": 0.08,             # ~$0.008/min * 10min average
