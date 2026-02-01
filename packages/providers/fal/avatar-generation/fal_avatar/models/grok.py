@@ -59,9 +59,9 @@ class GrokVideoEditModel(BaseAvatarModel):
         # Validate video_url
         self._validate_url(video_url, "video_url")
 
-        # Validate prompt
-        if not prompt:
-            raise ValueError("prompt is required")
+        # Validate prompt (reject empty or whitespace-only)
+        if not prompt or not prompt.strip():
+            raise ValueError("prompt is required and cannot be whitespace-only")
         if len(prompt) > self.max_prompt_length:
             raise ValueError(
                 f"prompt exceeds maximum length of {self.max_prompt_length} characters "
