@@ -6,35 +6,25 @@
 
 ## Overview
 
-Implement a simple, consistent media folder structure as the default option for all projects.
+Implement QCut's standard project structure as the default option for new projects and workspace organization.
 
-## Default Structure (Minimal)
-
-```
-{project-root}/
-├── media/
-│   ├── imported/     # User-imported media (videos, images, audio)
-│   ├── generated/    # AI-generated content (from pipelines/skills)
-│   └── temp/         # Temporary processing files (auto-cleaned)
-└── output/           # Final exported renders
-```
-
-This is the **default option** - simple and sufficient for most projects.
-
-## Extended Structure (Full QCut)
-
-For larger projects, expand to the full structure:
+## Target Structure
 
 ```
-{project-root}/
+Documents/QCut/Projects/{project-name}/
 ├── project.qcut              # Project metadata file
-├── media/
-│   ├── imported/             # User-imported media
-│   ├── generated/            # AI-generated content
+├── media/                    # All media files
+│   ├── imported/             # User-imported media (videos, images, audio)
+│   ├── generated/            # AI-generated content (from skills)
 │   └── temp/                 # Temporary processing files
 ├── skills/                   # Project-specific skills
-│   ├── ai-content-pipeline/
-│   └── ffmpeg-skill/
+│   ├── ai-content-pipeline/  # AI content generation skill
+│   │   ├── Skill.md
+│   │   ├── REFERENCE.md
+│   │   └── EXAMPLES.md
+│   └── ffmpeg-skill/         # FFmpeg processing skill
+│       ├── Skill.md
+│       └── REFERENCE.md
 ├── output/                   # Exported videos and renders
 ├── cache/                    # FFmpeg and processing cache
 └── docs/                     # Project documentation (optional)
@@ -78,13 +68,10 @@ For larger projects, expand to the full structure:
 ## Quick Setup Commands
 
 ```bash
-# Create default structure (minimal)
-mkdir -p media/{imported,generated,temp} output
-
-# Create extended structure (full)
+# Create standard structure
 mkdir -p media/{imported,generated,temp} output cache skills docs
 
-# Move media files to imported
+# Move media files
 mv *.mp4 *.mov *.webm media/imported/ 2>/dev/null
 mv *.jpg *.png *.gif *.webp media/imported/ 2>/dev/null
 mv *.mp3 *.wav *.aac media/imported/ 2>/dev/null
@@ -94,16 +81,16 @@ find media/imported -type l              # List symlinks
 find media/imported -xtype l             # Find broken symlinks
 readlink media/imported/file.mp4         # Show symlink target
 
-# Cleanup temp files
-rm -rf media/temp/*
+# Cleanup
+rm -rf media/temp/* cache/*
 ```
 
 ## Acceptance Criteria
 
-- [ ] New projects automatically create `media/{imported,generated,temp}` and `output/`
-- [ ] AI-generated content saves to `media/generated/`
-- [ ] User imports go to `media/imported/`
-- [ ] Temp files auto-clean after export
-- [ ] Organize command can upgrade to extended structure
+- [ ] New projects automatically use this structure
+- [ ] Organize command restructures existing projects
 - [ ] Symlink import works on Unix/macOS
 - [ ] Copy fallback works on Windows
+- [ ] Virtual folders display correctly in UI
+- [ ] Output naming follows convention
+- [ ] Temp files cleaned after export
