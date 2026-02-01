@@ -245,7 +245,7 @@ COST_ESTIMATES = {
         "sora_2": 0.40,           # $0.10/sec * 4sec
         "sora_2_pro": 2.00,       # $0.50/sec * 4sec (1080p)
         "seedance_1_5_pro": 0.80, # $0.08/sec * 10sec
-        "grok_imagine": 0.30,     # $0.05/sec * 6sec + $0.002 image
+        "grok_imagine": 0.302,    # $0.05/sec * 6sec + $0.002 image input
     },
     "add_audio": {
         "thinksound": 0.05,
