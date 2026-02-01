@@ -84,13 +84,25 @@ class TestConcatVideosExecutor:
         assert "No valid video files" in result["error"]
 
     def test_custom_output_filename(self):
-        """Test custom output filename parameter."""
+        """Test custom output filename parameter is used in execution."""
         executor = ConcatVideosExecutor()
         step = MockStep(params={"output_filename": "my_video.mp4"})
-        chain_config = {"output_dir": "output"}
 
-        # Check params are read correctly
-        assert step.params["output_filename"] == "my_video.mp4"
+        with tempfile.TemporaryDirectory() as tmpdir:
+            video1 = Path(tmpdir) / "video1.mp4"
+            video1.touch()
+
+            chain_config = {"output_dir": tmpdir}
+
+            with patch("subprocess.run") as mock_run:
+                mock_run.return_value = MagicMock(returncode=0, stderr="")
+                # Create output file so success path works
+                (Path(tmpdir) / "my_video.mp4").write_bytes(b"fake video data")
+
+                result = executor.execute(step, [str(video1)], chain_config)
+
+                assert result["success"] is True
+                assert "my_video.mp4" in result["output_path"]
 
     @patch("subprocess.run")
     def test_ffmpeg_called_with_correct_args(self, mock_run):
