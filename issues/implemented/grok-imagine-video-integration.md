@@ -39,7 +39,7 @@ Add xAI's Grok Imagine Video model support for both text-to-video and image-to-v
 Add Grok Imagine model configuration to text-to-video constants.
 
 **File Path:**
-```
+```text
 packages/providers/fal/text-to-video/fal_text_to_video/config/constants.py
 ```
 
@@ -63,7 +63,7 @@ packages/providers/fal/text-to-video/fal_text_to_video/config/constants.py
 Create the Grok Imagine text-to-video model implementation.
 
 **File Path:**
-```
+```text
 packages/providers/fal/text-to-video/fal_text_to_video/models/grok.py
 ```
 
@@ -82,7 +82,7 @@ packages/providers/fal/text-to-video/fal_text_to_video/models/grok.py
 Update the models package to export the new Grok model.
 
 **File Path:**
-```
+```text
 packages/providers/fal/text-to-video/fal_text_to_video/models/__init__.py
 ```
 
@@ -98,7 +98,7 @@ packages/providers/fal/text-to-video/fal_text_to_video/models/__init__.py
 Add Grok Imagine model configuration to image-to-video constants.
 
 **File Path:**
-```
+```text
 packages/providers/fal/image-to-video/fal_image_to_video/config/constants.py
 ```
 
@@ -123,7 +123,7 @@ packages/providers/fal/image-to-video/fal_image_to_video/config/constants.py
 Create the Grok Imagine image-to-video model implementation.
 
 **File Path:**
-```
+```text
 packages/providers/fal/image-to-video/fal_image_to_video/models/grok.py
 ```
 
@@ -142,7 +142,7 @@ packages/providers/fal/image-to-video/fal_image_to_video/models/grok.py
 Update the models package to export the new Grok model.
 
 **File Path:**
-```
+```text
 packages/providers/fal/image-to-video/fal_image_to_video/models/__init__.py
 ```
 
@@ -158,7 +158,7 @@ packages/providers/fal/image-to-video/fal_image_to_video/models/__init__.py
 Create comprehensive unit tests for the Grok Imagine model.
 
 **File Paths:**
-```
+```text
 packages/providers/fal/text-to-video/tests/test_grok_model.py
 packages/providers/fal/image-to-video/tests/test_grok_model.py
 ```
@@ -176,13 +176,13 @@ packages/providers/fal/image-to-video/tests/test_grok_model.py
 Update CLAUDE.md and README to document the new model.
 
 **File Paths:**
-```
+```text
 CLAUDE.md
 README.md (if exists)
 ```
 
 **Changes Required:**
-1. Add Grok Imagine to the model count (now 52 models)
+1. Add Grok Imagine to the model count (now 53 models)
 2. Add to Text-to-Video and Image-to-Video model lists
 3. Document pricing information
 
