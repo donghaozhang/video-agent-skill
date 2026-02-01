@@ -79,6 +79,7 @@ MODEL_PRICING = {
     },
     "grok_imagine": {
         "type": "per_second",
+        "base_duration": 6,
         "base_cost_6s": 0.30,
         "cost_per_additional_second": 0.05
     }

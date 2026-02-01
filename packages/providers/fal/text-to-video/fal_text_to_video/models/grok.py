@@ -118,11 +118,12 @@ class GrokImagineModel(BaseTextToVideoModel):
         Returns:
             Estimated cost in USD
         """
+        base_duration = self.pricing.get("base_duration", 6)
         base_cost = self.pricing.get("base_cost_6s", 0.30)
         cost_per_additional = self.pricing.get("cost_per_additional_second", 0.05)
 
-        if duration <= 6:
+        if duration <= base_duration:
             return base_cost
         else:
-            additional_seconds = duration - 6
+            additional_seconds = duration - base_duration
             return base_cost + (additional_seconds * cost_per_additional)
