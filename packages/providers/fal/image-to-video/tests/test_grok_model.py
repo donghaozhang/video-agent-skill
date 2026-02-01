@@ -1,20 +1,31 @@
 """
 Tests for xAI Grok Imagine Video image-to-video model.
+
+Run with: pytest packages/providers/fal/image-to-video/tests/test_grok_model.py
+Or install package first: pip install -e .
 """
 
 import pytest
-import sys
-import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from fal_image_to_video.models.grok import GrokImagineModel
-from fal_image_to_video.config.constants import (
-    SUPPORTED_MODELS, MODEL_ENDPOINTS, MODEL_PRICING,
-    DURATION_OPTIONS, RESOLUTION_OPTIONS, ASPECT_RATIO_OPTIONS,
-    MODEL_EXTENDED_FEATURES
-)
+# Try normal import first (when package is installed via pip install -e .)
+# Fall back to path modification for direct script execution
+try:
+    from fal_image_to_video.models.grok import GrokImagineModel
+    from fal_image_to_video.config.constants import (
+        SUPPORTED_MODELS, MODEL_ENDPOINTS, MODEL_PRICING,
+        DURATION_OPTIONS, RESOLUTION_OPTIONS, ASPECT_RATIO_OPTIONS,
+        MODEL_EXTENDED_FEATURES
+    )
+except ImportError:
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from fal_image_to_video.models.grok import GrokImagineModel
+    from fal_image_to_video.config.constants import (
+        SUPPORTED_MODELS, MODEL_ENDPOINTS, MODEL_PRICING,
+        DURATION_OPTIONS, RESOLUTION_OPTIONS, ASPECT_RATIO_OPTIONS,
+        MODEL_EXTENDED_FEATURES
+    )
 
 
 class TestGrokImagineModel:
