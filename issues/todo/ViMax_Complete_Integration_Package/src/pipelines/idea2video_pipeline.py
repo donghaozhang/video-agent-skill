@@ -303,8 +303,8 @@ class Idea2VideoPipeline:
             print(f"🚀 Skipped concatenating videos, already exists.")
         else:
             print(f"🎬 Starting concatenating videos...")
-            video_clips = [VideoFileClip(final_video_path)
-                           for final_video_path in all_video_paths]
+            video_clips = [VideoFileClip(video_path)
+                           for video_path in all_video_paths]
             final_video = concatenate_videoclips(video_clips)
             final_video.write_videofile(final_video_path)
             print(f"☑️ Concatenated videos, saved to {final_video_path}.")
