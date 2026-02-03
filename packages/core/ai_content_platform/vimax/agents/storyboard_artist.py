@@ -241,7 +241,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
             )
 
         except Exception as e:
-            self.logger.error(f"Storyboard generation failed: {e}")
+            self.logger.exception("Storyboard generation failed")
             return AgentResult.fail(str(e))
 
     async def process_with_references(

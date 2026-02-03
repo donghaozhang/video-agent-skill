@@ -171,6 +171,8 @@ class CharacterPortraitRegistry(BaseModel):
     @classmethod
     def from_dict(cls, data: dict) -> "CharacterPortraitRegistry":
         """Deserialize registry from dict."""
+        if "project_id" not in data:
+            raise ValueError("Registry data must contain 'project_id'")
         portraits = {
             name: CharacterPortrait(**portrait_data)
             for name, portrait_data in data.get("portraits", {}).items()
