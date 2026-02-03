@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 from .base import BaseAgent, AgentConfig, AgentResult
 from ..adapters import LLMAdapter, LLMAdapterConfig, Message
-from ..interfaces import Scene, ShotDescription, ShotType
+from ..interfaces import Scene, ShotDescription, ShotType, CameraMovement
 
 
 class Script(BaseModel):
@@ -170,11 +170,33 @@ class Screenwriter(BaseAgent[str, Script]):
                     except ValueError:
                         shot_type = ShotType.MEDIUM
 
+                    # Handle various camera movement formats
+                    camera_movement_str = shot_data.get("camera_movement", "static")
+                    try:
+                        # Normalize: "slow push in" -> "dolly", "push in" -> "dolly", etc.
+                        cm_lower = camera_movement_str.lower().replace(" ", "_").replace("-", "_")
+                        # Map common variations to valid enum values
+                        cm_mapping = {
+                            "push_in": "dolly", "push_out": "dolly", "slow_push_in": "dolly",
+                            "pull_back": "dolly", "move_forward": "dolly", "move_back": "dolly",
+                            "follow": "tracking", "track": "tracking",
+                            "pan_left": "pan", "pan_right": "pan", "slow_pan": "pan",
+                            "tilt_up": "tilt", "tilt_down": "tilt",
+                            "zoom_in": "zoom", "zoom_out": "zoom",
+                            "crane_up": "crane", "crane_down": "crane",
+                            "steady": "static", "fixed": "static", "locked": "static",
+                        }
+                        if cm_lower in cm_mapping:
+                            cm_lower = cm_mapping[cm_lower]
+                        camera_movement = CameraMovement(cm_lower)
+                    except ValueError:
+                        camera_movement = CameraMovement.STATIC
+
                     shot = ShotDescription(
                         shot_id=shot_data.get("shot_id", f"shot_{len(shots)+1}"),
                         shot_type=shot_type,
                         description=shot_data.get("description", ""),
-                        camera_movement=shot_data.get("camera_movement", "static"),
+                        camera_movement=camera_movement,
                         duration_seconds=shot_data.get("duration_seconds", 5.0),
                         image_prompt=shot_data.get("image_prompt"),
                         video_prompt=shot_data.get("video_prompt"),
