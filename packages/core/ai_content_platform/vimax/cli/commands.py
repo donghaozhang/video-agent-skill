@@ -43,7 +43,7 @@ def idea2video(idea, output, duration, video_model, image_model, llm_model, port
     """
     from ..pipelines import Idea2VideoPipeline, Idea2VideoConfig
 
-    click.echo(f"Starting Idea2Video pipeline...")
+    click.echo("Starting Idea2Video pipeline...")
     click.echo(f"   Idea: {idea[:100]}...")
     click.echo(f"   Character references: {'enabled' if portraits and references else 'disabled'}")
 
@@ -69,7 +69,7 @@ def idea2video(idea, output, duration, video_model, image_model, llm_model, port
     result = run_async(run())
 
     if result.success:
-        click.echo(f"\nPipeline completed successfully!")
+        click.echo("\nPipeline completed successfully!")
         click.echo(f"   Script: {result.script.title}")
         click.echo(f"   Characters: {len(result.characters)}")
         click.echo(f"   Scenes: {result.script.scene_count}")
@@ -79,7 +79,7 @@ def idea2video(idea, output, duration, video_model, image_model, llm_model, port
         if result.duration is not None:
             click.echo(f"   Duration: {result.duration:.1f}s")
     else:
-        click.echo(f"\nPipeline failed!")
+        click.echo("\nPipeline failed!")
         for error in result.errors:
             click.echo(f"   Error: {error}")
         raise click.Abort()
@@ -105,7 +105,7 @@ def script2video(script, output, video_model, image_model, portraits, references
     from ..pipelines import Script2VideoPipeline, Script2VideoConfig
     from ..interfaces import CharacterPortraitRegistry
 
-    click.echo(f"Starting Script2Video pipeline...")
+    click.echo("Starting Script2Video pipeline...")
     click.echo(f"   Script: {script}")
 
     # Load portrait registry if provided
@@ -131,13 +131,13 @@ def script2video(script, output, video_model, image_model, portraits, references
     result = run_async(run())
 
     if result.success:
-        click.echo(f"\nPipeline completed successfully!")
+        click.echo("\nPipeline completed successfully!")
         if result.output and result.output.final_video:
             click.echo(f"   Video: {result.output.final_video.video_path}")
         click.echo(f"   Used references: {result.used_references}")
         click.echo(f"   Total cost: ${result.total_cost:.3f}")
     else:
-        click.echo(f"\nPipeline failed!")
+        click.echo("\nPipeline failed!")
         for error in result.errors:
             click.echo(f"   Error: {error}")
         raise click.Abort()
@@ -159,7 +159,7 @@ def novel2movie(novel, title, output, max_scenes, video_model, image_model):
     """
     from ..pipelines import Novel2MoviePipeline, Novel2MovieConfig
 
-    click.echo(f"Starting Novel2Movie pipeline...")
+    click.echo("Starting Novel2Movie pipeline...")
     click.echo(f"   Novel: {novel}")
     click.echo(f"   Title: {title}")
 
@@ -184,7 +184,7 @@ def novel2movie(novel, title, output, max_scenes, video_model, image_model):
     result = run_async(run())
 
     if result.success:
-        click.echo(f"\nPipeline completed successfully!")
+        click.echo("\nPipeline completed successfully!")
         click.echo(f"   Chapters processed: {len(result.chapters)}")
         click.echo(f"   Scripts generated: {len(result.scripts)}")
         click.echo(f"   Characters found: {len(result.characters)}")
@@ -192,7 +192,7 @@ def novel2movie(novel, title, output, max_scenes, video_model, image_model):
             click.echo(f"   Video: {result.output.final_video.video_path}")
         click.echo(f"   Total cost: ${result.total_cost:.3f}")
     else:
-        click.echo(f"\nPipeline failed!")
+        click.echo("\nPipeline failed!")
         for error in result.errors:
             click.echo(f"   Error: {error}")
         raise click.Abort()
@@ -217,7 +217,7 @@ def extract_characters(text, output, model):
         with open(text, 'r', encoding='utf-8') as f:
             text = f.read()
 
-    click.echo(f"Extracting characters...")
+    click.echo("Extracting characters...")
     click.echo(f"   Text length: {len(text)} characters")
 
     config = CharacterExtractorConfig(model=model)
@@ -257,7 +257,7 @@ def generate_script(idea, output, duration, model):
     """
     from ..agents import Screenwriter, ScreenwriterConfig
 
-    click.echo(f"Generating screenplay...")
+    click.echo("Generating screenplay...")
     click.echo(f"   Idea: {idea}")
 
     config = ScreenwriterConfig(
@@ -273,7 +273,7 @@ def generate_script(idea, output, duration, model):
 
     if result.success:
         script = result.result
-        click.echo(f"\nGenerated screenplay:")
+        click.echo("\nGenerated screenplay:")
         click.echo(f"   Title: {script.title}")
         click.echo(f"   Logline: {script.logline}")
         click.echo(f"   Scenes: {script.scene_count}")
@@ -309,7 +309,7 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
     from ..agents.screenwriter import Script
     from ..interfaces import CharacterPortraitRegistry
 
-    click.echo(f"Generating storyboard...")
+    click.echo("Generating storyboard...")
     click.echo(f"   Script: {script}")
     click.echo(f"   Output: {output}")
     click.echo(f"   Model: {image_model}")
@@ -348,7 +348,7 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
     result = run_async(run())
 
     if result.success:
-        click.echo(f"\nStoryboard generated successfully!")
+        click.echo("\nStoryboard generated successfully!")
         click.echo(f"   Images: {len(result.result.images)}")
         click.echo(f"   Total cost: ${result.result.total_cost:.3f}")
         click.echo(f"   Used references: {result.metadata.get('used_references', False)}")
@@ -383,7 +383,7 @@ def generate_portraits(characters, output, image_model, llm_model, views, max_ch
     from ..agents import CharacterPortraitsGenerator, PortraitsGeneratorConfig
     from ..interfaces import CharacterInNovel, CharacterPortraitRegistry
 
-    click.echo(f"Generating character portraits...")
+    click.echo("Generating character portraits...")
     click.echo(f"   Characters file: {characters}")
     click.echo(f"   Output: {output}")
     click.echo(f"   Image model: {image_model}")

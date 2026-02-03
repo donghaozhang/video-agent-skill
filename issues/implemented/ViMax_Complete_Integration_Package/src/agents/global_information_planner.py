@@ -20,7 +20,7 @@ Process the input scenes, each containing a script and characters with their nam
 
 **INPUT**
 A sequence of scenes. Each scene is enclosed within <SCENE_N_START> and <SCENE_N_END> tags, where N is the scene number(starting from 0). 
-Each scene includes a screnplay script and a sequence of character names.
+Each scene includes a screenplay script and a sequence of character names.
 The screenplay script is enclosed within <SCRIPT_START> and <SCRIPT_END> tags.
 The sequence of character is enclosed within <CHARACTERS_START> and <CHARACTERS_END> tags. Each character in the list is enclosed within <CHARACTER_M_START> and <CHARACTER_M_END> tags, where M is the character number(starting from 0).
 

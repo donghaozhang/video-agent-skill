@@ -51,6 +51,7 @@ test_output/
 /result_folder/
 /video_analyzer/
 /archive/
+/issues/implemented/
 
 # FAL AI output folders
 /fal_video_generation/output/
