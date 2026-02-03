@@ -155,6 +155,11 @@ class Novel2MoviePipeline:
             output_dir=f"{self.config.output_dir}/videos",
         ))
 
+    def _safe_slug(self, value: str) -> str:
+        """Sanitize a string for use in filesystem paths."""
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("_")
+        return safe or "untitled"
+
     async def run(self, novel_text: str, title: str = "Untitled Novel") -> Novel2MovieResult:
         """
         Convert novel text to movie.
@@ -171,7 +176,8 @@ class Novel2MoviePipeline:
         self.logger.info(f"Starting Novel2Movie pipeline for: {title}")
 
         try:
-            output_dir = Path(self.config.output_dir) / title.replace(" ", "_")
+            safe_title = self._safe_slug(title)
+            output_dir = Path(self.config.output_dir) / safe_title
             output_dir.mkdir(parents=True, exist_ok=True)
 
             # Initialize LLM
@@ -196,7 +202,7 @@ class Novel2MoviePipeline:
                 # Create portrait registry for storyboard reference
                 if result.portraits and self.config.use_character_references:
                     result.portrait_registry = CharacterPortraitRegistry(
-                        project_id=title.replace(" ", "_")
+                        project_id=safe_title
                     )
                     for name, portrait in result.portraits.items():
                         result.portrait_registry.add_portrait(portrait)
@@ -253,7 +259,7 @@ class Novel2MoviePipeline:
                 final_video = await video_adapter.concatenate_videos(all_videos, final_path)
 
                 result.output = PipelineOutput(
-                    pipeline_name=f"novel2movie_{title}",
+                    pipeline_name=f"novel2movie_{safe_title}",
                     videos=all_videos,
                     final_video=final_video,
                     output_directory=str(output_dir),
@@ -345,6 +351,7 @@ class Novel2MoviePipeline:
                 parts.append(f"- {event}")
 
         if chapter.characters:
-            parts.append(f"Characters: {', '.join(set(chapter.characters)[:5])}")
+            unique_chars = list(dict.fromkeys(chapter.characters))
+            parts.append(f"Characters: {', '.join(unique_chars[:5])}")
 
         return "\n".join(parts)
