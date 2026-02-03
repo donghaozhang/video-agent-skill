@@ -74,12 +74,15 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
 
     # Model mapping for image-to-image with reference (character consistency)
     REFERENCE_MODEL_MAP = {
-        "nano_banana_pro": "fal-ai/nano-banana-pro/image-to-image",  # Default, cost effective
+        "nano_banana_pro": "fal-ai/nano-banana-pro/edit",  # Default, uses image_urls array
         "flux_kontext": "fal-ai/flux-kontext/max/image-to-image",
         "flux_redux": "fal-ai/flux-pro/v1.1-ultra/redux",
         "seededit_v3": "fal-ai/seededit-v3",
         "photon_flash": "fal-ai/photon/flash",
     }
+
+    # Models that use image_urls array instead of image_url
+    ARRAY_IMAGE_MODELS = {"nano_banana_pro"}
 
     # Cost estimates per image
     COST_MAP = {
@@ -89,11 +92,12 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
         "nano_banana_pro": 0.002,
         "gpt_image_1_5": 0.003,
         "seedream_v3": 0.002,
-        # Reference models
-        "flux_kontext": 0.005,
-        "flux_redux": 0.006,
-        "seededit_v3": 0.004,
-        "photon_flash": 0.003,
+        # Reference models (image-to-image costs)
+        "nano_banana_pro_edit": 0.15,  # nano-banana-pro/edit costs $0.15/image
+        "flux_kontext": 0.025,
+        "flux_redux": 0.020,
+        "seededit_v3": 0.025,
+        "photon_flash": 0.015,
     }
 
     # Max inference steps per model
@@ -367,23 +371,32 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
             # Get FAL endpoint for reference model
             endpoint = self.REFERENCE_MODEL_MAP.get(
                 model,
-                self.REFERENCE_MODEL_MAP["flux_kontext"]
+                self.REFERENCE_MODEL_MAP["nano_banana_pro"]
             )
 
-            # Get model-specific max steps
-            max_steps = self.MAX_STEPS_MAP.get(model, 28)
-            requested_steps = kwargs.get("num_inference_steps", self.config.num_inference_steps)
-            num_steps = min(requested_steps, max_steps)
+            # Build arguments based on model type
+            if model in self.ARRAY_IMAGE_MODELS:
+                # nano_banana_pro/edit uses different API format
+                arguments = {
+                    "prompt": prompt,
+                    "image_urls": [reference_url],  # Array of image URLs
+                    "aspect_ratio": aspect_ratio or "16:9",
+                    "num_images": 1,
+                }
+            else:
+                # Standard image-to-image models (flux_kontext, etc.)
+                max_steps = self.MAX_STEPS_MAP.get(model, 28)
+                requested_steps = kwargs.get("num_inference_steps", self.config.num_inference_steps)
+                num_steps = min(requested_steps, max_steps)
 
-            # Build arguments for image-to-image
-            arguments = {
-                "prompt": prompt,
-                "image_url": reference_url,
-                "strength": reference_strength,
-                "image_size": self._aspect_to_size(aspect_ratio),
-                "num_inference_steps": num_steps,
-                "guidance_scale": kwargs.get("guidance_scale", self.config.guidance_scale),
-            }
+                arguments = {
+                    "prompt": prompt,
+                    "image_url": reference_url,
+                    "strength": reference_strength,
+                    "image_size": self._aspect_to_size(aspect_ratio),
+                    "num_inference_steps": num_steps,
+                    "guidance_scale": kwargs.get("guidance_scale", self.config.guidance_scale),
+                }
 
             # Call FAL
             result = fal_client.subscribe(
@@ -394,13 +407,20 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
 
             generation_time = time.time() - start_time
 
-            # Extract image URL
+            # Extract image URL and dimensions
             image_url = None
+            width = 1024
+            height = 1024
             if isinstance(result, dict):
                 if "images" in result and result["images"]:
-                    image_url = result["images"][0].get("url")
+                    img_data = result["images"][0]
+                    image_url = img_data.get("url")
+                    width = img_data.get("width", 1024)
+                    height = img_data.get("height", 1024)
                 elif "image" in result:
                     image_url = result["image"].get("url")
+                    width = result.get("width", 1024)
+                    height = result.get("height", 1024)
 
             # Determine output path
             if output_path:
@@ -414,15 +434,19 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
             if image_url:
                 self._download_image(image_url, image_path)
 
+            # Get cost - use _edit suffix for models with different edit pricing
+            cost_key = f"{model}_edit" if model in self.ARRAY_IMAGE_MODELS else model
+            cost = self.COST_MAP.get(cost_key, self.COST_MAP.get(model, 0.025))
+
             return ImageOutput(
                 image_path=image_path,
                 image_url=image_url,
                 prompt=prompt,
                 model=model,
-                width=result.get("width", 1024),
-                height=result.get("height", 1024),
+                width=width,
+                height=height,
                 generation_time=generation_time,
-                cost=self.COST_MAP.get(model, 0.005),
+                cost=cost,
                 metadata={
                     "aspect_ratio": aspect_ratio,
                     "reference_image": reference_image,
