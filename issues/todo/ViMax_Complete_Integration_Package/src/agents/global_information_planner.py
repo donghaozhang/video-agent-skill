@@ -138,12 +138,28 @@ class MergeCharactersToExistingCharactersInNovelResponse(BaseModel):
 
 
 class GlobalInformationPlanner:
+    """Plans and tracks global character information across a novel.
+
+    Merges character appearances across scenes and events to maintain
+    consistent character identities throughout the story.
+    """
+
     def __init__(
         self,
         api_key: str,
         base_url: str,
         chat_model: str,
-    ):
+    ) -> None:
+        """Initialize the GlobalInformationPlanner.
+
+        Args:
+            api_key: API key for the chat model provider.
+            base_url: Base URL for the chat model API endpoint.
+            chat_model: Name/identifier of the chat model to use.
+
+        Cost:
+            None. Initialization does not call external services.
+        """
         self.chat_model = init_chat_model(
             model=chat_model,
             model_provider="openai",
@@ -160,6 +176,24 @@ class GlobalInformationPlanner:
         event_idx: int,
         scenes: List[Scene],  # Scene.characters is List[CharacterInScene]
     ) -> List[CharacterInEvent]:
+        """Merge character appearances across scenes within a single event.
+
+        Identifies which characters appear in multiple scenes and consolidates
+        them into unified CharacterInEvent objects.
+
+        Args:
+            event_idx: Index of the event being processed.
+            scenes: List of scenes containing character appearances.
+
+        Returns:
+            List[CharacterInEvent]: Merged characters with their scene mappings.
+
+        Raises:
+            ValueError: If character validation fails (missing or duplicate).
+
+        Cost:
+            One LLM API call per invocation (with up to 3 retries).
+        """
         scenes_sequence_str = ""
         for scene in scenes:
             scene_str = f"<SCENE_{scene.idx}_START>\n"
@@ -223,6 +257,22 @@ class GlobalInformationPlanner:
         existing_characters_in_novel: List[CharacterInNovel],
         characters_in_event: List[CharacterInEvent],
     ) -> List[CharacterInNovel]:
+        """Merge event characters into the novel's global character registry.
+
+        Links characters from a new event to existing known characters, or
+        adds new characters to the registry if they haven't appeared before.
+
+        Args:
+            event_idx: Index of the event being processed.
+            existing_characters_in_novel: Current global character registry.
+            characters_in_event: Characters from the current event to merge.
+
+        Returns:
+            List[CharacterInNovel]: Updated global character registry.
+
+        Cost:
+            One LLM API call per invocation (with up to 3 retries).
+        """
         existing_characters_str = ""
         for character in existing_characters_in_novel:
             existing_characters_str += f"<CHARACTER_{character.index}_START>\n"
