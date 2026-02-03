@@ -152,7 +152,7 @@ class Script2VideoPipeline:
                     character_portraits_registry = json.load(f)
                 print(f"🚀 Loaded {len(character_portraits_registry)} character portraits from existing file.")
             else:
-                print(f"🔍 Generating character portraits...")
+                print("🔍 Generating character portraits...")
                 character_portraits_registry = await self.generate_character_portraits(
                     characters=characters,
                     character_portraits_registry=None,
@@ -206,9 +206,9 @@ class Script2VideoPipeline:
 
         final_video_path = os.path.join(self.working_dir, "final_video.mp4")
         if os.path.exists(final_video_path):
-            print(f"🚀 Skipped concatenating videos, already exists.")
+            print("🚀 Skipped concatenating videos, already exists.")
         else:
-            print(f"🎬 Starting concatenating videos...")
+            print("🎬 Starting concatenating videos...")
             video_clips = [
                 VideoFileClip(os.path.join(self.working_dir, "shots", f"{shot_description.idx}", "video.mp4"))
                 for shot_description in shot_descriptions
@@ -604,7 +604,7 @@ class Script2VideoPipeline:
             storyboard = [ShotBriefDescription.model_validate(shot) for shot in storyboard]
             print(f"🚀 Loaded {len(storyboard)} shot brief descriptions from existing file.")
         else:
-            print(f"🔍 Designing storyboard...")
+            print("🔍 Designing storyboard...")
             storyboard = await self.storyboard_artist.design_storyboard(
                 script=script,
                 characters=characters,
