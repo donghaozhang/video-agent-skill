@@ -421,7 +421,7 @@ def generate_portraits(characters, output, image_model, llm_model, views, max_ch
     portraits = run_async(run())
 
     if portraits:
-        click.echo(f"\nPortraits generated successfully!")
+        click.echo("\nPortraits generated successfully!")
         total_images = 0
         for name, portrait in portraits.items():
             view_count = len(portrait.views)
@@ -446,7 +446,7 @@ def generate_portraits(characters, output, image_model, llm_model, views, max_ch
                 json.dump(registry.to_dict(), f, indent=2)
             click.echo(f"   Registry saved: {registry_path}")
     else:
-        click.echo(f"\nNo portraits generated!")
+        click.echo("\nNo portraits generated!")
 
 
 @vimax.command("create-registry")
@@ -467,7 +467,7 @@ def create_registry(portraits_dir, output, project_id):
     portraits_path = Path(portraits_dir)
     output_path = Path(output) if output else portraits_path / "registry.json"
 
-    click.echo(f"Creating portrait registry...")
+    click.echo("Creating portrait registry...")
     click.echo(f"   Source: {portraits_dir}")
     click.echo(f"   Output: {output_path}")
 
@@ -500,7 +500,7 @@ def create_registry(portraits_dir, output, project_id):
     if registry.portraits:
         with open(output_path, 'w') as f:
             json.dump(registry.to_dict(), f, indent=2)
-        click.echo(f"\nRegistry created successfully!")
+        click.echo("\nRegistry created successfully!")
         click.echo(f"   Characters: {len(registry.portraits)}")
         click.echo(f"   Saved to: {output_path}")
     else:
