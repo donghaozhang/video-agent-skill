@@ -136,6 +136,8 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
                     portrait.back_view = result.image_path
                 elif view == "three_quarter":
                     portrait.three_quarter_view = result.image_path
+                else:
+                    self.logger.warning(f"Unknown view '{view}' - image generated but not assigned")
 
             self.logger.info(f"Generated {len(portrait.views)} portraits for {character.name}")
 
