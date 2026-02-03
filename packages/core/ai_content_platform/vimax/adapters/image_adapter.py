@@ -415,12 +415,12 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
                 if "images" in result and result["images"]:
                     img_data = result["images"][0]
                     image_url = img_data.get("url")
-                    width = img_data.get("width", 1024)
-                    height = img_data.get("height", 1024)
+                    width = img_data.get("width") or 1024
+                    height = img_data.get("height") or 1024
                 elif "image" in result:
                     image_url = result["image"].get("url")
-                    width = result.get("width", 1024)
-                    height = result.get("height", 1024)
+                    width = result.get("width") or 1024
+                    height = result.get("height") or 1024
 
             # Determine output path
             if output_path:
