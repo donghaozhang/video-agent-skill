@@ -189,11 +189,11 @@ class Idea2VideoPipeline:
             # Step 3: Generate Character Portraits (optional)
             if self.config.generate_portraits and result.characters:
                 self.logger.info("Step 3/5: Generating character portraits...")
-                result.portraits = await self.portraits_generator.generate_batch(
+                portraits_result = await self.portraits_generator.generate_batch(
                     result.characters[:5]  # Limit to main characters
                 )
-                for portrait in result.portraits.values():
-                    result.total_cost += len(portrait.views) * 0.003  # Approximate
+                result.portraits = portraits_result.result or {}
+                result.total_cost += portraits_result.metadata.get("cost", 0)
 
                 # Create portrait registry for storyboard reference
                 if result.portraits and self.config.use_character_references:

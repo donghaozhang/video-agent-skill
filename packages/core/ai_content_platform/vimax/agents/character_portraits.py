@@ -162,7 +162,7 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
     async def generate_batch(
         self,
         characters: List[CharacterInNovel],
-    ) -> Dict[str, CharacterPortrait]:
+    ) -> AgentResult[Dict[str, CharacterPortrait]]:
         """
         Generate portraits for multiple characters.
 
@@ -170,11 +170,21 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
             characters: List of characters
 
         Returns:
-            Dict mapping character names to portraits
+            AgentResult containing dict mapping character names to portraits and total cost
         """
         portraits = {}
+        total_cost = 0.0
+        errors = []
+
         for char in characters:
             result = await self.process(char)
             if result.success:
                 portraits[char.name] = result.result
-        return portraits
+                total_cost += result.metadata.get("cost", 0)
+            else:
+                errors.append(f"Failed to generate portrait for {char.name}: {result.error}")
+
+        if errors:
+            self.logger.warning(f"Some portraits failed: {errors}")
+
+        return AgentResult.ok(portraits, cost=total_cost, errors=errors if errors else None)

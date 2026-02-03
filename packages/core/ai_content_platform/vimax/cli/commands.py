@@ -12,11 +12,7 @@ from pathlib import Path
 
 def run_async(coro):
     """Run async function in sync context."""
-    loop = asyncio.new_event_loop()
-    try:
-        return loop.run_until_complete(coro)
-    finally:
-        loop.close()
+    return asyncio.run(coro)
 
 
 @click.group()
@@ -418,7 +414,8 @@ def generate_portraits(characters, output, image_model, llm_model, views, max_ch
     generator = CharacterPortraitsGenerator(config)
 
     async def run():
-        return await generator.generate_batch(char_list)
+        result = await generator.generate_batch(char_list)
+        return result.result if result.success else {}
 
     portraits = run_async(run())
 
