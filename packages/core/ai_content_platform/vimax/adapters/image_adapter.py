@@ -285,6 +285,13 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
         """Download image from URL to path."""
         try:
             import urllib.request
+            from urllib.parse import urlparse
+
+            # Validate URL scheme to prevent SSRF or local file access
+            parsed = urlparse(url)
+            if parsed.scheme not in ("http", "https"):
+                raise ValueError(f"Invalid URL scheme: {parsed.scheme}. Only http and https are allowed.")
+
             urllib.request.urlretrieve(url, path)
         except Exception as e:
             self.logger.warning(f"Failed to download image: {e}")
