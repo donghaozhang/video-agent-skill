@@ -38,13 +38,25 @@ class CameraImageGenerator(BaseAgent[StoryboardResult, PipelineOutput]):
             print(f"Final video: {result.result.final_video.video_path}")
     """
 
-    def __init__(self, config: Optional[CameraGeneratorConfig] = None):
+    def __init__(self, config: Optional[CameraGeneratorConfig] = None) -> None:
+        """Initialize the CameraImageGenerator.
+
+        Args:
+            config: Optional configuration overriding defaults.
+
+        Returns:
+            None
+        """
         super().__init__(config or CameraGeneratorConfig())
         self.config: CameraGeneratorConfig = self.config
         self._video_adapter: Optional[VideoGeneratorAdapter] = None
         self.logger = logging.getLogger("vimax.agents.camera_generator")
 
     async def _ensure_adapter(self):
+        """Initialize the video adapter lazily.
+
+        Creates and initializes the VideoGeneratorAdapter on first use.
+        """
         if self._video_adapter is None:
             self._video_adapter = VideoGeneratorAdapter(
                 VideoAdapterConfig(
