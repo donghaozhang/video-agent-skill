@@ -256,6 +256,14 @@ class GlobalInformationPlanner:
         response: MergeCharactersToExistingCharactersInNovelResponse = chain.invoke(messages)
 
         for character in response.characters:
+            # Validate index_in_event bounds
+            if not (0 <= character.index_in_event < len(characters_in_event)):
+                logging.warning(
+                    f"Invalid index_in_event {character.index_in_event} "
+                    f"(valid range: 0-{len(characters_in_event)-1}), skipping character"
+                )
+                continue
+
             if character.index_in_novel == -1:
                 # new character, add to existing characters
                 new_character = CharacterInNovel(
@@ -266,6 +274,13 @@ class GlobalInformationPlanner:
                 )
                 existing_characters_in_novel.append(new_character)
             else:
+                # Validate index_in_novel bounds
+                if not (0 <= character.index_in_novel < len(existing_characters_in_novel)):
+                    logging.warning(
+                        f"Invalid index_in_novel {character.index_in_novel} "
+                        f"(valid range: 0-{len(existing_characters_in_novel)-1}), skipping character"
+                    )
+                    continue
                 existing_characters_in_novel[character.index_in_novel].static_features = character.modified_features
                 existing_characters_in_novel[character.index_in_novel].active_events.update({event_idx: characters_in_event[character.index_in_event].identifier_in_event})
 

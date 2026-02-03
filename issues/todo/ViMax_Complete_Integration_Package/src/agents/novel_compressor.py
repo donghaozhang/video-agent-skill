@@ -139,7 +139,19 @@ class NovelCompressor:
         self,
         index_chunk_pairs: List[Tuple[int, str]],
         max_concurrent_tasks: int = 5,
-    ) -> str:
+    ) -> List[Tuple[int, str]]:
+        """Compress multiple novel chunks concurrently.
+
+        Args:
+            index_chunk_pairs: List of (index, chunk_text) tuples to compress.
+            max_concurrent_tasks: Maximum number of concurrent compression tasks.
+
+        Returns:
+            List[Tuple[int, str]]: List of (index, compressed_text) tuples.
+
+        Cost:
+            One LLM call per chunk, executed concurrently up to max_concurrent_tasks.
+        """
         sem = asyncio.Semaphore(max_concurrent_tasks)
 
         tasks = [
