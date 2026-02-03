@@ -19,7 +19,7 @@ class CharacterExtractorConfig(AgentConfig):
     """Configuration for CharacterExtractor."""
 
     name: str = "CharacterExtractor"
-    model: str = "claude-3.5-sonnet"
+    model: str = "kimi-k2.5"
     max_characters: int = 20
 
 

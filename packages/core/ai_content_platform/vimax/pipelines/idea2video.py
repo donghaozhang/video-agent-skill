@@ -40,7 +40,7 @@ class Idea2VideoConfig(BaseModel):
     target_duration: float = 60.0  # seconds
     video_model: str = "kling"
     image_model: str = "flux_dev"
-    llm_model: str = "claude-3.5-sonnet"
+    llm_model: str = "kimi-k2.5"
 
     # Agent configs (optional overrides)
     screenwriter: Optional[ScreenwriterConfig] = None

@@ -34,7 +34,7 @@ class ScreenwriterConfig(AgentConfig):
     """Configuration for Screenwriter."""
 
     name: str = "Screenwriter"
-    model: str = "claude-3.5-sonnet"
+    model: str = "kimi-k2.5"  # Default: Kimi K2.5
     target_duration: float = 60.0  # Target video duration in seconds
     shots_per_scene: int = 3
     style: str = "cinematic, visually descriptive"

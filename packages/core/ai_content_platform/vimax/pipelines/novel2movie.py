@@ -35,7 +35,7 @@ class Novel2MovieConfig(BaseModel):
     scene_duration: float = 30.0  # seconds per scene
     video_model: str = "kling"
     image_model: str = "flux_dev"
-    llm_model: str = "claude-3.5-sonnet"
+    llm_model: str = "kimi-k2.5"
 
     # Chunking settings
     chunk_size: int = 10000  # characters per chunk

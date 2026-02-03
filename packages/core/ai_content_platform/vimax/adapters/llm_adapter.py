@@ -30,7 +30,7 @@ except ImportError:
 class LLMAdapterConfig(AdapterConfig):
     """Configuration for LLM adapter."""
 
-    model: str = "openrouter/anthropic/claude-3.5-sonnet"
+    model: str = "openrouter/moonshotai/kimi-k2.5"  # Default: Kimi K2.5
     temperature: float = 0.7
     max_tokens: int = 4096
     timeout: float = 60.0
@@ -66,6 +66,8 @@ class LLMAdapter(BaseAdapter[List[Message], LLMResponse]):
 
     # Common model aliases
     MODEL_ALIASES = {
+        "kimi-k2.5": "openrouter/moonshotai/kimi-k2.5",
+        "kimi": "openrouter/moonshotai/kimi-k2.5",
         "claude-3.5-sonnet": "openrouter/anthropic/claude-3.5-sonnet",
         "claude-3-opus": "openrouter/anthropic/claude-3-opus",
         "gpt-4": "openrouter/openai/gpt-4-turbo",
@@ -343,6 +345,7 @@ Respond ONLY with the JSON, no other text.
         """Estimate cost based on model and token usage."""
         # Approximate costs per 1K tokens (input, output)
         costs = {
+            "openrouter/moonshotai/kimi-k2.5": (0.0005, 0.0028),  # $0.50/$2.80 per 1M tokens
             "openrouter/anthropic/claude-3.5-sonnet": (0.003, 0.015),
             "openrouter/anthropic/claude-3-opus": (0.015, 0.075),
             "openrouter/openai/gpt-4-turbo": (0.01, 0.03),
@@ -362,7 +365,7 @@ Respond ONLY with the JSON, no other text.
 # Convenience functions
 async def chat(
     messages: List[Union[Message, Dict[str, str]]],
-    model: str = "claude-3.5-sonnet",
+    model: str = "kimi-k2.5",
     **kwargs,
 ) -> str:
     """Quick function for LLM chat."""
@@ -371,7 +374,7 @@ async def chat(
     return response.content
 
 
-async def generate(prompt: str, model: str = "claude-3.5-sonnet", **kwargs) -> str:
+async def generate(prompt: str, model: str = "kimi-k2.5", **kwargs) -> str:
     """Quick function for text generation."""
     adapter = LLMAdapter(LLMAdapterConfig(model=model))
     return await adapter.generate_text(prompt, **kwargs)

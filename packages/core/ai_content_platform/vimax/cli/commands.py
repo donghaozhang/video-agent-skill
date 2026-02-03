@@ -31,7 +31,7 @@ def vimax():
 @click.option("--duration", "-d", default=60.0, type=float, help="Target duration in seconds")
 @click.option("--video-model", default="kling", help="Video generation model")
 @click.option("--image-model", default="flux_dev", help="Image generation model")
-@click.option("--llm-model", default="claude-3.5-sonnet", help="LLM model for scripts")
+@click.option("--llm-model", default="kimi-k2.5", help="LLM model for scripts")
 @click.option("--portraits/--no-portraits", default=True, help="Generate character portraits")
 @click.option("--config", "-c", type=click.Path(exists=True), help="Config YAML file")
 def idea2video(idea, output, duration, video_model, image_model, llm_model, portraits, config):
@@ -182,7 +182,7 @@ def novel2movie(novel, title, output, max_scenes, video_model, image_model):
 @vimax.command("extract-characters")
 @click.option("--text", "-t", required=True, help="Text to extract characters from (or file path)")
 @click.option("--output", "-o", help="Output JSON file")
-@click.option("--model", "-m", default="claude-3.5-sonnet", help="LLM model")
+@click.option("--model", "-m", default="kimi-k2.5", help="LLM model")
 def extract_characters(text, output, model):
     """
     Extract characters from text.
@@ -228,7 +228,7 @@ def extract_characters(text, output, model):
 @click.option("--idea", "-i", required=True, help="Story idea")
 @click.option("--output", "-o", help="Output JSON file")
 @click.option("--duration", "-d", default=60.0, type=float, help="Target duration")
-@click.option("--model", "-m", default="claude-3.5-sonnet", help="LLM model")
+@click.option("--model", "-m", default="kimi-k2.5", help="LLM model")
 def generate_script(idea, output, duration, model):
     """
     Generate a screenplay from an idea.
@@ -295,7 +295,8 @@ def list_models():
 
     click.echo("\nLLM Models:")
     models = [
-        ("claude-3.5-sonnet", "Claude 3.5 Sonnet - Best balance"),
+        ("kimi-k2.5", "Kimi K2.5 - Default, cost effective ($0.50/$2.80 per 1M tokens)"),
+        ("claude-3.5-sonnet", "Claude 3.5 Sonnet - High quality"),
         ("claude-3-opus", "Claude 3 Opus - Highest quality"),
         ("gpt-4", "GPT-4 Turbo"),
         ("gpt-4o", "GPT-4o - Fast"),

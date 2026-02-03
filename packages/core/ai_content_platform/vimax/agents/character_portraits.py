@@ -18,7 +18,7 @@ class PortraitsGeneratorConfig(AgentConfig):
 
     name: str = "CharacterPortraitsGenerator"
     image_model: str = "flux_dev"
-    llm_model: str = "claude-3.5-sonnet"
+    llm_model: str = "kimi-k2.5"
     views: List[str] = ["front", "side", "back", "three_quarter"]
     style: str = "detailed character portrait, professional, consistent style"
     output_dir: str = "output/vimax/portraits"
