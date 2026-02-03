@@ -305,7 +305,15 @@ class Idea2VideoPipeline:
             print(f"🎬 Starting concatenating videos...")
             video_clips = [VideoFileClip(video_path)
                            for video_path in all_video_paths]
-            final_video = concatenate_videoclips(video_clips)
-            final_video.write_videofile(final_video_path)
-            print(f"☑️ Concatenated videos, saved to {final_video_path}.")
+            final_video = None
+            try:
+                final_video = concatenate_videoclips(video_clips)
+                final_video.write_videofile(final_video_path)
+                print(f"☑️ Concatenated videos, saved to {final_video_path}.")
+            finally:
+                # Close all clips to release file handles
+                for clip in video_clips:
+                    clip.close()
+                if final_video is not None:
+                    final_video.close()
         return final_video_path
