@@ -114,6 +114,18 @@ class NovelCompressor:
         chunk_size: int = 65536,
         chunk_overlap: int = 8192,
     ):
+        # Fallback to environment variables if not provided
+        if not api_key:
+            api_key = os.getenv("OPENAI_API_KEY", "")
+        if not base_url:
+            base_url = os.getenv("OPENAI_BASE_URL", "")
+
+        # Validate required parameters
+        if not api_key:
+            raise ValueError("api_key must be provided or set via OPENAI_API_KEY env var")
+        if not base_url:
+            raise ValueError("base_url must be provided or set via OPENAI_BASE_URL env var")
+
         self.chat_model = init_chat_model(
             model=chat_model,
             api_key=api_key,
