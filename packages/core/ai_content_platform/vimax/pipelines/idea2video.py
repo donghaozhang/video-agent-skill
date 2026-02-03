@@ -14,6 +14,7 @@ from typing import Optional, Dict
 from pathlib import Path
 import logging
 import json
+import re
 from datetime import datetime
 
 import yaml
@@ -107,6 +108,11 @@ class Idea2VideoPipeline:
         # Initialize agents with config
         self._init_agents()
 
+    def _safe_slug(self, value: str) -> str:
+        """Sanitize a string for use in filesystem paths."""
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("_")
+        return safe or "untitled"
+
     def _init_agents(self):
         """Initialize all agents with configuration."""
         # Screenwriter
@@ -198,7 +204,7 @@ class Idea2VideoPipeline:
                 # Create portrait registry for storyboard reference
                 if result.portraits and self.config.use_character_references:
                     result.portrait_registry = CharacterPortraitRegistry(
-                        project_id=result.script.title.replace(" ", "_")
+                        project_id=self._safe_slug(result.script.title)
                     )
                     for name, portrait in result.portraits.items():
                         result.portrait_registry.add_portrait(portrait)
