@@ -588,6 +588,11 @@ def register_commands(cli):
     cli.add_command(vimax)
 
 
+def main():
+    """Entry point for vimax CLI."""
+    vimax()
+
+
 # For standalone testing
 if __name__ == "__main__":
-    vimax()
+    main()

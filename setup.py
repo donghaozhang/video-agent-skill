@@ -197,6 +197,8 @@ setup(
             # AI Content Pipeline
             "ai-content-pipeline=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
             "aicp=packages.core.ai_content_pipeline.ai_content_pipeline.__main__:main",
+            # ViMax Pipeline CLI
+            "vimax=packages.core.ai_content_platform.vimax.cli.commands:main",
             # FAL Image-to-Video CLI
             "fal-image-to-video=fal_image_to_video.cli:main",
             # FAL Text-to-Video CLI
