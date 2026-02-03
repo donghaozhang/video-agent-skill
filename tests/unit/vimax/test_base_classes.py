@@ -5,20 +5,37 @@ Tests for ViMax base classes.
 import pytest
 import sys
 import os
+import importlib.util
 
-# Add the vimax package directly to path to avoid loading the whole ai_content_platform
+
+def load_module_directly(module_path: str, module_name: str):
+    """Load a module directly from file path without going through package imports."""
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+# Get paths
 vimax_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'packages', 'core', 'ai_content_platform', 'vimax')
-sys.path.insert(0, vimax_path)
 
-from agents.base import (
-    BaseAgent,
-    AgentConfig,
-    AgentResult,
+# Load modules directly to avoid relative import issues
+agents_base = load_module_directly(
+    os.path.join(vimax_path, 'agents', 'base.py'),
+    'vimax_agents_base'
 )
-from adapters.base import (
-    BaseAdapter,
-    AdapterConfig,
+adapters_base = load_module_directly(
+    os.path.join(vimax_path, 'adapters', 'base.py'),
+    'vimax_adapters_base'
 )
+
+# Get classes
+BaseAgent = agents_base.BaseAgent
+AgentConfig = agents_base.AgentConfig
+AgentResult = agents_base.AgentResult
+BaseAdapter = adapters_base.BaseAdapter
+AdapterConfig = adapters_base.AdapterConfig
 
 
 class TestAgentResult:

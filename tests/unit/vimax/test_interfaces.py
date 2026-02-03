@@ -5,23 +5,47 @@ Tests for ViMax interface models.
 import pytest
 import sys
 import os
+import importlib.util
 
-# Add the vimax package directly to path to avoid loading the whole ai_content_platform
+
+def load_module_directly(module_path: str, module_name: str):
+    """Load a module directly from file path without going through package imports."""
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+# Get paths
 vimax_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'packages', 'core', 'ai_content_platform', 'vimax')
-sys.path.insert(0, vimax_path)
+interfaces_path = os.path.join(vimax_path, 'interfaces')
 
-from interfaces import (
-    CharacterInNovel,
-    CharacterInScene,
-    CharacterPortrait,
-    ShotDescription,
-    ShotType,
-    Scene,
-    Storyboard,
-    ImageOutput,
-    VideoOutput,
-    PipelineOutput,
+# Load interface modules directly
+character_mod = load_module_directly(
+    os.path.join(interfaces_path, 'character.py'),
+    'vimax_interfaces_character'
 )
+shot_mod = load_module_directly(
+    os.path.join(interfaces_path, 'shot.py'),
+    'vimax_interfaces_shot'
+)
+output_mod = load_module_directly(
+    os.path.join(interfaces_path, 'output.py'),
+    'vimax_interfaces_output'
+)
+
+# Get classes
+CharacterInNovel = character_mod.CharacterInNovel
+CharacterInScene = character_mod.CharacterInScene
+CharacterPortrait = character_mod.CharacterPortrait
+ShotDescription = shot_mod.ShotDescription
+ShotType = shot_mod.ShotType
+Scene = shot_mod.Scene
+Storyboard = shot_mod.Storyboard
+ImageOutput = output_mod.ImageOutput
+VideoOutput = output_mod.VideoOutput
+PipelineOutput = output_mod.PipelineOutput
 
 
 class TestCharacterModels:
