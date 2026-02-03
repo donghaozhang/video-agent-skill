@@ -24,7 +24,7 @@ class CameraGeneratorConfig(AgentConfig):
     name: str = "CameraImageGenerator"
     video_model: str = "kling"
     default_duration: float = 5.0
-    output_dir: str = "output/vimax/videos"
+    output_dir: str = "media/generated/vimax/videos"
 
 
 class CameraImageGenerator(BaseAgent[StoryboardResult, PipelineOutput]):

@@ -31,7 +31,7 @@ class ImageAdapterConfig(AdapterConfig):
     aspect_ratio: str = "1:1"
     num_inference_steps: int = 28
     guidance_scale: float = 3.5
-    output_dir: str = "output/vimax/images"
+    output_dir: str = "media/generated/vimax/images"
 
     # Reference image settings for character consistency
     reference_model: str = "nano_banana_pro"  # Model for image-to-image with reference

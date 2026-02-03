@@ -31,7 +31,7 @@ class VideoAdapterConfig(AdapterConfig):
     model: str = "kling"
     duration: float = 5.0
     fps: int = 24
-    output_dir: str = "output/vimax/videos"
+    output_dir: str = "media/generated/vimax/videos"
 
 
 class VideoOutput(BaseModel):

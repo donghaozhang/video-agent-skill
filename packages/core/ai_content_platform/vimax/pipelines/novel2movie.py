@@ -36,7 +36,7 @@ from ..interfaces import (
 class Novel2MovieConfig(BaseModel):
     """Configuration for Novel2Movie pipeline."""
 
-    output_dir: str = "output/vimax/novel2movie"
+    output_dir: str = "media/generated/vimax/novel2movie"
     max_scenes: int = 10
     scene_duration: float = 30.0  # seconds per scene
     video_model: str = "kling"

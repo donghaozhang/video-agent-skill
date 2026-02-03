@@ -35,7 +35,7 @@ class StoryboardArtistConfig(AgentConfig):
     image_model: str = "nano_banana_pro"
     style_prefix: str = "storyboard panel, cinematic composition, "
     aspect_ratio: str = "16:9"
-    output_dir: str = "output/vimax/storyboard"
+    output_dir: str = "media/generated/vimax/storyboard"
 
     # Reference image settings for character consistency
     use_character_references: bool = True  # Enable reference image usage

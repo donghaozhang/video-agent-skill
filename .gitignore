@@ -53,6 +53,9 @@ test_output/
 /archive/
 /issues/implemented/
 
+# QCut standard structure - AI generated content
+media/generated/
+
 # FAL AI output folders
 /fal_video_generation/output/
 /fal_avatar_generation/output/

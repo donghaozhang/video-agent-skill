@@ -34,7 +34,7 @@ Converts a text idea into a complete video:
 from ai_content_platform.vimax.pipelines import Idea2VideoPipeline, Idea2VideoConfig
 
 config = Idea2VideoConfig(
-    output_dir="output/my_video",
+    output_dir="media/generated/vimax/my_video",
     target_duration=60.0,
     video_model="kling",
 )
@@ -101,7 +101,7 @@ storyboard = result.result
 
 ```yaml
 # config.yaml
-output_dir: output/vimax
+output_dir: media/generated/vimax
 target_duration: 60.0
 video_model: kling
 image_model: flux_dev

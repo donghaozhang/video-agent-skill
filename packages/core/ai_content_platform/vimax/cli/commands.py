@@ -23,7 +23,7 @@ def vimax():
 
 @vimax.command("idea2video")
 @click.option("--idea", "-i", required=True, help="Video idea or concept")
-@click.option("--output", "-o", default="output/vimax/idea2video", help="Output directory")
+@click.option("--output", "-o", default="media/generated/vimax/idea2video", help="Output directory")
 @click.option("--duration", "-d", default=60.0, type=float, help="Target duration in seconds")
 @click.option("--video-model", default="kling", help="Video generation model")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
@@ -87,7 +87,7 @@ def idea2video(idea, output, duration, video_model, image_model, llm_model, port
 
 @vimax.command("script2video")
 @click.option("--script", "-s", required=True, type=click.Path(exists=True), help="Script JSON file")
-@click.option("--output", "-o", default="output/vimax/script2video", help="Output directory")
+@click.option("--output", "-o", default="media/generated/vimax/script2video", help="Output directory")
 @click.option("--video-model", default="kling", help="Video generation model")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
 @click.option("--portraits", "-p", type=click.Path(exists=True), help="Portrait registry JSON for character consistency")
@@ -146,7 +146,7 @@ def script2video(script, output, video_model, image_model, portraits, references
 @vimax.command("novel2movie")
 @click.option("--novel", "-n", required=True, type=click.Path(exists=True), help="Novel text file")
 @click.option("--title", "-t", default="Untitled", help="Novel title")
-@click.option("--output", "-o", default="output/vimax/novel2movie", help="Output directory")
+@click.option("--output", "-o", default="media/generated/vimax/novel2movie", help="Output directory")
 @click.option("--max-scenes", default=10, type=int, help="Maximum scenes to generate")
 @click.option("--video-model", default="kling", help="Video generation model")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
@@ -289,7 +289,7 @@ def generate_script(idea, output, duration, model):
 
 @vimax.command("generate-storyboard")
 @click.option("--script", "-s", required=True, type=click.Path(exists=True), help="Script JSON file")
-@click.option("--output", "-o", default="output/vimax/storyboard", help="Output directory")
+@click.option("--output", "-o", default="media/generated/vimax/storyboard", help="Output directory")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
 @click.option("--style", default="storyboard panel, cinematic composition, ", help="Style prefix for prompts")
 @click.option("--portraits", "-p", type=click.Path(exists=True), help="Portrait registry JSON file for character consistency")
@@ -363,7 +363,7 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
 
 @vimax.command("generate-portraits")
 @click.option("--characters", "-c", required=True, type=click.Path(exists=True), help="Characters JSON file")
-@click.option("--output", "-o", default="output/vimax/portraits", help="Output directory")
+@click.option("--output", "-o", default="media/generated/vimax/portraits", help="Output directory")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
 @click.option("--llm-model", default="kimi-k2.5", help="LLM model for prompt optimization")
 @click.option("--views", default="front,side,back,three_quarter", help="Comma-separated list of views")

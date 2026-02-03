@@ -27,7 +27,7 @@ from ..interfaces import PipelineOutput, CharacterPortraitRegistry
 class Script2VideoConfig(BaseModel):
     """Configuration for Script2Video pipeline."""
 
-    output_dir: str = "output/vimax/script2video"
+    output_dir: str = "media/generated/vimax/script2video"
     video_model: str = "kling"
     image_model: str = "nano_banana_pro"
     use_character_references: bool = True  # Use portraits for storyboard consistency

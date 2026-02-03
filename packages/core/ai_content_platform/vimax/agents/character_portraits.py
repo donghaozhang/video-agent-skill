@@ -21,7 +21,7 @@ class PortraitsGeneratorConfig(AgentConfig):
     llm_model: str = "kimi-k2.5"
     views: List[str] = ["front", "side", "back", "three_quarter"]
     style: str = "detailed character portrait, professional, consistent style"
-    output_dir: str = "output/vimax/portraits"
+    output_dir: str = "media/generated/vimax/portraits"
 
 
 PORTRAIT_PROMPT_TEMPLATE = """Create a detailed image generation prompt for a {view} view portrait.

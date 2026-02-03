@@ -34,7 +34,7 @@ class Idea2VideoConfig(BaseModel):
     """Configuration for Idea2Video pipeline."""
 
     # Output settings
-    output_dir: str = "output/vimax/idea2video"
+    output_dir: str = "media/generated/vimax/idea2video"
     save_intermediate: bool = True
 
     # Target settings
