@@ -7,9 +7,21 @@ import time
 from typing import Optional, Dict, List, Tuple, Literal
 from moviepy import VideoFileClip, concatenate_videoclips
 from PIL import Image
-from agents import *
+from agents import (
+    CharacterExtractor,
+    CharacterPortraitsGenerator,
+    StoryboardArtist,
+    CameraImageGenerator,
+    ReferenceImageSelector,
+)
 import yaml
-from interfaces import *
+from interfaces import (
+    Camera,
+    CharacterInScene,
+    ImageOutput,
+    ShotBriefDescription,
+    ShotDescription,
+)
 from langchain.chat_models import init_chat_model
 from utils.timer import Timer
 from utils.rate_limiter import RateLimiter

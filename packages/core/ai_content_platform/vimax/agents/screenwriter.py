@@ -224,6 +224,8 @@ class Screenwriter(BaseAgent[str, Script]):
                 shots = []
                 for shot_data in scene_data.get("shots", []):
                     shot_type_str = shot_data.get("shot_type", "medium")
+                    if not isinstance(shot_type_str, str):
+                        shot_type_str = "medium"
                     # Handle various shot type formats
                     try:
                         shot_type = ShotType(shot_type_str.lower().replace(" ", "_").replace("-", "_"))
@@ -232,6 +234,8 @@ class Screenwriter(BaseAgent[str, Script]):
 
                     # Handle various camera movement formats
                     camera_movement_str = shot_data.get("camera_movement", "static")
+                    if not isinstance(camera_movement_str, str):
+                        camera_movement_str = "static"
                     try:
                         # Normalize: "slow push in" -> "dolly", "push in" -> "dolly", etc.
                         cm_lower = camera_movement_str.lower().replace(" ", "_").replace("-", "_")
