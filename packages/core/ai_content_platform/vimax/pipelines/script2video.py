@@ -152,6 +152,11 @@ class Script2VideoPipeline:
 
     def _load_script(self, path: str) -> Script:
         """Load script from JSON file."""
-        with open(path) as f:
-            data = json.load(f)
-        return Script(**data)
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            return Script(**data)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Script file not found: {path}")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON in script file {path}: {e}") from e
