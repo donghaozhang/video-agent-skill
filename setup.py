@@ -153,25 +153,15 @@ fal_subpackages = [
 ]
 
 # ai_content_platform as top-level importable module (for vimax CLI)
-ai_content_platform_packages = [
-    'ai_content_platform',
-    'ai_content_platform.core',
-    'ai_content_platform.cli',
-    'ai_content_platform.services',
-    'ai_content_platform.utils',
-    'ai_content_platform.vimax',
-    'ai_content_platform.vimax.adapters',
-    'ai_content_platform.vimax.agents',
-    'ai_content_platform.vimax.cli',
-    'ai_content_platform.vimax.interfaces',
-    'ai_content_platform.vimax.pipelines',
-]
+# Use find_packages with where parameter to find packages under packages/core/
+from setuptools import find_packages as fp
+ai_content_platform_packages = fp(where='packages/core', include=['ai_content_platform', 'ai_content_platform.*'])
 
 all_packages = standard_packages + fal_subpackages + ai_content_platform_packages
 
 # Package directory mappings for hyphenated directories and nested packages
 package_dir = {
-    # Map ai_content_platform as top-level importable module
+    # Map ai_content_platform packages to their location
     'ai_content_platform': 'packages/core/ai_content_platform',
     # FAL provider packages
     'fal_image_to_image': 'packages/providers/fal/image-to-image/fal_image_to_image',
