@@ -156,6 +156,19 @@ class NovelCompressor:
         index: int,
         novel_chunk: str,
     ) -> Tuple[int, str]:
+        """Compress a single novel chunk using LLM.
+
+        Args:
+            semaphore: Concurrency limiter for parallel processing.
+            index: Chunk index for ordering results.
+            novel_chunk: Text chunk to compress.
+
+        Returns:
+            Tuple[int, str]: Tuple of (index, compressed_chunk).
+
+        Cost:
+            One LLM chat call per invocation.
+        """
         async with semaphore:
             logging.info(f"Compressing novel chunk {index}")
             messages = [

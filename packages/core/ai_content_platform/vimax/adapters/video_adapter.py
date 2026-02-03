@@ -153,9 +153,9 @@ class VideoGeneratorAdapter(BaseAdapter[Dict[str, Any], VideoOutput]):
             # Get FAL endpoint
             endpoint = self.MODEL_MAP.get(model, self.MODEL_MAP["kling"])
 
-            # Upload image if it's a local path
+            # Upload image if it's a local path (run in thread to avoid blocking)
             if os.path.exists(image_path):
-                image_url = fal_client.upload_file(image_path)
+                image_url = await asyncio.to_thread(fal_client.upload_file, image_path)
             else:
                 image_url = image_path
 
@@ -166,8 +166,9 @@ class VideoGeneratorAdapter(BaseAdapter[Dict[str, Any], VideoOutput]):
                 "duration": str(int(duration)),
             }
 
-            # Call FAL
-            result = fal_client.subscribe(
+            # Call FAL (run in thread to avoid blocking the event loop)
+            result = await asyncio.to_thread(
+                fal_client.subscribe,
                 endpoint,
                 arguments=arguments,
                 with_logs=False,

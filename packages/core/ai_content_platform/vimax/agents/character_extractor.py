@@ -62,7 +62,7 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
         self._llm: Optional[LLMAdapter] = None
         self.logger = logging.getLogger("vimax.agents.character_extractor")
 
-    async def _ensure_llm(self):
+    async def _ensure_llm(self) -> None:
         """Initialize LLM adapter if needed."""
         if self._llm is None:
             self._llm = LLMAdapter(LLMAdapterConfig(model=self.config.model))
@@ -106,6 +106,9 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
                         raise ValueError("Could not parse character data from response") from match_error
                 else:
                     raise ValueError("Could not parse character data from response") from e
+
+            if not isinstance(data, list):
+                raise ValueError("Expected a JSON array of characters")
 
             # Convert to CharacterInNovel objects
             characters = []
