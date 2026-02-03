@@ -11,6 +11,7 @@ import logging
 
 T = TypeVar('T')  # Input type
 R = TypeVar('R')  # Result type
+ResultT = TypeVar('ResultT')  # For AgentResult generic
 
 
 class AgentConfig(BaseModel):
@@ -24,21 +25,26 @@ class AgentConfig(BaseModel):
     extra: Dict[str, Any] = Field(default_factory=dict)
 
 
-class AgentResult(BaseModel):
-    """Result from an agent execution."""
+class AgentResult(BaseModel, Generic[ResultT]):
+    """
+    Result from an agent execution.
+
+    Generic over the result type for type-safe agent outputs.
+    Example: AgentResult[List[Character]] for character extraction.
+    """
 
     success: bool
-    result: Optional[Any] = None
+    result: Optional[ResultT] = None
     error: Optional[str] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
     @classmethod
-    def ok(cls, result: Any, **metadata) -> "AgentResult":
+    def ok(cls, result: ResultT, **metadata) -> "AgentResult[ResultT]":
         """Create a successful result."""
         return cls(success=True, result=result, metadata=metadata)
 
     @classmethod
-    def fail(cls, error: str, **metadata) -> "AgentResult":
+    def fail(cls, error: str, **metadata) -> "AgentResult[ResultT]":
         """Create a failed result."""
         return cls(success=False, error=error, metadata=metadata)
 

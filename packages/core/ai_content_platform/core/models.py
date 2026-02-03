@@ -11,6 +11,7 @@ class StepType(str, Enum):
     TEXT_TO_IMAGE = "text_to_image"
     IMAGE_TO_IMAGE = "image_to_image"
     TEXT_TO_VIDEO = "text_to_video"
+    VIDEO_GENERATION = "video_generation"
     VIDEO_TO_VIDEO = "video_to_video"
     AVATAR_GENERATION = "avatar_generation"
     PARALLEL_GROUP = "parallel_group"
