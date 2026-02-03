@@ -125,9 +125,9 @@ class NovelCompressor:
     async def compress_single_novel_chunk(
         self,
         semaphore: asyncio.Semaphore,
-        index,
+        index: int,
         novel_chunk: str,
-    ) -> str:
+    ) -> Tuple[int, str]:
         async with semaphore:
             logging.info(f"Compressing novel chunk {index}")
             messages = [
