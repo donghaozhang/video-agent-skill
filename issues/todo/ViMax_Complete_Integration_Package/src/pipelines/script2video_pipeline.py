@@ -401,7 +401,7 @@ class Script2VideoPipeline:
         frame_desc: str,
         visible_characters: List[CharacterInScene],
         character_portraits_registry: Dict[str, Dict[str, Dict[str, str]]],
-    ) -> ImageOutput:
+    ) -> str:
 
         frame_image_path = os.path.join(self.working_dir, "shots", f"{shot_idx}", f"{frame_type}.png")
 
