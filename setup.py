@@ -10,7 +10,7 @@ from pathlib import Path
 
 # Package metadata
 PACKAGE_NAME = "video_ai_studio"
-VERSION = "1.0.18"
+VERSION = "1.0.19"
 AUTHOR = "donghao zhang"
 AUTHOR_EMAIL = "zdhpeter@gmail.com"
 DESCRIPTION = "Comprehensive AI content generation suite with multiple providers and services"
