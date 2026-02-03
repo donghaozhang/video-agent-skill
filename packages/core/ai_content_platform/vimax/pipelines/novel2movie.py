@@ -24,7 +24,7 @@ from ..agents import (
     StoryboardArtist, StoryboardArtistConfig,
     CameraImageGenerator, CameraGeneratorConfig,
 )
-from ..adapters import LLMAdapter, LLMAdapterConfig, Message
+from ..adapters import LLMAdapter, LLMAdapterConfig, Message, VideoGeneratorAdapter, VideoAdapterConfig
 from ..interfaces import (
     PipelineOutput,
     CharacterInNovel,
@@ -247,7 +247,6 @@ class Novel2MoviePipeline:
                 self.logger.info("Step 4: Assembling final video...")
                 final_path = str(output_dir / "final_movie.mp4")
 
-                from ..adapters import VideoGeneratorAdapter, VideoAdapterConfig
                 video_adapter = VideoGeneratorAdapter(VideoAdapterConfig())
                 await video_adapter.initialize()
 

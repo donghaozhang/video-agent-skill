@@ -7,6 +7,7 @@ a consistent interface for ViMax agents.
 
 import os
 import time
+import asyncio
 import subprocess
 from typing import Optional, Dict, Any, List
 from pathlib import Path
@@ -339,10 +340,15 @@ class VideoGeneratorAdapter(BaseAdapter[Dict[str, Any], VideoOutput]):
                 output_path,
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
 
-            if result.returncode != 0:
-                self.logger.warning(f"FFmpeg concat may have failed: {result.stderr}")
+            if process.returncode != 0:
+                self.logger.warning(f"FFmpeg concat may have failed: {stderr.decode()}")
                 # Create a placeholder if ffmpeg failed
                 Path(output_path).write_text("Concatenated video placeholder")
 

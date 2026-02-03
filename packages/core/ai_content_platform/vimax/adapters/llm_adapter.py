@@ -9,6 +9,7 @@ Uses litellm for unified access to multiple LLM providers:
 """
 
 import os
+import re
 import json
 from typing import Optional, Dict, Any, List, Union
 import logging
@@ -302,19 +303,26 @@ Respond ONLY with the JSON, no other text.
 
         # Parse JSON response
         try:
-            # Try to extract JSON from response
+            # Try to extract JSON from response that might be in a markdown block
             content = response.content.strip()
 
-            # Handle code blocks
-            if content.startswith("```"):
-                lines = content.split("\n")
-                content = "\n".join(lines[1:-1])
+            # First try to extract from code fence
+            fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if fence_match:
+                json_str = fence_match.group(1)
+            else:
+                # Fall back to finding JSON object directly
+                match = re.search(r'\{.*\}', content, re.DOTALL)
+                if match:
+                    json_str = match.group(0)
+                else:
+                    json_str = content
 
-            data = json.loads(content)
+            data = json.loads(json_str)
             return output_schema(**data)
         except (json.JSONDecodeError, ValueError) as e:
             self.logger.error(f"Failed to parse structured output: {e}")
-            raise ValueError(f"LLM response was not valid JSON: {response.content[:200]}")
+            raise ValueError(f"LLM response was not valid JSON: {response.content[:200]}") from e
 
     async def generate_text(
         self,
