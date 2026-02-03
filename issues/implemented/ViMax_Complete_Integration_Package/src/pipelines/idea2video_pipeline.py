@@ -181,7 +181,7 @@ class Idea2VideoPipeline:
         if os.path.exists(save_path):
             with open(save_path, "r", encoding="utf-8") as f:
                 story = f.read()
-            print(f"🚀 Loaded story from existing file.")
+            print("🚀 Loaded story from existing file.")
         else:
             print("🧠 Developing story...")
             story = await self.screenwriter.develop_story(idea=idea, user_requirement=user_requirement)
@@ -200,7 +200,7 @@ class Idea2VideoPipeline:
         if os.path.exists(save_path):
             with open(save_path, "r", encoding="utf-8") as f:
                 script = json.load(f)
-            print(f"🚀 Loaded script from existing file.")
+            print("🚀 Loaded script from existing file.")
         else:
             print("🧠 Writing script based on story...")
             script = await self.screenwriter.write_script_based_on_story(story=story, user_requirement=user_requirement)
@@ -300,9 +300,9 @@ class Idea2VideoPipeline:
 
         final_video_path = os.path.join(self.working_dir, "final_video.mp4")
         if os.path.exists(final_video_path):
-            print(f"🚀 Skipped concatenating videos, already exists.")
+            print("🚀 Skipped concatenating videos, already exists.")
         else:
-            print(f"🎬 Starting concatenating videos...")
+            print("🎬 Starting concatenating videos...")
             video_clips = [VideoFileClip(video_path)
                            for video_path in all_video_paths]
             final_video = None

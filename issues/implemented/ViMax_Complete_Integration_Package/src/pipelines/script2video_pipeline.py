@@ -139,7 +139,7 @@ class Script2VideoPipeline:
         script: str,
         user_requirement: str,
         style: str,
-        characters: List[CharacterInScene] = None,
+        characters: Optional[List[CharacterInScene]] = None,
         character_portraits_registry: Optional[Dict[str, Dict[str, Dict[str, str]]]] = None,
     ):
         if characters is None:
