@@ -39,3 +39,23 @@ class ParallelExecutionError(AIPlatformError):
 class ValidationError(AIPlatformError):
     """Raised when input validation fails."""
     pass
+
+
+class ConfigurationError(AIPlatformError):
+    """Raised when configuration is invalid."""
+    pass
+
+
+class PipelineExecutionError(AIPlatformError):
+    """Raised when pipeline execution fails."""
+    pass
+
+
+class FileOperationError(AIPlatformError):
+    """Raised when file operations fail."""
+    pass
+
+
+class CostCalculationError(AIPlatformError):
+    """Raised when cost calculation fails."""
+    pass
