@@ -113,6 +113,9 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
             # Convert to CharacterInNovel objects
             characters = []
             for item in data[:self.config.max_characters]:
+                if not isinstance(item, dict):
+                    self.logger.warning(f"Skipping non-dict character entry: {item!r}")
+                    continue
                 char = CharacterInNovel(
                     name=item.get("name", "Unknown"),
                     description=item.get("description", ""),
