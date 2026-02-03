@@ -14,9 +14,8 @@ from pydantic import Field
 from .base import BaseAgent, AgentConfig, AgentResult
 from .screenwriter import Script
 from ..adapters import ImageGeneratorAdapter, ImageAdapterConfig
-from ..interfaces import (
-    Storyboard, Scene, ShotDescription, ImageOutput,
-)
+from ..adapters.image_adapter import ImageOutput  # Use adapter's ImageOutput
+from ..interfaces import Storyboard, Scene, ShotDescription
 
 
 class StoryboardResult(Storyboard):
