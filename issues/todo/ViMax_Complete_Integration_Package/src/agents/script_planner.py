@@ -4,7 +4,7 @@ from langchain_core.output_parsers import PydanticOutputParser
 from langchain.chat_models import init_chat_model
 from pydantic import BaseModel, Field
 from typing import List, Optional, Literal
-from tenacity import retry
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 narrative_script_prompt_template = \
@@ -341,7 +341,7 @@ class ScriptPlanner:
             api_key=api_key,
         )
 
-    @retry
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def plan_script(
         self,
         basic_idea: str,
