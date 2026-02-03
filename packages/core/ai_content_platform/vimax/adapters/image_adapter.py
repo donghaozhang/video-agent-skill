@@ -7,6 +7,7 @@ a consistent interface for ViMax agents.
 
 import os
 import time
+import asyncio
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 import logging
@@ -192,8 +193,9 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
                 "guidance_scale": kwargs.get("guidance_scale", self.config.guidance_scale),
             }
 
-            # Call FAL
-            result = fal_client.subscribe(
+            # Call FAL (run in thread to avoid blocking the event loop)
+            result = await asyncio.to_thread(
+                fal_client.subscribe,
                 endpoint,
                 arguments=arguments,
                 with_logs=False,
@@ -405,8 +407,9 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
                     "guidance_scale": kwargs.get("guidance_scale", self.config.guidance_scale),
                 }
 
-            # Call FAL
-            result = fal_client.subscribe(
+            # Call FAL (run in thread to avoid blocking the event loop)
+            result = await asyncio.to_thread(
+                fal_client.subscribe,
                 endpoint,
                 arguments=arguments,
                 with_logs=False,
