@@ -291,5 +291,5 @@ class Screenwriter(BaseAgent[str, Script]):
             )
 
         except Exception as e:
-            self.logger.error(f"Screenplay generation failed: {e}")
+            self.logger.exception("Screenplay generation failed")
             return AgentResult.fail(str(e))

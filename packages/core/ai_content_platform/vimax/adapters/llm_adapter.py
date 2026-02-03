@@ -171,7 +171,7 @@ class LLMAdapter(BaseAdapter[List[Message], LLMResponse]):
             )
 
         except Exception as e:
-            self.logger.error(f"LLM call failed: {e}")
+            self.logger.exception("LLM call failed")
             raise
 
     def _mock_chat(

@@ -131,7 +131,7 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
             )
 
         except Exception as e:
-            self.logger.error(f"Character extraction failed: {e}")
+            self.logger.exception("Character extraction failed")
             return AgentResult.fail(str(e))
 
     async def extract_main_characters(

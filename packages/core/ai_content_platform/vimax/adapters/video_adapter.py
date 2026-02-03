@@ -208,7 +208,7 @@ class VideoGeneratorAdapter(BaseAdapter[Dict[str, Any], VideoOutput]):
             )
 
         except Exception as e:
-            self.logger.error(f"Video generation failed: {e}")
+            self.logger.exception("Video generation failed")
             raise
 
     def _mock_generate(
@@ -252,6 +252,13 @@ class VideoGeneratorAdapter(BaseAdapter[Dict[str, Any], VideoOutput]):
         """Download video from URL to path."""
         try:
             import urllib.request
+            from urllib.parse import urlparse
+
+            # Validate URL scheme to prevent SSRF or local file access
+            parsed = urlparse(url)
+            if parsed.scheme not in ("http", "https"):
+                raise ValueError(f"Invalid URL scheme: {parsed.scheme}. Only http and https are allowed.")
+
             urllib.request.urlretrieve(url, path)
         except Exception as e:
             self.logger.warning(f"Failed to download video: {e}")

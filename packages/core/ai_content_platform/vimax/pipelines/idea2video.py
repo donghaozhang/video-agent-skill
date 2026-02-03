@@ -248,7 +248,7 @@ class Idea2VideoPipeline:
                 self._save_summary(result, output_dir / "summary.json")
 
         except Exception as e:
-            self.logger.error(f"Pipeline failed with error: {e}")
+            self.logger.exception("Pipeline failed with error")
             result.errors.append(str(e))
 
         return result

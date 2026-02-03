@@ -276,7 +276,7 @@ class Novel2MoviePipeline:
             )
 
         except Exception as e:
-            self.logger.error(f"Pipeline failed: {e}")
+            self.logger.exception("Pipeline failed")
             result.errors.append(str(e))
 
         return result

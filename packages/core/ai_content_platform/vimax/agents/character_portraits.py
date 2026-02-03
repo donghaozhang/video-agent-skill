@@ -156,7 +156,7 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
             )
 
         except Exception as e:
-            self.logger.error(f"Portrait generation failed: {e}")
+            self.logger.exception("Portrait generation failed")
             return AgentResult.fail(str(e))
 
     async def generate_batch(

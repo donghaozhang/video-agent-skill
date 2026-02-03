@@ -145,7 +145,7 @@ class Script2VideoPipeline:
             self.logger.info(f"Pipeline completed! Cost: ${result.total_cost:.3f}")
 
         except Exception as e:
-            self.logger.error(f"Pipeline failed: {e}")
+            self.logger.exception("Pipeline failed")
             result.errors.append(str(e))
 
         return result

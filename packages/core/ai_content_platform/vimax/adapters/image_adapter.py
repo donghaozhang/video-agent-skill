@@ -236,7 +236,7 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
             )
 
         except Exception as e:
-            self.logger.error(f"Image generation failed: {e}")
+            self.logger.exception("Image generation failed")
             raise
 
     def _mock_generate(
@@ -467,7 +467,7 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
             )
 
         except Exception as e:
-            self.logger.error(f"Image generation with reference failed: {e}")
+            self.logger.exception("Image generation with reference failed")
             raise
 
     def _mock_generate_with_reference(

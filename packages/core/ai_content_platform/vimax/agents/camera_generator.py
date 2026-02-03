@@ -159,7 +159,7 @@ class CameraImageGenerator(BaseAgent[StoryboardResult, PipelineOutput]):
             )
 
         except Exception as e:
-            self.logger.error(f"Video generation failed: {e}")
+            self.logger.exception("Video generation failed")
             return AgentResult.fail(str(e))
 
     async def generate_from_images(
