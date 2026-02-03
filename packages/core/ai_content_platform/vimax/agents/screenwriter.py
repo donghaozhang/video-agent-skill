@@ -27,6 +27,11 @@ class Script(BaseModel):
 
     @property
     def scene_count(self) -> int:
+        """Return the number of scenes in the script.
+
+        Returns:
+            int: The count of scenes.
+        """
         return len(self.scenes)
 
 

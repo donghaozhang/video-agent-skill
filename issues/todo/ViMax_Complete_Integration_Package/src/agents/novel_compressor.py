@@ -78,6 +78,34 @@ human_prompt_template_aggregate = \
 
 
 class NovelCompressor:
+    """Compresses novel text by chunking, LLM compression, and aggregation.
+
+    Splits long text into manageable chunks, compresses each chunk using an LLM
+    to preserve narrative essentials while reducing length, then aggregates
+    the compressed chunks into a coherent output.
+
+    Args:
+        api_key: API key for the chat model provider.
+        base_url: Base URL for the chat model API endpoint.
+        chat_model: Name/identifier of the chat model to use.
+        chunk_size: Maximum characters per chunk. Defaults to 65536.
+        chunk_overlap: Overlap between chunks in characters. Defaults to 8192.
+
+    Example:
+        >>> compressor = NovelCompressor(
+        ...     api_key="sk-...",
+        ...     base_url="https://api.openai.com/v1",
+        ...     chat_model="gpt-4"
+        ... )
+        >>> chunks = compressor.split(novel_text)
+        >>> compressed = await compressor.compress(list(enumerate(chunks)))
+        >>> result = compressor.aggregate(compressed)
+
+    Cost:
+        LLM API calls are made during compress() and aggregate() methods.
+        Cost depends on the configured model and text length.
+    """
+
     def __init__(
         self,
         api_key: str,
