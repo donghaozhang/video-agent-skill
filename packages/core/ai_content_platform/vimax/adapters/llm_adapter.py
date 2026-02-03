@@ -183,8 +183,76 @@ class LLMAdapter(BaseAdapter[List[Message], LLMResponse]):
         user_messages = [m for m in messages if m.get("role") == "user"]
         last_message = user_messages[-1]["content"] if user_messages else ""
 
-        # Simple mock response
-        mock_content = f"Mock LLM response for: {last_message[:100]}..."
+        # Detect if this is a screenplay request and return valid JSON
+        if "screenplay" in last_message.lower() or '"scenes"' in last_message:
+            mock_content = json.dumps({
+                "title": "Mock Screenplay",
+                "logline": "A mock screenplay for testing purposes.",
+                "scenes": [
+                    {
+                        "scene_id": "scene_001",
+                        "title": "Opening Scene",
+                        "location": "Mountain summit at dawn",
+                        "time": "Dawn",
+                        "shots": [
+                            {
+                                "shot_id": "shot_001",
+                                "shot_type": "wide",
+                                "description": "Panoramic view of misty mountains",
+                                "camera_movement": "pan",
+                                "duration_seconds": 5,
+                                "image_prompt": "Panoramic view of misty mountains at dawn, golden light, cinematic",
+                                "video_prompt": "Camera slowly pans across mountain range, mist rising"
+                            },
+                            {
+                                "shot_id": "shot_002",
+                                "shot_type": "medium",
+                                "description": "Silhouette figure against sunrise",
+                                "camera_movement": "static",
+                                "duration_seconds": 4,
+                                "image_prompt": "Silhouette of person against golden sunrise, mountains background",
+                                "video_prompt": "Figure stands still, wind moves their clothing"
+                            }
+                        ]
+                    },
+                    {
+                        "scene_id": "scene_002",
+                        "title": "The Journey",
+                        "location": "Forest path",
+                        "time": "Morning",
+                        "shots": [
+                            {
+                                "shot_id": "shot_003",
+                                "shot_type": "tracking",
+                                "description": "Following character through trees",
+                                "camera_movement": "tracking",
+                                "duration_seconds": 6,
+                                "image_prompt": "Person walking through forest path, dappled sunlight, green foliage",
+                                "video_prompt": "Camera tracks forward following walking figure through forest"
+                            }
+                        ]
+                    }
+                ]
+            }, indent=2)
+        # Detect character extraction request
+        elif "character" in last_message.lower() and ("extract" in last_message.lower() or "find" in last_message.lower()):
+            mock_content = json.dumps([
+                {
+                    "name": "John",
+                    "description": "A brave adventurer with kind eyes",
+                    "role": "protagonist",
+                    "visual_traits": ["tall", "dark hair", "leather jacket"]
+                },
+                {
+                    "name": "Mary",
+                    "description": "A wise guide with ancient knowledge",
+                    "role": "supporting",
+                    "visual_traits": ["silver hair", "long robes", "gentle smile"]
+                }
+            ], indent=2)
+        else:
+            # Simple mock response
+            mock_content = f"Mock LLM response for: {last_message[:100]}..."
 
         return LLMResponse(
             content=mock_content,
