@@ -69,7 +69,7 @@ Enable the storyboard generation pipeline to use pre-generated character portrai
 
 ## Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                    Character Reference Image Flow                        │
 ├─────────────────────────────────────────────────────────────────────────┤
