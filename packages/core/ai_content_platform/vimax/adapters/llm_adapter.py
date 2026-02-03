@@ -106,18 +106,21 @@ class LLMAdapter(BaseAdapter[List[Message], LLMResponse]):
         max_tokens: Optional[int] = None,
         **kwargs,
     ) -> LLMResponse:
-        """
-        Send chat messages to LLM.
+        """Send chat messages to LLM.
 
         Args:
-            messages: List of messages
-            model: Model to use (default from config)
-            temperature: Temperature (default from config)
-            max_tokens: Max tokens (default from config)
-            **kwargs: Additional parameters
+            messages: List of Message objects or dicts with role/content keys.
+            model: Model to use (default from config).
+            temperature: Sampling temperature (default from config).
+            max_tokens: Maximum tokens in response (default from config).
+            **kwargs: Additional parameters passed to litellm.
 
         Returns:
-            LLMResponse with generated content
+            LLMResponse: Response containing content, usage stats, and cost.
+
+        Cost:
+            One LLM API call. Cost varies by model (see _estimate_cost).
+            Returns mock response with zero cost if API key not configured.
         """
         await self.ensure_initialized()
 
@@ -270,16 +273,21 @@ class LLMAdapter(BaseAdapter[List[Message], LLMResponse]):
         output_schema: type,
         **kwargs,
     ) -> Any:
-        """
-        Chat with structured JSON output.
+        """Chat with structured JSON output.
 
         Args:
-            messages: Chat messages
-            output_schema: Pydantic model for output
-            **kwargs: Additional parameters
+            messages: Chat messages.
+            output_schema: Pydantic model class for output parsing.
+            **kwargs: Additional parameters passed to chat().
 
         Returns:
-            Parsed Pydantic model instance
+            Parsed instance of output_schema.
+
+        Raises:
+            ValueError: If LLM response is not valid JSON matching schema.
+
+        Cost:
+            One LLM API call (delegates to chat()).
         """
         # Add schema instruction to system message
         schema_instruction = f"""
@@ -330,16 +338,18 @@ Respond ONLY with the JSON, no other text.
         system_prompt: Optional[str] = None,
         **kwargs,
     ) -> str:
-        """
-        Simple text generation.
+        """Simple text generation.
 
         Args:
-            prompt: User prompt
-            system_prompt: Optional system prompt
-            **kwargs: Additional parameters
+            prompt: User prompt text.
+            system_prompt: Optional system prompt for context.
+            **kwargs: Additional parameters passed to chat().
 
         Returns:
-            Generated text
+            str: Generated text content.
+
+        Cost:
+            One LLM API call (delegates to chat()).
         """
         messages = []
         if system_prompt:
@@ -376,13 +386,37 @@ async def chat(
     model: str = "kimi-k2.5",
     **kwargs,
 ) -> str:
-    """Quick function for LLM chat."""
+    """Quick function for LLM chat.
+
+    Args:
+        messages: List of chat messages.
+        model: Model alias or full name.
+        **kwargs: Additional parameters.
+
+    Returns:
+        str: Generated response content.
+
+    Cost:
+        One LLM API call.
+    """
     adapter = LLMAdapter(LLMAdapterConfig(model=model))
     response = await adapter.chat(messages, **kwargs)
     return response.content
 
 
 async def generate(prompt: str, model: str = "kimi-k2.5", **kwargs) -> str:
-    """Quick function for text generation."""
+    """Quick function for text generation.
+
+    Args:
+        prompt: Text prompt.
+        model: Model alias or full name.
+        **kwargs: Additional parameters.
+
+    Returns:
+        str: Generated text.
+
+    Cost:
+        One LLM API call.
+    """
     adapter = LLMAdapter(LLMAdapterConfig(model=model))
     return await adapter.generate_text(prompt, **kwargs)
