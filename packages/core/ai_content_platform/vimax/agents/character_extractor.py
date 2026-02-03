@@ -160,7 +160,7 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
         main_roles = {"protagonist", "antagonist", "supporting"}
         main_chars = [
             c for c in result.result
-            if c.role.lower() in main_roles
+            if (c.role or "").lower() in main_roles
         ]
 
         return main_chars[:max_characters]
