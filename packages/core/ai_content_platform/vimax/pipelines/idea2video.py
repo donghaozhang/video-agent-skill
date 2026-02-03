@@ -26,7 +26,7 @@ from ..agents import (
     StoryboardArtist, StoryboardArtistConfig, StoryboardResult,
     CameraImageGenerator, CameraGeneratorConfig,
 )
-from ..interfaces import PipelineOutput, CharacterPortrait, CharacterInNovel
+from ..interfaces import PipelineOutput, CharacterPortrait, CharacterInNovel, CharacterPortraitRegistry
 
 
 class Idea2VideoConfig(BaseModel):
@@ -51,6 +51,7 @@ class Idea2VideoConfig(BaseModel):
 
     # Feature flags
     generate_portraits: bool = True
+    use_character_references: bool = True  # Use portraits for storyboard consistency
     parallel_generation: bool = False
 
     @classmethod
@@ -69,6 +70,7 @@ class Idea2VideoResult(BaseModel):
     script: Optional[Script] = None
     characters: list = Field(default_factory=list)
     portraits: Dict[str, CharacterPortrait] = Field(default_factory=dict)
+    portrait_registry: Optional[CharacterPortraitRegistry] = None
     storyboard: Optional[StoryboardResult] = None
     output: Optional[PipelineOutput] = None
 
@@ -193,9 +195,23 @@ class Idea2VideoPipeline:
                 for portrait in result.portraits.values():
                     result.total_cost += len(portrait.views) * 0.003  # Approximate
 
+                # Create portrait registry for storyboard reference
+                if result.portraits and self.config.use_character_references:
+                    result.portrait_registry = CharacterPortraitRegistry(
+                        project_id=result.script.title.replace(" ", "_")
+                    )
+                    for name, portrait in result.portraits.items():
+                        result.portrait_registry.add_portrait(portrait)
+                    self.logger.info(
+                        f"Created portrait registry with {len(result.portraits)} characters"
+                    )
+
             # Step 4: Generate Storyboard
             self.logger.info("Step 4/5: Generating storyboard...")
-            storyboard_result = await self.storyboard_artist.process(result.script)
+            storyboard_result = await self.storyboard_artist.process(
+                result.script,
+                portrait_registry=result.portrait_registry,
+            )
             if not storyboard_result.success:
                 result.errors.append(f"Storyboard generation failed: {storyboard_result.error}")
                 return result
@@ -258,6 +274,7 @@ class Idea2VideoPipeline:
             "scene_count": result.script.scene_count if result.script else 0,
             "character_count": len(result.characters),
             "portrait_count": len(result.portraits),
+            "used_character_references": result.portrait_registry is not None,
             "video_count": len(result.output.videos) if result.output else 0,
             "final_video": result.output.final_video.video_path if result.output and result.output.final_video else None,
             "total_cost": result.total_cost,

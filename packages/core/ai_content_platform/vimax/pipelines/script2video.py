@@ -21,7 +21,7 @@ from ..agents import (
     StoryboardArtist, StoryboardArtistConfig,
     CameraImageGenerator, CameraGeneratorConfig,
 )
-from ..interfaces import PipelineOutput
+from ..interfaces import PipelineOutput, CharacterPortraitRegistry
 
 
 class Script2VideoConfig(BaseModel):
@@ -30,6 +30,7 @@ class Script2VideoConfig(BaseModel):
     output_dir: str = "output/vimax/script2video"
     video_model: str = "kling"
     image_model: str = "nano_banana_pro"
+    use_character_references: bool = True  # Use portraits for storyboard consistency
 
     storyboard_artist: Optional[StoryboardArtistConfig] = None
     camera_generator: Optional[CameraGeneratorConfig] = None
@@ -40,6 +41,8 @@ class Script2VideoResult(BaseModel):
 
     success: bool
     script: Script
+    portrait_registry: Optional[CharacterPortraitRegistry] = None
+    used_references: bool = False
     output: Optional[PipelineOutput] = None
     started_at: datetime = Field(default_factory=datetime.now)
     completed_at: Optional[datetime] = None
@@ -79,12 +82,17 @@ class Script2VideoPipeline:
         )
         self.camera_generator = CameraImageGenerator(camera_config)
 
-    async def run(self, script: Union[Script, dict, str]) -> Script2VideoResult:
+    async def run(
+        self,
+        script: Union[Script, dict, str],
+        portrait_registry: Optional[CharacterPortraitRegistry] = None,
+    ) -> Script2VideoResult:
         """
         Run the pipeline.
 
         Args:
             script: Script object, dict, or path to JSON file
+            portrait_registry: Optional registry of character portraits for consistency
 
         Returns:
             Script2VideoResult
@@ -97,6 +105,14 @@ class Script2VideoPipeline:
 
         result = Script2VideoResult(script=script, success=False)
 
+        # Store registry if provided
+        if portrait_registry and self.config.use_character_references:
+            result.portrait_registry = portrait_registry
+            result.used_references = len(portrait_registry.portraits) > 0
+            self.logger.info(
+                f"Using portrait registry with {len(portrait_registry.portraits)} characters"
+            )
+
         self.logger.info(f"Starting Script2Video pipeline for: {script.title}")
 
         try:
@@ -105,7 +121,10 @@ class Script2VideoPipeline:
 
             # Step 1: Generate Storyboard
             self.logger.info("Step 1/2: Generating storyboard...")
-            storyboard_result = await self.storyboard_artist.process(script)
+            storyboard_result = await self.storyboard_artist.process(
+                script,
+                portrait_registry=result.portrait_registry,
+            )
             if not storyboard_result.success:
                 result.errors.append(f"Storyboard failed: {storyboard_result.error}")
                 return result

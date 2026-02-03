@@ -63,3 +63,62 @@ def sample_shot_data():
         "description": "Hero standing at crossroads",
         "duration_seconds": 5.0,
     }
+
+
+@pytest.fixture
+def sample_portrait_data():
+    """Sample portrait data for testing."""
+    return {
+        "character_name": "John",
+        "front_view": "/path/to/john_front.png",
+        "side_view": "/path/to/john_side.png",
+        "back_view": "/path/to/john_back.png",
+        "three_quarter_view": "/path/to/john_3q.png",
+    }
+
+
+@pytest.fixture
+def sample_registry_data():
+    """Sample portrait registry data for testing."""
+    return {
+        "project_id": "test_project",
+        "portraits": {
+            "John": {
+                "character_name": "John",
+                "front_view": "/path/to/john_front.png",
+                "side_view": "/path/to/john_side.png",
+            },
+            "Mary": {
+                "character_name": "Mary",
+                "front_view": "/path/to/mary_front.png",
+                "three_quarter_view": "/path/to/mary_3q.png",
+            },
+        },
+    }
+
+
+@pytest.fixture
+def sample_shot_with_characters():
+    """Sample shot with characters for reference testing."""
+    return {
+        "shot_id": "shot_001",
+        "shot_type": "close_up",
+        "camera_angle": "front",
+        "description": "John looks at camera",
+        "characters": ["John"],
+        "duration_seconds": 5.0,
+    }
+
+
+@pytest.fixture
+def mock_reference_generator():
+    """Mock reference-based image generator."""
+    mock = AsyncMock()
+    mock.generate_with_reference.return_value = {
+        "image_path": "/tmp/test_ref_image.png",
+        "width": 1024,
+        "height": 1024,
+        "reference_used": True,
+        "cost": 0.025,
+    }
+    return mock

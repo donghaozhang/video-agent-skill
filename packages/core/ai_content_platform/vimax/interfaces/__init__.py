@@ -10,6 +10,7 @@ from .character import (
     CharacterInScene,
     CharacterInEvent,
     CharacterPortrait,
+    CharacterPortraitRegistry,
 )
 from .shot import (
     ShotType,
@@ -38,6 +39,7 @@ __all__ = [
     "CharacterInScene",
     "CharacterInEvent",
     "CharacterPortrait",
+    "CharacterPortraitRegistry",
     # Shot
     "ShotType",
     "CameraMovement",

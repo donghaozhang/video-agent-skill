@@ -2,7 +2,7 @@
 Shot and scene data models for ViMax pipeline.
 """
 
-from typing import Optional, List
+from typing import Optional, List, Dict
 from pydantic import BaseModel, Field
 from enum import Enum
 
@@ -57,6 +57,16 @@ class ShotDescription(BaseModel):
     # Generation prompts
     image_prompt: Optional[str] = Field(default=None, description="Prompt for image generation")
     video_prompt: Optional[str] = Field(default=None, description="Prompt for video generation")
+
+    # Reference images for character consistency
+    character_references: Dict[str, str] = Field(
+        default_factory=dict,
+        description="Map of character name to reference image path"
+    )
+    primary_reference_image: Optional[str] = Field(
+        default=None,
+        description="Primary reference image path for this shot (used for IP-Adapter)"
+    )
 
 
 class ShotBriefDescription(BaseModel):

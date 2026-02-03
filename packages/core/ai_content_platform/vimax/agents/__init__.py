@@ -10,6 +10,11 @@ from .character_portraits import CharacterPortraitsGenerator, PortraitsGenerator
 from .screenwriter import Screenwriter, ScreenwriterConfig, Script
 from .storyboard_artist import StoryboardArtist, StoryboardArtistConfig, StoryboardResult
 from .camera_generator import CameraImageGenerator, CameraGeneratorConfig
+from .reference_selector import (
+    ReferenceImageSelector,
+    ReferenceSelectorConfig,
+    ReferenceSelectionResult,
+)
 
 __all__ = [
     # Base
@@ -33,4 +38,8 @@ __all__ = [
     # Camera Generator
     "CameraImageGenerator",
     "CameraGeneratorConfig",
+    # Reference Selector
+    "ReferenceImageSelector",
+    "ReferenceSelectorConfig",
+    "ReferenceSelectionResult",
 ]

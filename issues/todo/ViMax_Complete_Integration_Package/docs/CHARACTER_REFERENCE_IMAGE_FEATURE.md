@@ -1,6 +1,54 @@
 # Character Reference Image Support for Storyboard Generation
 
-> Implementation plan for supporting character reference images in each shot of the storyboard to ensure visual consistency.
+> **STATUS: IMPLEMENTED** - All subtasks completed.
+
+This document describes the character reference image feature that ensures visual consistency across storyboard shots.
+
+---
+
+## Quick Start
+
+### Using the CLI
+
+```bash
+# Generate character portraits from a characters file
+aicp vimax generate-portraits --characters characters.json --output portraits/
+
+# Generate storyboard with character references
+aicp vimax generate-storyboard --script script.json --portraits portraits/portrait_registry.json
+
+# Run full pipeline with automatic reference handling
+aicp vimax idea2video --idea "A samurai's journey" --references
+```
+
+### Using the Python API
+
+```python
+from ai_content_platform.vimax.pipelines import Idea2VideoPipeline, Idea2VideoConfig
+from ai_content_platform.vimax.interfaces import CharacterPortraitRegistry
+
+# Option 1: Automatic (pipeline handles everything)
+config = Idea2VideoConfig(
+    generate_portraits=True,
+    use_character_references=True,  # Enable reference images
+)
+pipeline = Idea2VideoPipeline(config)
+result = await pipeline.run("A samurai's journey at sunrise")
+
+# Option 2: Manual control
+from ai_content_platform.vimax.agents import StoryboardArtist, CharacterPortraitsGenerator
+
+# Generate portraits first
+portraits = await portraits_generator.generate_batch(characters)
+
+# Create registry
+registry = CharacterPortraitRegistry(project_id="my_project")
+for name, portrait in portraits.items():
+    registry.add_portrait(portrait)
+
+# Generate storyboard with references
+result = await storyboard_artist.process(script, portrait_registry=registry)
+```
 
 ---
 
@@ -659,6 +707,84 @@ When reference images are unavailable:
 
 ---
 
-*Document Version: 1.0*
+---
+
+## CLI Commands Reference
+
+### generate-portraits
+Generate multi-view character portraits for visual consistency.
+
+```bash
+aicp vimax generate-portraits \
+    --characters characters.json \
+    --output portraits/ \
+    --image-model nano_banana_pro \
+    --views front,side,back,three_quarter \
+    --max-characters 5 \
+    --save-registry
+```
+
+### create-registry
+Create a portrait registry from existing portrait images.
+
+```bash
+aicp vimax create-registry \
+    --portraits-dir portraits/ \
+    --output registry.json \
+    --project-id my_project
+```
+
+### show-registry
+Display contents of a portrait registry.
+
+```bash
+aicp vimax show-registry --registry portraits/registry.json
+```
+
+### generate-storyboard (with references)
+Generate storyboard with character consistency.
+
+```bash
+aicp vimax generate-storyboard \
+    --script script.json \
+    --portraits registry.json \
+    --reference-model flux_kontext \
+    --reference-strength 0.6
+```
+
+---
+
+## Configuration Options
+
+### Idea2VideoConfig
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `generate_portraits` | bool | True | Generate character portraits |
+| `use_character_references` | bool | True | Use portraits for storyboard consistency |
+
+### StoryboardArtistConfig
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `use_character_references` | bool | True | Enable reference image usage |
+| `reference_model` | str | "flux_kontext" | Model for image-to-image generation |
+| `reference_strength` | float | 0.6 | How much to follow reference (0.0-1.0) |
+
+---
+
+## Available Reference Models
+
+| Model | Cost | Description |
+|-------|------|-------------|
+| `flux_kontext` | $0.025 | High quality, best for character consistency |
+| `flux_redux` | $0.020 | Style transfer and variations |
+| `seededit_v3` | $0.025 | Precise edits with reference |
+| `photon_flash` | $0.015 | Fast, good for rapid prototyping |
+
+---
+
+*Document Version: 2.0 (Implemented)*
 *Created: 2026-02-03*
+*Updated: 2026-02-03*
 *Author: Claude Code*

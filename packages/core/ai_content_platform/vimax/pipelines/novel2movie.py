@@ -8,7 +8,7 @@ Extended pipeline for converting novels or long-form content into videos:
 4. Final assembly
 """
 
-from typing import Optional, List
+from typing import Optional, List, Dict
 from pathlib import Path
 import logging
 import json
@@ -20,11 +20,17 @@ from pydantic import BaseModel, Field
 from ..agents import (
     Screenwriter, ScreenwriterConfig, Script,
     CharacterExtractor, CharacterExtractorConfig,
+    CharacterPortraitsGenerator, PortraitsGeneratorConfig,
     StoryboardArtist, StoryboardArtistConfig,
     CameraImageGenerator, CameraGeneratorConfig,
 )
 from ..adapters import LLMAdapter, LLMAdapterConfig, Message
-from ..interfaces import PipelineOutput, CharacterInNovel
+from ..interfaces import (
+    PipelineOutput,
+    CharacterInNovel,
+    CharacterPortrait,
+    CharacterPortraitRegistry,
+)
 
 
 class Novel2MovieConfig(BaseModel):
@@ -36,6 +42,11 @@ class Novel2MovieConfig(BaseModel):
     video_model: str = "kling"
     image_model: str = "nano_banana_pro"
     llm_model: str = "kimi-k2.5"
+
+    # Character consistency settings
+    generate_portraits: bool = True
+    use_character_references: bool = True  # Use portraits for storyboard consistency
+    max_characters: int = 5  # Limit portraits to main characters
 
     # Chunking settings
     chunk_size: int = 10000  # characters per chunk
@@ -61,6 +72,8 @@ class Novel2MovieResult(BaseModel):
     chapters: List[ChapterSummary] = Field(default_factory=list)
     scripts: List[Script] = Field(default_factory=list)
     characters: List[CharacterInNovel] = Field(default_factory=list)
+    portraits: Dict[str, CharacterPortrait] = Field(default_factory=dict)
+    portrait_registry: Optional[CharacterPortraitRegistry] = None
     output: Optional[PipelineOutput] = None
     started_at: datetime = Field(default_factory=datetime.now)
     completed_at: Optional[datetime] = None
@@ -126,6 +139,12 @@ class Novel2MoviePipeline:
             model=self.config.llm_model,
         ))
 
+        self.portraits_generator = CharacterPortraitsGenerator(PortraitsGeneratorConfig(
+            image_model=self.config.image_model,
+            llm_model=self.config.llm_model,
+            output_dir=f"{self.config.output_dir}/portraits",
+        ))
+
         self.storyboard_artist = StoryboardArtist(StoryboardArtistConfig(
             image_model=self.config.image_model,
             output_dir=f"{self.config.output_dir}/storyboard",
@@ -165,6 +184,26 @@ class Novel2MoviePipeline:
                 result.characters = char_result.result
                 result.total_cost += char_result.metadata.get("cost", 0)
 
+            # Step 1b: Generate character portraits for consistency
+            if self.config.generate_portraits and result.characters:
+                self.logger.info("Step 1b: Generating character portraits...")
+                result.portraits = await self.portraits_generator.generate_batch(
+                    result.characters[:self.config.max_characters]
+                )
+                for portrait in result.portraits.values():
+                    result.total_cost += len(portrait.views) * 0.003  # Approximate
+
+                # Create portrait registry for storyboard reference
+                if result.portraits and self.config.use_character_references:
+                    result.portrait_registry = CharacterPortraitRegistry(
+                        project_id=title.replace(" ", "_")
+                    )
+                    for name, portrait in result.portraits.items():
+                        result.portrait_registry.add_portrait(portrait)
+                    self.logger.info(
+                        f"Created portrait registry with {len(result.portraits)} characters"
+                    )
+
             # Step 2: Compress novel into key scenes
             self.logger.info("Step 2: Compressing novel into scenes...")
             chapters = await self._compress_novel(novel_text)
@@ -188,8 +227,11 @@ class Novel2MoviePipeline:
                 result.scripts.append(script_result.result)
                 result.total_cost += script_result.metadata.get("cost", 0)
 
-                # Generate storyboard
-                storyboard_result = await self.storyboard_artist.process(script_result.result)
+                # Generate storyboard with character references
+                storyboard_result = await self.storyboard_artist.process(
+                    script_result.result,
+                    portrait_registry=result.portrait_registry,
+                )
                 if not storyboard_result.success:
                     continue
                 result.total_cost += storyboard_result.metadata.get("cost", 0)
