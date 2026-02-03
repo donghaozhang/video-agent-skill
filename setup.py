@@ -152,10 +152,28 @@ fal_subpackages = [
     'fal_avatar.models',
 ]
 
-all_packages = standard_packages + fal_subpackages
+# ai_content_platform as top-level importable module (for vimax CLI)
+ai_content_platform_packages = [
+    'ai_content_platform',
+    'ai_content_platform.core',
+    'ai_content_platform.cli',
+    'ai_content_platform.services',
+    'ai_content_platform.utils',
+    'ai_content_platform.vimax',
+    'ai_content_platform.vimax.adapters',
+    'ai_content_platform.vimax.agents',
+    'ai_content_platform.vimax.cli',
+    'ai_content_platform.vimax.interfaces',
+    'ai_content_platform.vimax.pipelines',
+]
 
-# Package directory mappings for hyphenated directories
+all_packages = standard_packages + fal_subpackages + ai_content_platform_packages
+
+# Package directory mappings for hyphenated directories and nested packages
 package_dir = {
+    # Map ai_content_platform as top-level importable module
+    'ai_content_platform': 'packages/core/ai_content_platform',
+    # FAL provider packages
     'fal_image_to_image': 'packages/providers/fal/image-to-image/fal_image_to_image',
     'fal_image_to_video': 'packages/providers/fal/image-to-video/fal_image_to_video',
     'fal_text_to_video': 'packages/providers/fal/text-to-video/fal_text_to_video',
