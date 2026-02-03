@@ -27,11 +27,6 @@ class Camera(BaseModel):
         description="The reason for the selection of the parent camera. If the camera has no parent, set this to None.",
     )
 
-    parent_shot_idx: Optional[int] = Field(
-        default=None,
-        description="The index of the dependent shot. If the camera has no parent, set this to None.",
-    )
-
     is_parent_fully_covers_child: Optional[bool] = Field(
         default=None,
         description="Whether the parent camera fully covers the child camera's content. If the camera has no parent, set this to None.",
