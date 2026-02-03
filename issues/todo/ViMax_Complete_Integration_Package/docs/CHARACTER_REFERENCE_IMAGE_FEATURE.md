@@ -768,7 +768,7 @@ aicp vimax generate-storyboard \
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `use_character_references` | bool | True | Enable reference image usage |
-| `reference_model` | str | "flux_kontext" | Model for image-to-image generation |
+| `reference_model` | str | "nano_banana_pro" | Model for image-to-image generation |
 | `reference_strength` | float | 0.6 | How much to follow reference (0.0-1.0) |
 
 ---
@@ -777,6 +777,7 @@ aicp vimax generate-storyboard \
 
 | Model | Cost | Description |
 |-------|------|-------------|
+| `nano_banana_pro` | $0.002 | **Default** - Cost effective, good quality |
 | `flux_kontext` | $0.025 | High quality, best for character consistency |
 | `flux_redux` | $0.020 | Style transfer and variations |
 | `seededit_v3` | $0.025 | Precise edits with reference |

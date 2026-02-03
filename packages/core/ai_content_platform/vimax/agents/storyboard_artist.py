@@ -38,7 +38,7 @@ class StoryboardArtistConfig(AgentConfig):
 
     # Reference image settings for character consistency
     use_character_references: bool = True  # Enable reference image usage
-    reference_model: str = "flux_kontext"  # Model for image-to-image with reference
+    reference_model: str = "nano_banana_pro"  # Model for image-to-image with reference
     reference_strength: float = 0.6  # How much to follow reference (0.0-1.0)
 
 

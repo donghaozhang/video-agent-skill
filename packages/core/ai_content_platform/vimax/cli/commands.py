@@ -296,7 +296,7 @@ def generate_script(idea, output, duration, model):
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
 @click.option("--style", default="storyboard panel, cinematic composition, ", help="Style prefix for prompts")
 @click.option("--portraits", "-p", type=click.Path(exists=True), help="Portrait registry JSON file for character consistency")
-@click.option("--reference-model", default="flux_kontext", help="Model for reference-based generation")
+@click.option("--reference-model", default="nano_banana_pro", help="Model for reference-based generation")
 @click.option("--reference-strength", default=0.6, type=float, help="Reference image strength (0.0-1.0)")
 def generate_storyboard(script, output, image_model, style, portraits, reference_model, reference_strength):
     """
@@ -552,7 +552,8 @@ def list_models():
 
     click.echo("\nReference Image Models (for character consistency):")
     models = [
-        ("flux_kontext", "FLUX Kontext - Default, high quality reference-based generation", "$0.025"),
+        ("nano_banana_pro", "Nano Banana Pro - Default, cost effective reference generation", "$0.002"),
+        ("flux_kontext", "FLUX Kontext - High quality reference-based generation", "$0.025"),
         ("flux_redux", "FLUX Redux - Style transfer and variation", "$0.020"),
         ("seededit_v3", "SeedEdit v3 - Precise edits with reference", "$0.025"),
         ("photon_flash", "Photon Flash - Fast reference-based generation", "$0.015"),

@@ -33,7 +33,7 @@ class ImageAdapterConfig(AdapterConfig):
     output_dir: str = "output/vimax/images"
 
     # Reference image settings for character consistency
-    reference_model: str = "flux_kontext"  # Model for image-to-image with reference
+    reference_model: str = "nano_banana_pro"  # Model for image-to-image with reference
     reference_strength: float = 0.6  # How much to follow reference (0.0-1.0)
 
 
@@ -74,6 +74,7 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
 
     # Model mapping for image-to-image with reference (character consistency)
     REFERENCE_MODEL_MAP = {
+        "nano_banana_pro": "fal-ai/nano-banana-pro/image-to-image",  # Default, cost effective
         "flux_kontext": "fal-ai/flux-kontext/max/image-to-image",
         "flux_redux": "fal-ai/flux-pro/v1.1-ultra/redux",
         "seededit_v3": "fal-ai/seededit-v3",
