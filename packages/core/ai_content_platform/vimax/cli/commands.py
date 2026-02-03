@@ -30,7 +30,7 @@ def vimax():
 @click.option("--output", "-o", default="output/vimax/idea2video", help="Output directory")
 @click.option("--duration", "-d", default=60.0, type=float, help="Target duration in seconds")
 @click.option("--video-model", default="kling", help="Video generation model")
-@click.option("--image-model", default="flux_dev", help="Image generation model")
+@click.option("--image-model", default="nano_banana_pro", help="Image generation model")
 @click.option("--llm-model", default="kimi-k2.5", help="LLM model for scripts")
 @click.option("--portraits/--no-portraits", default=True, help="Generate character portraits")
 @click.option("--config", "-c", type=click.Path(exists=True), help="Config YAML file")
@@ -86,7 +86,7 @@ def idea2video(idea, output, duration, video_model, image_model, llm_model, port
 @click.option("--script", "-s", required=True, type=click.Path(exists=True), help="Script JSON file")
 @click.option("--output", "-o", default="output/vimax/script2video", help="Output directory")
 @click.option("--video-model", default="kling", help="Video generation model")
-@click.option("--image-model", default="flux_dev", help="Image generation model")
+@click.option("--image-model", default="nano_banana_pro", help="Image generation model")
 def script2video(script, output, video_model, image_model):
     """
     Generate video from an existing script.
@@ -130,7 +130,7 @@ def script2video(script, output, video_model, image_model):
 @click.option("--output", "-o", default="output/vimax/novel2movie", help="Output directory")
 @click.option("--max-scenes", default=10, type=int, help="Maximum scenes to generate")
 @click.option("--video-model", default="kling", help="Video generation model")
-@click.option("--image-model", default="flux_dev", help="Image generation model")
+@click.option("--image-model", default="nano_banana_pro", help="Image generation model")
 def novel2movie(novel, title, output, max_scenes, video_model, image_model):
     """
     Convert a novel to a movie.
@@ -268,6 +268,59 @@ def generate_script(idea, output, duration, model):
         click.echo(f"\nGeneration failed: {result.error}")
 
 
+@vimax.command("generate-storyboard")
+@click.option("--script", "-s", required=True, type=click.Path(exists=True), help="Script JSON file")
+@click.option("--output", "-o", default="output/vimax/storyboard", help="Output directory")
+@click.option("--image-model", default="nano_banana_pro", help="Image generation model")
+@click.option("--style", default="storyboard panel, cinematic composition, ", help="Style prefix for prompts")
+def generate_storyboard(script, output, image_model, style):
+    """
+    Generate storyboard images from a script.
+
+    Example:
+        aicp vimax generate-storyboard --script script.json --output storyboard/
+    """
+    from ..agents import StoryboardArtist, StoryboardArtistConfig
+    from ..agents.screenwriter import Script
+
+    click.echo(f"Generating storyboard...")
+    click.echo(f"   Script: {script}")
+    click.echo(f"   Output: {output}")
+    click.echo(f"   Model: {image_model}")
+
+    # Load script
+    with open(script, 'r', encoding='utf-8') as f:
+        script_data = json.load(f)
+
+    script_obj = Script(**script_data)
+    click.echo(f"   Title: {script_obj.title}")
+    click.echo(f"   Shots: {sum(s.shot_count for s in script_obj.scenes)}")
+
+    config = StoryboardArtistConfig(
+        image_model=image_model,
+        style_prefix=style,
+        output_dir=output,
+    )
+    artist = StoryboardArtist(config)
+
+    async def run():
+        return await artist.process(script_obj)
+
+    result = run_async(run())
+
+    if result.success:
+        click.echo(f"\nStoryboard generated successfully!")
+        click.echo(f"   Images: {len(result.result.images)}")
+        click.echo(f"   Total cost: ${result.result.total_cost:.3f}")
+        click.echo(f"   Output: {output}")
+        for img in result.result.images[:3]:  # Show first 3
+            click.echo(f"   - {img.image_path}")
+        if len(result.result.images) > 3:
+            click.echo(f"   ... and {len(result.result.images) - 3} more")
+    else:
+        click.echo(f"\nStoryboard generation failed: {result.error}")
+
+
 @vimax.command("list-models")
 def list_models():
     """List available models for ViMax pipelines."""
@@ -275,10 +328,10 @@ def list_models():
 
     click.echo("Image Generation:")
     models = [
+        ("nano_banana_pro", "Nano Banana Pro - Default, balanced", "$0.002"),
         ("flux_dev", "FLUX.1 Dev - High quality", "$0.003"),
         ("flux_schnell", "FLUX.1 Schnell - Fast", "$0.001"),
         ("imagen4", "Imagen 4 - Photorealistic", "$0.004"),
-        ("nano_banana_pro", "Nano Banana Pro - Balanced", "$0.002"),
     ]
     for model, desc, cost in models:
         click.echo(f"   - {model}: {desc} ({cost})")

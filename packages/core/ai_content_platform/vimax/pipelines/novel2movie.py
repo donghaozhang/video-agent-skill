@@ -34,7 +34,7 @@ class Novel2MovieConfig(BaseModel):
     max_scenes: int = 10
     scene_duration: float = 30.0  # seconds per scene
     video_model: str = "kling"
-    image_model: str = "flux_dev"
+    image_model: str = "nano_banana_pro"
     llm_model: str = "kimi-k2.5"
 
     # Chunking settings

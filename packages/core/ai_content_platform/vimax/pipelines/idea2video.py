@@ -39,7 +39,7 @@ class Idea2VideoConfig(BaseModel):
     # Target settings
     target_duration: float = 60.0  # seconds
     video_model: str = "kling"
-    image_model: str = "flux_dev"
+    image_model: str = "nano_banana_pro"
     llm_model: str = "kimi-k2.5"
 
     # Agent configs (optional overrides)

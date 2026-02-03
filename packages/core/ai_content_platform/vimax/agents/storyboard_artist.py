@@ -30,7 +30,7 @@ class StoryboardArtistConfig(AgentConfig):
     """Configuration for StoryboardArtist."""
 
     name: str = "StoryboardArtist"
-    image_model: str = "flux_dev"
+    image_model: str = "nano_banana_pro"
     style_prefix: str = "storyboard panel, cinematic composition, "
     aspect_ratio: str = "16:9"
     output_dir: str = "output/vimax/storyboard"

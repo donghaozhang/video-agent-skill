@@ -26,7 +26,7 @@ except ImportError:
 class ImageAdapterConfig(AdapterConfig):
     """Configuration for image adapter."""
 
-    model: str = "flux_dev"
+    model: str = "nano_banana_pro"
     aspect_ratio: str = "1:1"
     num_inference_steps: int = 28
     guidance_scale: float = 3.5
@@ -76,6 +76,16 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
         "nano_banana_pro": 0.002,
         "gpt_image_1_5": 0.003,
         "seedream_v3": 0.002,
+    }
+
+    # Max inference steps per model
+    MAX_STEPS_MAP = {
+        "flux_dev": 50,
+        "flux_schnell": 4,  # flux_schnell is fast, max 12 but 4 is recommended
+        "imagen4": 50,
+        "nano_banana_pro": 50,
+        "gpt_image_1_5": 50,
+        "seedream_v3": 50,
     }
 
     def __init__(self, config: Optional[ImageAdapterConfig] = None):
@@ -142,11 +152,16 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
             # Get FAL endpoint
             endpoint = self.MODEL_MAP.get(model, self.MODEL_MAP["flux_dev"])
 
+            # Get model-specific max steps
+            max_steps = self.MAX_STEPS_MAP.get(model, 28)
+            requested_steps = kwargs.get("num_inference_steps", self.config.num_inference_steps)
+            num_steps = min(requested_steps, max_steps)
+
             # Build arguments
             arguments = {
                 "prompt": prompt,
                 "image_size": self._aspect_to_size(aspect_ratio),
-                "num_inference_steps": kwargs.get("num_inference_steps", self.config.num_inference_steps),
+                "num_inference_steps": num_steps,
                 "guidance_scale": kwargs.get("guidance_scale", self.config.guidance_scale),
             }
 
@@ -285,7 +300,7 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
 
 
 # Convenience function
-async def generate_image(prompt: str, model: str = "flux_dev", **kwargs) -> ImageOutput:
+async def generate_image(prompt: str, model: str = "nano_banana_pro", **kwargs) -> ImageOutput:
     """Quick function to generate a single image."""
     adapter = ImageGeneratorAdapter(ImageAdapterConfig(model=model))
     return await adapter.generate(prompt, **kwargs)

@@ -29,7 +29,7 @@ class Script2VideoConfig(BaseModel):
 
     output_dir: str = "output/vimax/script2video"
     video_model: str = "kling"
-    image_model: str = "flux_dev"
+    image_model: str = "nano_banana_pro"
 
     storyboard_artist: Optional[StoryboardArtistConfig] = None
     camera_generator: Optional[CameraGeneratorConfig] = None
