@@ -17,12 +17,6 @@ import importlib
 
 class Script2VideoPipeline:
 
-    # events
-    character_portrait_events = {}
-    shot_desc_events = {}
-    frame_events = {}
-
-
     def __init__(
         self,
         chat_model: str,
@@ -30,6 +24,10 @@ class Script2VideoPipeline:
         video_generator,
         working_dir: str,
     ):
+        # events - instance attributes to avoid shared state between instances
+        self.character_portrait_events = {}
+        self.shot_desc_events = {}
+        self.frame_events = {}
 
         self.chat_model = chat_model
         self.image_generator = image_generator
