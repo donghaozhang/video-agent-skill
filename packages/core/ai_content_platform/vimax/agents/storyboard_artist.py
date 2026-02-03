@@ -9,6 +9,7 @@ Supports character reference images for visual consistency across shots.
 
 from typing import Optional, List
 import logging
+import re
 from pathlib import Path
 
 from pydantic import Field
@@ -124,6 +125,11 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
 
         return " ".join(parts)
 
+    def _safe_slug(self, value: str) -> str:
+        """Sanitize a string for use in filesystem paths."""
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("_")
+        return safe or "untitled"
+
     async def process(
         self,
         script: Script,
@@ -163,7 +169,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
             total_cost = 0.0
 
             # Create output directory
-            output_dir = Path(self.config.output_dir) / script.title.replace(" ", "_")
+            output_dir = Path(self.config.output_dir) / self._safe_slug(script.title)
             output_dir.mkdir(parents=True, exist_ok=True)
 
             shot_index = 0
@@ -176,7 +182,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
 
                     # Build prompt
                     prompt = self._build_prompt(shot, scene)
-                    output_path = str(output_dir / f"{shot.shot_id}.png")
+                    output_path = str(output_dir / f"{self._safe_slug(shot.shot_id)}.png")
 
                     # Select reference image if available
                     reference_image = None
@@ -292,7 +298,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
             await self._ensure_reference_selector()
 
         images = []
-        output_dir = Path(self.config.output_dir) / title.replace(" ", "_")
+        output_dir = Path(self.config.output_dir) / self._safe_slug(title)
         output_dir.mkdir(parents=True, exist_ok=True)
 
         for i, shot in enumerate(shots):

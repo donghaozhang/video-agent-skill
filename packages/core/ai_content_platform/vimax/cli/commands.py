@@ -76,7 +76,8 @@ def idea2video(idea, output, duration, video_model, image_model, llm_model, port
         if result.output and result.output.final_video:
             click.echo(f"   Video: {result.output.final_video.video_path}")
         click.echo(f"   Total cost: ${result.total_cost:.3f}")
-        click.echo(f"   Duration: {result.duration:.1f}s")
+        if result.duration is not None:
+            click.echo(f"   Duration: {result.duration:.1f}s")
     else:
         click.echo(f"\nPipeline failed!")
         for error in result.errors:

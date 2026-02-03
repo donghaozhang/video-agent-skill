@@ -302,13 +302,20 @@ class Novel2MoviePipeline:
                         characters=[c for s in data.get("scenes", []) for c in s.get("characters", [])],
                     )
                     chapters.append(chapter)
-            except Exception as e:
+                else:
+                    self.logger.warning(f"No JSON found in response for chunk {i+1}")
+            except json.JSONDecodeError as e:
                 self.logger.warning(f"Failed to parse chapter {i+1}: {e}")
 
         return chapters
 
     def _split_text(self, text: str) -> List[str]:
         """Split text into overlapping chunks."""
+        if self.config.overlap >= self.config.chunk_size:
+            raise ValueError(
+                f"overlap ({self.config.overlap}) must be less than chunk_size ({self.config.chunk_size})"
+            )
+
         chunks = []
         start = 0
 

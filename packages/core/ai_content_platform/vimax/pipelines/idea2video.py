@@ -233,7 +233,7 @@ class Idea2VideoPipeline:
 
             self.logger.info(
                 f"Pipeline completed successfully! "
-                f"Duration: {result.duration:.1f}s, "
+                f"Duration: {result.duration or 0:.1f}s, "
                 f"Cost: ${result.total_cost:.3f}"
             )
 
