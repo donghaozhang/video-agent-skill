@@ -113,6 +113,14 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
             portrait = CharacterPortrait(character_name=character.name)
             total_cost = 0.0
 
+            supported_views = {"front", "side", "back", "three_quarter"}
+            unknown_views = [view for view in self.config.views if view not in supported_views]
+            if unknown_views:
+                raise ValueError(
+                    "Unsupported portrait view(s): "
+                    + ", ".join(sorted(set(unknown_views)))
+                )
+
             for view in self.config.views:
                 self.logger.info(f"Generating {view} view for {character.name}")
 

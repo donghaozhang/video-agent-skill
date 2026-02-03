@@ -104,12 +104,40 @@ class Screenwriter(BaseAgent[str, Script]):
     """
 
     def __init__(self, config: Optional[ScreenwriterConfig] = None):
+        """Initialize the Screenwriter.
+
+        Args:
+            config: Optional configuration overriding defaults.
+
+        Returns:
+            None
+
+        Cost:
+            None. Initialization does not call external services.
+
+        Example:
+            >>> writer = Screenwriter()
+        """
         super().__init__(config or ScreenwriterConfig())
         self.config: ScreenwriterConfig = self.config
         self._llm: Optional[LLMAdapter] = None
         self.logger = logging.getLogger("vimax.agents.screenwriter")
 
     async def _ensure_llm(self):
+        """Initialize the LLM adapter lazily.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Cost:
+            None. Adapter initialization does not perform LLM inference.
+
+        Example:
+            >>> await writer._ensure_llm()
+        """
         if self._llm is None:
             self._llm = LLMAdapter(LLMAdapterConfig(model=self.config.model))
             await self._llm.initialize()
@@ -123,12 +151,27 @@ class Screenwriter(BaseAgent[str, Script]):
 
         Returns:
             AgentResult containing generated Script
+
+        Cost:
+            One LLM chat call. Billed according to the configured provider/model.
+
+        Example:
+            >>> writer = Screenwriter()
+            >>> result = await writer.process("A samurai's journey at sunrise")
+            >>> result.success
+            True
         """
         await self._ensure_llm()
 
         self.logger.info(f"Generating screenplay for: {idea[:100]}...")
 
         try:
+            # Validate config values to prevent ZeroDivisionError
+            if self.config.target_duration <= 0:
+                raise ValueError(f"target_duration must be > 0, got {self.config.target_duration}")
+            if self.config.shots_per_scene <= 0:
+                raise ValueError(f"shots_per_scene must be > 0, got {self.config.shots_per_scene}")
+
             # Calculate scene count based on target duration
             avg_shot_duration = 5.0
             total_shots = self.config.target_duration / avg_shot_duration
@@ -149,12 +192,24 @@ class Screenwriter(BaseAgent[str, Script]):
 
             # Parse response
             content = response.content
-            # Extract JSON from response
-            match = re.search(r'\{.*\}', content, re.DOTALL)
-            if match:
-                data = json.loads(match.group())
+            # Extract JSON from response - first try code fence, then raw JSON
+            json_text = None
+            fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if fence_match:
+                json_text = fence_match.group(1)
             else:
-                raise ValueError("Could not parse screenplay JSON")
+                # Fall back to finding JSON object directly (greedy for nested objects)
+                match = re.search(r'\{.*\}', content, re.DOTALL)
+                if match:
+                    json_text = match.group()
+
+            if json_text:
+                try:
+                    data = json.loads(json_text)
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"Invalid JSON in screenplay response: {e}") from e
+            else:
+                raise ValueError("Could not find JSON in screenplay response")
 
             # Build Script object
             scenes = []

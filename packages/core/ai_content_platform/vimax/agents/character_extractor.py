@@ -98,9 +98,12 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
                 data = json.loads(response.content)
             except json.JSONDecodeError as e:
                 # Try to extract JSON from response
-                match = re.search(r'\[.*\]', response.content, re.DOTALL)
+                match = re.search(r'\[.*?\]', response.content, re.DOTALL)
                 if match:
-                    data = json.loads(match.group())
+                    try:
+                        data = json.loads(match.group())
+                    except json.JSONDecodeError as match_error:
+                        raise ValueError("Could not parse character data from response") from match_error
                 else:
                     raise ValueError("Could not parse character data from response") from e
 
