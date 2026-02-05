@@ -16,6 +16,8 @@ load_dotenv()
 from .models import (
     BaseTextToVideoModel,
     Kling26ProModel,
+    KlingV3StandardModel,
+    KlingV3ProModel,
     Sora2Model,
     Sora2ProModel,
     GrokImagineModel
@@ -26,6 +28,8 @@ from .config import SUPPORTED_MODELS, MODEL_INFO
 # Model class registry
 MODEL_CLASSES: Dict[str, Type[BaseTextToVideoModel]] = {
     "kling_2_6_pro": Kling26ProModel,
+    "kling_3_standard": KlingV3StandardModel,
+    "kling_3_pro": KlingV3ProModel,
     "sora_2": Sora2Model,
     "sora_2_pro": Sora2ProModel,
     "grok_imagine": GrokImagineModel

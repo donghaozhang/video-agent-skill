@@ -13,6 +13,8 @@ from .models import (
     HailuoModel,
     KlingModel,
     Kling26ProModel,
+    KlingV3StandardModel,
+    KlingV3ProModel,
     SeedanceModel,
     Sora2Model,
     Sora2ProModel,
@@ -78,6 +80,8 @@ class FALImageToVideoGenerator:
             "hailuo": HailuoModel(),
             "kling_2_1": KlingModel(),
             "kling_2_6_pro": Kling26ProModel(),
+            "kling_3_standard": KlingV3StandardModel(),
+            "kling_3_pro": KlingV3ProModel(),
             "seedance_1_5_pro": SeedanceModel(),
             "sora_2": Sora2Model(),
             "sora_2_pro": Sora2ProModel(),
@@ -393,6 +397,42 @@ class FALImageToVideoGenerator:
             **kwargs
         )
 
+    def generate_with_kling_v3_standard(
+        self,
+        prompt: str,
+        image_url: str,
+        duration: str = "5",
+        generate_audio: bool = False,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Generate video using Kling v3 Standard with optional audio."""
+        return self.generate_video(
+            prompt=prompt,
+            image_url=image_url,
+            model="kling_3_standard",
+            duration=duration,
+            generate_audio=generate_audio,
+            **kwargs
+        )
+
+    def generate_with_kling_v3_pro(
+        self,
+        prompt: str,
+        image_url: str,
+        duration: str = "5",
+        generate_audio: bool = False,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Generate video using Kling v3 Pro with optional audio."""
+        return self.generate_video(
+            prompt=prompt,
+            image_url=image_url,
+            model="kling_3_pro",
+            duration=duration,
+            generate_audio=generate_audio,
+            **kwargs
+        )
+
     # Information methods
     def get_model_info(self, model: Optional[str] = None) -> Dict[str, Any]:
         """Get information about supported models."""
@@ -455,7 +495,7 @@ class FALImageToVideoGenerator:
         Returns:
             Dictionary containing generation results
         """
-        if model not in ["kling_2_1", "kling_2_6_pro"]:
+        if model not in ["kling_2_1", "kling_2_6_pro", "kling_3_standard", "kling_3_pro"]:
             raise ValueError(
                 f"Frame interpolation only supported by Kling models. "
                 f"Got: {model}"

@@ -2,7 +2,7 @@
 
 from .base import BaseVideoModel
 from .hailuo import HailuoModel
-from .kling import KlingModel, Kling26ProModel
+from .kling import KlingModel, Kling26ProModel, KlingV3StandardModel, KlingV3ProModel
 from .seedance import SeedanceModel
 from .sora import Sora2Model, Sora2ProModel
 from .veo import Veo31FastModel
@@ -14,6 +14,8 @@ __all__ = [
     "HailuoModel",
     "KlingModel",
     "Kling26ProModel",
+    "KlingV3StandardModel",
+    "KlingV3ProModel",
     "SeedanceModel",
     "Sora2Model",
     "Sora2ProModel",
