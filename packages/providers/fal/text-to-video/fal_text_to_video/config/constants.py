@@ -12,6 +12,7 @@ ModelType = Literal[
     "kling_2_6_pro",
     "kling_3_standard",
     "kling_3_pro",
+    "kling_o3_pro_t2v",
     "sora_2",
     "sora_2_pro",
     "grok_imagine"
@@ -24,6 +25,7 @@ SUPPORTED_MODELS: List[str] = [
     "kling_2_6_pro",
     "kling_3_standard",
     "kling_3_pro",
+    "kling_o3_pro_t2v",
     "sora_2",
     "sora_2_pro",
     "grok_imagine"
@@ -37,6 +39,7 @@ MODEL_ENDPOINTS = {
     "kling_2_6_pro": "fal-ai/kling-video/v2.6/pro/text-to-video",
     "kling_3_standard": "fal-ai/kling-video/v3/standard/text-to-video",
     "kling_3_pro": "fal-ai/kling-video/v3/pro/text-to-video",
+    "kling_o3_pro_t2v": "fal-ai/kling-video/o3/pro/text-to-video",
     "sora_2": "fal-ai/sora-2/text-to-video",
     "sora_2_pro": "fal-ai/sora-2/text-to-video/pro",
     "grok_imagine": "xai/grok-imagine-video/text-to-video"
@@ -50,6 +53,7 @@ MODEL_DISPLAY_NAMES = {
     "kling_2_6_pro": "Kling Video v2.6 Pro",
     "kling_3_standard": "Kling Video v3 Standard",
     "kling_3_pro": "Kling Video v3 Pro",
+    "kling_o3_pro_t2v": "Kling O3 Pro Text-to-Video",
     "sora_2": "Sora 2",
     "sora_2_pro": "Sora 2 Pro",
     "grok_imagine": "xAI Grok Imagine Video"
@@ -88,6 +92,11 @@ MODEL_PRICING = {
         "cost_with_audio": 0.336,
         "cost_voice_control": 0.392
     },
+    "kling_o3_pro_t2v": {
+        "type": "per_second",
+        "cost_no_audio": 0.224,
+        "cost_with_audio": 0.28
+    },
     "sora_2": {
         "type": "per_second",
         "cost": 0.10
@@ -113,6 +122,7 @@ DURATION_OPTIONS = {
     "kling_2_6_pro": ["5", "10"],
     "kling_3_standard": ["5", "10", "12"],
     "kling_3_pro": ["5", "10", "12"],
+    "kling_o3_pro_t2v": ["3", "5", "10", "15"],
     "sora_2": [4, 8, 12],
     "sora_2_pro": [4, 8, 12],
     "grok_imagine": list(range(1, 16))  # 1-15 seconds
@@ -126,6 +136,7 @@ RESOLUTION_OPTIONS = {
     "kling_2_6_pro": ["720p"],  # Text-to-video only supports 720p
     "kling_3_standard": ["720p"],
     "kling_3_pro": ["720p"],
+    "kling_o3_pro_t2v": ["720p", "1080p"],
     "sora_2": ["720p"],
     "sora_2_pro": ["720p", "1080p"],
     "grok_imagine": ["480p", "720p"]
@@ -139,6 +150,7 @@ ASPECT_RATIO_OPTIONS = {
     "kling_2_6_pro": ["16:9", "9:16", "1:1"],
     "kling_3_standard": ["16:9", "9:16", "1:1"],
     "kling_3_pro": ["16:9", "9:16", "1:1"],
+    "kling_o3_pro_t2v": ["16:9", "9:16", "1:1"],
     "sora_2": ["16:9", "9:16"],
     "sora_2_pro": ["16:9", "9:16"],
     "grok_imagine": ["16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16"]
@@ -184,6 +196,17 @@ DEFAULT_VALUES = {
         "cfg_scale": 0.5,
         "generate_audio": False,
         "voice_ids": [],
+        "multi_prompt": [],
+        "shot_type": None
+    },
+    "kling_o3_pro_t2v": {
+        "duration": "5",
+        "aspect_ratio": "16:9",
+        "negative_prompt": None,
+        "cfg_scale": 0.5,
+        "generate_audio": True,
+        "elements": [],
+        "image_urls": [],
         "multi_prompt": [],
         "shot_type": None
     },
@@ -254,6 +277,16 @@ MODEL_INFO = {
         "features": [
             "audio_generation", "voice_control", "multi_prompt", "shot_type",
             "negative_prompt", "cfg_scale", "multilingual", "professional_quality"
+        ]
+    },
+    "kling_o3_pro_t2v": {
+        "name": "Kling O3 Pro Text-to-Video",
+        "provider": "Kuaishou",
+        "description": "O3 (Omni) model with element-based character/object consistency and @ reference syntax",
+        "max_duration": 15,
+        "features": [
+            "audio_generation", "elements", "reference_images", "reference_syntax",
+            "multi_prompt", "shot_type", "negative_prompt", "cfg_scale", "professional_quality"
         ]
     },
     "sora_2": {

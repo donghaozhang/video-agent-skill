@@ -18,6 +18,7 @@ from .models import (
     Kling26ProModel,
     KlingV3StandardModel,
     KlingV3ProModel,
+    KlingO3ProT2VModel,
     Sora2Model,
     Sora2ProModel,
     GrokImagineModel
@@ -30,6 +31,7 @@ MODEL_CLASSES: Dict[str, Type[BaseTextToVideoModel]] = {
     "kling_2_6_pro": Kling26ProModel,
     "kling_3_standard": KlingV3StandardModel,
     "kling_3_pro": KlingV3ProModel,
+    "kling_o3_pro_t2v": KlingO3ProT2VModel,
     "sora_2": Sora2Model,
     "sora_2_pro": Sora2ProModel,
     "grok_imagine": GrokImagineModel

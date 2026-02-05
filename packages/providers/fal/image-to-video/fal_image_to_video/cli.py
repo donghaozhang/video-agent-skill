@@ -188,6 +188,8 @@ Examples:
     gen_parser.add_argument("--model", "-m", default="kling_2_6_pro",
                            choices=["hailuo", "kling_2_1", "kling_2_6_pro",
                                    "kling_3_standard", "kling_3_pro",
+                                   "kling_o3_standard_i2v", "kling_o3_pro_i2v",
+                                   "kling_o3_standard_ref", "kling_o3_pro_ref",
                                    "seedance_1_5_pro", "sora_2", "sora_2_pro",
                                    "veo_3_1_fast", "wan_2_6", "grok_imagine"],
                            help="Model to use (default: kling_2_6_pro)")

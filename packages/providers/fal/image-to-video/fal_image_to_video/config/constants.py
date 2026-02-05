@@ -11,6 +11,10 @@ ModelType = Literal[
     "kling_2_6_pro",
     "kling_3_standard",
     "kling_3_pro",
+    "kling_o3_standard_i2v",
+    "kling_o3_pro_i2v",
+    "kling_o3_standard_ref",
+    "kling_o3_pro_ref",
     "seedance_1_5_pro",
     "sora_2",
     "sora_2_pro",
@@ -25,6 +29,10 @@ SUPPORTED_MODELS: List[str] = [
     "kling_2_6_pro",
     "kling_3_standard",
     "kling_3_pro",
+    "kling_o3_standard_i2v",
+    "kling_o3_pro_i2v",
+    "kling_o3_standard_ref",
+    "kling_o3_pro_ref",
     "seedance_1_5_pro",
     "sora_2",
     "sora_2_pro",
@@ -40,6 +48,10 @@ MODEL_ENDPOINTS = {
     "kling_2_6_pro": "fal-ai/kling-video/v2.6/pro/image-to-video",
     "kling_3_standard": "fal-ai/kling-video/v3/standard/image-to-video",
     "kling_3_pro": "fal-ai/kling-video/v3/pro/image-to-video",
+    "kling_o3_standard_i2v": "fal-ai/kling-video/o3/standard/image-to-video",
+    "kling_o3_pro_i2v": "fal-ai/kling-video/o3/pro/image-to-video",
+    "kling_o3_standard_ref": "fal-ai/kling-video/o3/standard/reference-to-video",
+    "kling_o3_pro_ref": "fal-ai/kling-video/o3/pro/reference-to-video",
     "seedance_1_5_pro": "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
     "sora_2": "fal-ai/sora-2/image-to-video",
     "sora_2_pro": "fal-ai/sora-2/image-to-video/pro",
@@ -55,6 +67,10 @@ MODEL_DISPLAY_NAMES = {
     "kling_2_6_pro": "Kling Video v2.6 Pro",
     "kling_3_standard": "Kling Video v3 Standard",
     "kling_3_pro": "Kling Video v3 Pro",
+    "kling_o3_standard_i2v": "Kling O3 Standard Image-to-Video",
+    "kling_o3_pro_i2v": "Kling O3 Pro Image-to-Video",
+    "kling_o3_standard_ref": "Kling O3 Standard Reference-to-Video",
+    "kling_o3_pro_ref": "Kling O3 Pro Reference-to-Video",
     "seedance_1_5_pro": "ByteDance Seedance v1.5 Pro",
     "sora_2": "Sora 2",
     "sora_2_pro": "Sora 2 Pro",
@@ -79,6 +95,22 @@ MODEL_PRICING = {
         "audio": 0.336,
         "voice_control": 0.392
     },
+    "kling_o3_standard_i2v": {
+        "no_audio": 0.168,
+        "audio": 0.224
+    },
+    "kling_o3_pro_i2v": {
+        "no_audio": 0.224,
+        "audio": 0.28
+    },
+    "kling_o3_standard_ref": {
+        "no_audio": 0.084,
+        "audio": 0.112
+    },
+    "kling_o3_pro_ref": {
+        "no_audio": 0.224,
+        "audio": 0.28
+    },
     "seedance_1_5_pro": 0.08,
     "sora_2": 0.10,
     "sora_2_pro": 0.30,
@@ -94,6 +126,10 @@ DURATION_OPTIONS = {
     "kling_2_6_pro": ["5", "10"],
     "kling_3_standard": ["5", "10", "12"],
     "kling_3_pro": ["5", "10", "12"],
+    "kling_o3_standard_i2v": ["3", "5", "10", "15"],
+    "kling_o3_pro_i2v": ["3", "5", "10", "15"],
+    "kling_o3_standard_ref": ["3", "5", "10", "15"],
+    "kling_o3_pro_ref": ["3", "5", "10", "15"],
     "seedance_1_5_pro": ["5", "10"],
     "sora_2": [4, 8, 12],
     "sora_2_pro": [4, 8, 12],
@@ -109,6 +145,10 @@ RESOLUTION_OPTIONS = {
     "kling_2_6_pro": ["720p", "1080p"],
     "kling_3_standard": ["720p", "1080p"],
     "kling_3_pro": ["720p", "1080p"],
+    "kling_o3_standard_i2v": ["720p", "1080p"],
+    "kling_o3_pro_i2v": ["720p", "1080p"],
+    "kling_o3_standard_ref": ["720p", "1080p"],
+    "kling_o3_pro_ref": ["720p", "1080p"],
     "seedance_1_5_pro": ["720p", "1080p"],
     "sora_2": ["auto", "720p"],
     "sora_2_pro": ["auto", "720p", "1080p"],
@@ -121,6 +161,10 @@ RESOLUTION_OPTIONS = {
 ASPECT_RATIO_OPTIONS = {
     "kling_3_standard": ["16:9", "9:16", "1:1"],
     "kling_3_pro": ["16:9", "9:16", "1:1"],
+    "kling_o3_standard_i2v": ["16:9", "9:16", "1:1"],
+    "kling_o3_pro_i2v": ["16:9", "9:16", "1:1"],
+    "kling_o3_standard_ref": ["16:9", "9:16", "1:1"],
+    "kling_o3_pro_ref": ["16:9", "9:16", "1:1"],
     "sora_2": ["auto", "9:16", "16:9"],
     "sora_2_pro": ["auto", "9:16", "16:9"],
     "veo_3_1_fast": ["auto", "16:9", "9:16"],
@@ -162,6 +206,40 @@ DEFAULT_VALUES = {
         "voice_ids": [],
         "multi_prompt": [],
         "elements": [],
+        "aspect_ratio": "16:9"
+    },
+    "kling_o3_standard_i2v": {
+        "duration": "5",
+        "generate_audio": True,
+        "elements": [],
+        "image_urls": [],
+        "aspect_ratio": "16:9",
+        "negative_prompt": None,
+        "cfg_scale": 0.5
+    },
+    "kling_o3_pro_i2v": {
+        "duration": "5",
+        "generate_audio": True,
+        "elements": [],
+        "image_urls": [],
+        "aspect_ratio": "16:9",
+        "negative_prompt": None,
+        "cfg_scale": 0.5
+    },
+    "kling_o3_standard_ref": {
+        "duration": "5",
+        "generate_audio": False,
+        "elements": [],
+        "image_urls": [],
+        "aspect_ratio": "16:9",
+        "multi_prompt": [],
+        "shot_type": None
+    },
+    "kling_o3_pro_ref": {
+        "duration": "5",
+        "generate_audio": False,
+        "elements": [],
+        "image_urls": [],
         "aspect_ratio": "16:9"
     },
     "seedance_1_5_pro": {
@@ -250,6 +328,46 @@ MODEL_INFO = {
             "audio_generation", "voice_control", "multi_prompt", "custom_elements"
         ],
         "extended_params": ["start_frame", "end_frame", "audio_generate", "elements"]
+    },
+    "kling_o3_standard_i2v": {
+        "name": "Kling O3 Standard Image-to-Video",
+        "provider": "Kuaishou",
+        "description": "O3 (Omni) model with element-based character/object consistency",
+        "max_duration": 15,
+        "features": [
+            "audio_generation", "elements", "end_frame", "reference_images"
+        ],
+        "extended_params": ["start_frame", "end_frame", "audio_generate", "elements", "image_urls"]
+    },
+    "kling_o3_pro_i2v": {
+        "name": "Kling O3 Pro Image-to-Video",
+        "provider": "Kuaishou",
+        "description": "Professional O3 (Omni) model with enhanced quality and element consistency",
+        "max_duration": 15,
+        "features": [
+            "audio_generation", "elements", "end_frame", "reference_images", "professional_quality"
+        ],
+        "extended_params": ["start_frame", "end_frame", "audio_generate", "elements", "image_urls"]
+    },
+    "kling_o3_standard_ref": {
+        "name": "Kling O3 Standard Reference-to-Video",
+        "provider": "Kuaishou",
+        "description": "O3 reference model with @ syntax for element-based character generation",
+        "max_duration": 15,
+        "features": [
+            "audio_generation", "elements", "reference_images", "reference_syntax", "multi_prompt"
+        ],
+        "extended_params": ["start_frame", "audio_generate", "elements", "image_urls"]
+    },
+    "kling_o3_pro_ref": {
+        "name": "Kling O3 Pro Reference-to-Video",
+        "provider": "Kuaishou",
+        "description": "Professional O3 reference model with @ syntax and enhanced quality",
+        "max_duration": 15,
+        "features": [
+            "audio_generation", "elements", "end_frame", "reference_images", "reference_syntax", "professional_quality"
+        ],
+        "extended_params": ["start_frame", "end_frame", "audio_generate", "elements", "image_urls"]
     },
     "seedance_1_5_pro": {
         "name": "ByteDance Seedance v1.5 Pro",
@@ -343,6 +461,42 @@ MODEL_EXTENDED_FEATURES = {
         "audio_input": False,
         "audio_generate": True,  # generate_audio parameter
         "ref_video": True,  # via elements parameter
+    },
+    "kling_o3_standard_i2v": {
+        "start_frame": True,
+        "end_frame": True,  # end_image_url
+        "ref_images": True,  # via image_urls parameter
+        "audio_input": False,
+        "audio_generate": True,
+        "ref_video": False,
+        "elements": True,  # character/object consistency
+    },
+    "kling_o3_pro_i2v": {
+        "start_frame": True,
+        "end_frame": True,  # end_image_url
+        "ref_images": True,  # via image_urls parameter
+        "audio_input": False,
+        "audio_generate": True,
+        "ref_video": False,
+        "elements": True,  # character/object consistency
+    },
+    "kling_o3_standard_ref": {
+        "start_frame": True,
+        "end_frame": False,
+        "ref_images": True,  # via image_urls parameter
+        "audio_input": False,
+        "audio_generate": True,
+        "ref_video": False,
+        "elements": True,  # character/object consistency
+    },
+    "kling_o3_pro_ref": {
+        "start_frame": True,
+        "end_frame": True,  # end_image_url
+        "ref_images": True,  # via image_urls parameter
+        "audio_input": False,
+        "audio_generate": True,
+        "ref_video": False,
+        "elements": True,  # character/object consistency
     },
     "seedance_1_5_pro": {
         "start_frame": True,
