@@ -137,8 +137,11 @@ def model_info(model):
 
         print("\nPricing:")
         pricing = info.get('pricing', {})
-        for key, value in pricing.items():
-            print(f"   \u2022 {key}: ${value}")
+        if isinstance(pricing, dict):
+            for key, value in pricing.items():
+                print(f"   \u2022 {key}: ${value}")
+        else:
+            print(f"   \u2022 price: ${pricing}")
 
     except ValueError as e:
         print(f"\u274c Error: {e}")
