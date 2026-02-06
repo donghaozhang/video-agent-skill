@@ -14,7 +14,7 @@ import sys
 import click
 
 from ai_content_pipeline.registry import ModelRegistry
-import ai_content_pipeline.registry_data  # noqa: F401
+import ai_content_pipeline.registry_data  # side-effect: registers models
 
 from .generator import FALImageToVideoGenerator
 

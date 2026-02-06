@@ -3,7 +3,7 @@
 from typing import Dict, List, Literal
 from ai_content_pipeline.registry import ModelRegistry
 
-import ai_content_pipeline.registry_data  # noqa: F401
+import ai_content_pipeline.registry_data  # side-effect: registers models
 
 _CATEGORY = "image_to_image"
 _models = ModelRegistry.list_by_category(_CATEGORY)

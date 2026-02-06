@@ -9,7 +9,7 @@ import fal_client
 
 from ..utils.file_utils import download_images, ensure_output_directory
 from ai_content_pipeline.registry import ModelRegistry
-import ai_content_pipeline.registry_data  # noqa: F401
+import ai_content_pipeline.registry_data  # side-effect: registers models
 
 
 class BaseModel(ABC):

@@ -90,6 +90,7 @@ class ModelRegistry:
     Models are registered at import time via registry_data.py.
     """
     _models: ClassVar[Dict[str, ModelDefinition]] = {}
+    _provider_key_map: ClassVar[Dict[str, str]] = {}
 
     @classmethod
     def register(cls, model: ModelDefinition):
@@ -99,6 +100,8 @@ class ModelRegistry:
             model: ModelDefinition to register.
         """
         cls._models[model.key] = model
+        if model.provider_key and model.provider_key != model.key:
+            cls._provider_key_map[model.provider_key] = model.key
 
     @classmethod
     def get(cls, key: str) -> ModelDefinition:
@@ -249,10 +252,9 @@ class ModelRegistry:
         # Fast path: check if it's a direct registry key
         if provider_key in cls._models:
             return cls._models[provider_key]
-        # Slow path: search by provider_key field
-        for m in cls._models.values():
-            if m.provider_key == provider_key:
-                return m
+        # O(1) reverse lookup via provider_key map
+        if provider_key in cls._provider_key_map:
+            return cls._models[cls._provider_key_map[provider_key]]
         available = list(cls._models.keys())
         raise ValueError(f"Unknown model: {provider_key}. Available: {available}")
 
@@ -260,6 +262,7 @@ class ModelRegistry:
     def clear(cls):
         """Clear all registered models. Used for testing."""
         cls._models = {}
+        cls._provider_key_map = {}
 
     @classmethod
     def count(cls) -> int:

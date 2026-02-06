@@ -15,7 +15,7 @@ except ImportError:
     raise ImportError("fal-client not installed. Run: pip install fal-client")
 
 from ai_content_pipeline.registry import ModelRegistry
-import ai_content_pipeline.registry_data  # noqa: F401
+import ai_content_pipeline.registry_data  # side-effect: registers models
 
 
 class BaseTextToVideoModel(ABC):

@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 import fal_client
 
 from ai_content_pipeline.registry import ModelRegistry
-import ai_content_pipeline.registry_data  # noqa: F401
+import ai_content_pipeline.registry_data  # side-effect: registers models
 from ..utils.file_utils import download_video, ensure_output_directory
 
 
@@ -246,4 +246,20 @@ class BaseVideoModel(ABC):
 
     def estimate_cost(self, duration: int, **kwargs) -> float:
         """Estimate cost for generation."""
-        return self.price_per_second * duration
+        price = self.price_per_second
+        if isinstance(price, dict):
+            if kwargs.get("generate_audio") and "cost_with_audio" in price:
+                price = price["cost_with_audio"]
+            elif "cost_no_audio" in price:
+                price = price["cost_no_audio"]
+            elif "cost" in price:
+                price = price["cost"]
+            else:
+                # Use first numeric value found
+                for v in price.values():
+                    if isinstance(v, (int, float)):
+                        price = v
+                        break
+                else:
+                    return 0.0
+        return price * duration

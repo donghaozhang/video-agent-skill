@@ -7,7 +7,7 @@ from typing import Literal, List
 from ai_content_pipeline.registry import ModelRegistry
 
 # Ensure registry data is loaded
-import ai_content_pipeline.registry_data  # noqa: F401
+import ai_content_pipeline.registry_data  # side-effect: registers models
 
 _CATEGORY = "text_to_video"
 _models = ModelRegistry.list_by_category(_CATEGORY)

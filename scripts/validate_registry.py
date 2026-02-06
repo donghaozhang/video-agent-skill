@@ -61,11 +61,10 @@ def validate():
     # 6. Check image-to-video models
     try:
         from fal_image_to_video.generator import FALImageToVideoGenerator
-        gen = FALImageToVideoGenerator.__new__(FALImageToVideoGenerator)
-        gen.models = FALImageToVideoGenerator._build_models()
+        i2v_models = FALImageToVideoGenerator._build_models()
         i2v_keys = ModelRegistry.provider_keys_for_category("image_to_video")
         for key in i2v_keys:
-            if key not in gen.models:
+            if key not in i2v_models:
                 errors.append(f"image_to_video model '{key}' has no class")
     except ImportError:
         errors.append("Could not import fal_image_to_video.generator")

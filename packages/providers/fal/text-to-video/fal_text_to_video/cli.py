@@ -14,7 +14,7 @@ import sys
 import click
 
 from ai_content_pipeline.registry import ModelRegistry
-import ai_content_pipeline.registry_data  # noqa: F401
+import ai_content_pipeline.registry_data  # side-effect: registers models
 
 from .generator import FALTextToVideoGenerator
 
@@ -131,11 +131,11 @@ def model_info(model):
         print(f"Endpoint: {info.get('endpoint', 'N/A')}")
         print(f"Max duration: {info.get('max_duration', 'N/A')}s")
 
-        print(f"\nFeatures:")
+        print("\nFeatures:")
         for feature in info.get('features', []):
             print(f"   \u2022 {feature}")
 
-        print(f"\nPricing:")
+        print("\nPricing:")
         pricing = info.get('pricing', {})
         for key, value in pricing.items():
             print(f"   \u2022 {key}: ${value}")
