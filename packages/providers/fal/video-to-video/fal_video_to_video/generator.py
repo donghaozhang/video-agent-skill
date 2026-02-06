@@ -10,6 +10,12 @@ from dotenv import load_dotenv
 
 from .models.thinksound import ThinkSoundModel
 from .models.topaz import TopazModel
+from .models.kling_o3 import (
+    KlingO3StandardEditModel,
+    KlingO3ProEditModel,
+    KlingO3StandardV2VRefModel,
+    KlingO3ProV2VRefModel
+)
 from .utils.validators import validate_model, validate_video_url, validate_video_path
 from .utils.file_utils import upload_video, get_video_info
 from .config.constants import SUPPORTED_MODELS, MODEL_DISPLAY_NAMES
@@ -45,7 +51,11 @@ class FALVideoToVideoGenerator:
         # Initialize models
         self.models = {
             "thinksound": ThinkSoundModel(),
-            "topaz": TopazModel()
+            "topaz": TopazModel(),
+            "kling_o3_standard_edit": KlingO3StandardEditModel(),
+            "kling_o3_pro_edit": KlingO3ProEditModel(),
+            "kling_o3_standard_v2v_ref": KlingO3StandardV2VRefModel(),
+            "kling_o3_pro_v2v_ref": KlingO3ProV2VRefModel()
         }
         
         print("✅ FAL Video to Video Generator initialized")
@@ -243,6 +253,109 @@ class FALVideoToVideoGenerator:
             **kwargs
         )
     
+    def edit_video(
+        self,
+        video_url: str,
+        prompt: str,
+        model: str = "kling_o3_pro_edit",
+        elements: Optional[list] = None,
+        image_urls: Optional[list] = None,
+        duration: str = "5",
+        aspect_ratio: str = "16:9",
+        output_dir: Optional[str] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Edit video using Kling O3 with element replacement and @ reference syntax.
+
+        Args:
+            video_url: URL of source video to edit
+            prompt: Text description with @ references (e.g., "Change background to @Image1")
+            model: Model to use ("kling_o3_standard_edit" or "kling_o3_pro_edit")
+            elements: Character/object definitions for replacement
+            image_urls: Reference images for style/context
+            duration: Output video duration (3-15 seconds)
+            aspect_ratio: "16:9", "9:16", "1:1"
+            output_dir: Custom output directory
+            **kwargs: Additional parameters
+
+        Returns:
+            Dictionary containing edit results
+        """
+        if model not in ["kling_o3_standard_edit", "kling_o3_pro_edit"]:
+            raise ValueError(f"Invalid edit model: {model}. Use 'kling_o3_standard_edit' or 'kling_o3_pro_edit'")
+
+        video_url = validate_video_url(video_url)
+        model_instance = self.models[model]
+
+        params = {
+            "prompt": prompt,
+            "elements": elements or [],
+            "image_urls": image_urls or [],
+            "duration": duration,
+            "aspect_ratio": aspect_ratio,
+            **kwargs
+        }
+
+        return model_instance.generate(
+            video_url=video_url,
+            output_dir=output_dir,
+            **params
+        )
+
+    def apply_style_transfer(
+        self,
+        video_url: str,
+        prompt: str,
+        model: str = "kling_o3_pro_v2v_ref",
+        elements: Optional[list] = None,
+        image_urls: Optional[list] = None,
+        duration: str = "5",
+        aspect_ratio: str = "16:9",
+        keep_audio: bool = False,
+        output_dir: Optional[str] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Apply style transfer to video using Kling O3 reference model.
+
+        Args:
+            video_url: URL of source video
+            prompt: Text description with @ references (e.g., "Apply watercolor style of @Image1")
+            model: Model to use ("kling_o3_standard_v2v_ref" or "kling_o3_pro_v2v_ref")
+            elements: Character/object definitions for consistency
+            image_urls: Style reference images
+            duration: Output video duration (3-15 seconds)
+            aspect_ratio: "16:9", "9:16", "1:1"
+            keep_audio: Preserve original audio
+            output_dir: Custom output directory
+            **kwargs: Additional parameters
+
+        Returns:
+            Dictionary containing style transfer results
+        """
+        if model not in ["kling_o3_standard_v2v_ref", "kling_o3_pro_v2v_ref"]:
+            raise ValueError(f"Invalid reference model: {model}. Use 'kling_o3_standard_v2v_ref' or 'kling_o3_pro_v2v_ref'")
+
+        video_url = validate_video_url(video_url)
+        model_instance = self.models[model]
+
+        params = {
+            "prompt": prompt,
+            "elements": elements or [],
+            "image_urls": image_urls or [],
+            "duration": duration,
+            "aspect_ratio": aspect_ratio,
+            "keep_audio": keep_audio,
+            **kwargs
+        }
+
+        return model_instance.generate(
+            video_url=video_url,
+            output_dir=output_dir,
+            **params
+        )
+
     def get_model_info(self, model: Optional[str] = None) -> Dict[str, Any]:
         """
         Get information about available models.

@@ -143,6 +143,7 @@ class UnifiedImageToVideoGenerator(BaseContentModel):
             # FAL models include all models supported by the FAL generator
             fal_models = [
                 "hailuo", "kling", "kling_2_1", "kling_2_6_pro",
+                "kling_3_standard", "kling_3_pro",
                 "seedance_1_5_pro", "sora_2", "sora_2_pro",
                 "veo_3_1_fast", "wan_2_6"
             ]

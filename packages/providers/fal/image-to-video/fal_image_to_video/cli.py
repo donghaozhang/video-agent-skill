@@ -99,7 +99,14 @@ def cmd_list_models(args):
     for model_key, info in comparison.items():
         print(f"\n🎥 {info['name']} ({model_key})")
         print(f"   Provider: {info['provider']}")
-        print(f"   Price: ${info['price_per_second']:.2f}/second")
+        # Handle both simple float and dict pricing structures
+        price = info['price_per_second']
+        if isinstance(price, dict):
+            # Dictionary pricing (e.g., Kling v3 with audio tiers)
+            prices = [f"${v:.3f}" for k, v in price.items()]
+            print(f"   Price: {' / '.join(prices)}/second (varies by audio)")
+        else:
+            print(f"   Price: ${price:.2f}/second")
         print(f"   Max duration: {info['max_duration']}s")
         print(f"   Features: {', '.join(info['features'])}")
 
@@ -119,7 +126,14 @@ def cmd_model_info(args):
         print(f"Provider: {info.get('provider', 'Unknown')}")
         print(f"Description: {info.get('description', 'N/A')}")
         print(f"Endpoint: {info.get('endpoint', 'N/A')}")
-        print(f"Price: ${info.get('price_per_second', 0):.2f}/second")
+        # Handle both simple float and dict pricing structures
+        price = info.get('price_per_second', 0)
+        if isinstance(price, dict):
+            print("Pricing (per second):")
+            for tier, cost in price.items():
+                print(f"   - {tier}: ${cost:.3f}")
+        else:
+            print(f"Price: ${price:.2f}/second")
         print(f"Max duration: {info.get('max_duration', 'N/A')}s")
 
         print(f"\nFeatures:")
@@ -173,6 +187,9 @@ Examples:
     gen_parser.add_argument("--image", "-i", required=True, help="Input image path or URL")
     gen_parser.add_argument("--model", "-m", default="kling_2_6_pro",
                            choices=["hailuo", "kling_2_1", "kling_2_6_pro",
+                                   "kling_3_standard", "kling_3_pro",
+                                   "kling_o3_standard_i2v", "kling_o3_pro_i2v",
+                                   "kling_o3_standard_ref", "kling_o3_pro_ref",
                                    "seedance_1_5_pro", "sora_2", "sora_2_pro",
                                    "veo_3_1_fast", "wan_2_6", "grok_imagine"],
                            help="Model to use (default: kling_2_6_pro)")
@@ -191,7 +208,7 @@ Examples:
     interp_parser.add_argument("--start-frame", "-s", required=True, help="Start frame image")
     interp_parser.add_argument("--end-frame", "-e", required=True, help="End frame image")
     interp_parser.add_argument("--model", "-m", default="kling_2_6_pro",
-                              choices=["kling_2_1", "kling_2_6_pro"],
+                              choices=["kling_2_1", "kling_2_6_pro", "kling_3_standard", "kling_3_pro"],
                               help="Model (Kling only)")
     interp_parser.add_argument("--prompt", "-p", required=True, help="Text prompt")
     interp_parser.add_argument("--duration", "-d", default="5", help="Duration")
