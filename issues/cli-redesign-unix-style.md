@@ -1,4 +1,4 @@
-# CLI Redesign: Unix-Style Architecture for LLM Agent Reliability
+# CLI Redesign: Unix-Style Architecture for LLM Agent Reliability (Partially Complete)
 
 ## Current State Assessment
 
@@ -72,7 +72,7 @@ If pricing changes, all 3 must be updated independently.
 
 The Unix philosophy: **"each tool does one thing well"** + **composable interfaces** + **convention over configuration**.
 
-### Recommendation 1: Single Model Registry (DRY)
+### Recommendation 1: Single Model Registry (DRY) ✅ DONE
 
 Instead of 60+ locations, one file:
 
@@ -93,7 +93,7 @@ MODELS = {
 
 Adding a new model = **1 dict entry + 1 model class file**. Down from 60-90 edits.
 
-### Recommendation 2: Dynamic CLI (No Hardcoded Choices)
+### Recommendation 2: Dynamic CLI (No Hardcoded Choices) ✅ DONE
 
 Unix tools don't hardcode options - they discover them:
 
@@ -113,7 +113,7 @@ def cmd_generate(args):
 
 This eliminates **all** the `if/elif` chains and duplicate `choices=[]` lists.
 
-### Recommendation 3: Consistent Type Handling
+### Recommendation 3: Consistent Type Handling ✅ DONE
 
 Unix convention - everything is a string until the consumer decides:
 
@@ -174,9 +174,9 @@ ai-content-pipeline generate --model kling_3_standard --json | jq '.video_url'
 
 ## Implementation Priority
 
-1. **High**: Single model registry (`registry.py`) - biggest ROI
-2. **High**: Dynamic CLI choices from registry - eliminates duplication
-3. **Medium**: Remove `if/elif` chains - use registry defaults
+1. ✅ **High**: Single model registry (`registry.py`) - biggest ROI — *Implemented in PR #19*
+2. ✅ **High**: Dynamic CLI choices from registry - eliminates duplication — *Implemented in PR #19*
+3. ✅ **Medium**: Remove `if/elif` chains - use registry defaults — *Implemented in PR #19*
 4. **Medium**: Add `--json` output flag - enables LLM/script consumption
 5. **Low**: Unify CLI framework (Click everywhere) - polish
 
