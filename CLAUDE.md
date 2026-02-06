@@ -271,7 +271,7 @@ python tests/test_core.py
 - **OpenRouter models** - Video prompt optimization (artistic, cinematic, dramatic, realistic styles)
 
 ### 📦 Add Audio (1 model)
-- **ThinksSound** - AI audio generation from video
+- **ThinkSound** - AI audio generation from video
 
 ### 📦 Upscale Video (1 model)
 - **Topaz** - AI video upscaling
