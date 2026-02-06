@@ -8,24 +8,26 @@ from typing import Dict, Any, Optional
 import fal_client
 
 from ..utils.file_utils import download_video, ensure_output_directory
-from ..config.constants import MODEL_ENDPOINTS, MODEL_DISPLAY_NAMES
+from ai_content_pipeline.registry import ModelRegistry
+import ai_content_pipeline.registry_data  # noqa: F401
 
 
 class BaseModel(ABC):
     """
     Abstract base class for all FAL Video to Video models.
     """
-    
+
     def __init__(self, model_key: str):
         """
         Initialize base model.
-        
+
         Args:
             model_key: Model identifier (e.g., "thinksound")
         """
         self.model_key = model_key
-        self.endpoint = MODEL_ENDPOINTS[model_key]
-        self.display_name = MODEL_DISPLAY_NAMES[model_key]
+        self._definition = ModelRegistry.get(model_key)
+        self.endpoint = self._definition.endpoint
+        self.display_name = self._definition.name
     
     @abstractmethod
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

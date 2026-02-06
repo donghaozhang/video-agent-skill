@@ -295,7 +295,7 @@ class TestFALAvatarGenerator:
     def test_initialization(self):
         """Test generator initialization with all models."""
         generator = FALAvatarGenerator()
-        assert len(generator.models) == 7
+        assert len(generator.models) == 10
         assert "omnihuman_v1_5" in generator.models
         assert "fabric_1_0" in generator.models
         assert "fabric_1_0_fast" in generator.models
@@ -303,12 +303,15 @@ class TestFALAvatarGenerator:
         assert "kling_ref_to_video" in generator.models
         assert "kling_v2v_reference" in generator.models
         assert "kling_v2v_edit" in generator.models
+        assert "kling_motion_control" in generator.models
+        assert "multitalk" in generator.models
+        assert "grok_video_edit" in generator.models
 
     def test_list_models(self):
         """Test listing available models."""
         generator = FALAvatarGenerator()
         models = generator.list_models()
-        assert len(models) == 7
+        assert len(models) == 10
         assert "omnihuman_v1_5" in models
 
     def test_list_models_by_category(self):

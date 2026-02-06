@@ -27,6 +27,8 @@ class Sora2Model(BaseVideoModel):
     Pricing: $0.10/second
     """
 
+    MODEL_KEY = "sora_2"
+
     def __init__(self):
         super().__init__("sora_2")
 
@@ -100,6 +102,8 @@ class Sora2ProModel(BaseVideoModel):
 
     Pricing: $0.30/second (720p), $0.50/second (1080p)
     """
+
+    MODEL_KEY = "sora_2_pro"
 
     def __init__(self):
         super().__init__("sora_2_pro")

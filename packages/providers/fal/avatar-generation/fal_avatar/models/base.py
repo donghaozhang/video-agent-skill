@@ -38,12 +38,25 @@ class BaseAvatarModel(ABC):
         Args:
             model_name: Unique identifier for the model
         """
+        from ai_content_pipeline.registry import ModelRegistry
+        import ai_content_pipeline.registry_data  # noqa: F401
+
         self.model_name = model_name
-        self.endpoint = ""
-        self.pricing: Dict[str, Any] = {}
-        self.max_duration = 60
-        self.supported_resolutions: List[str] = []
-        self.supported_aspect_ratios: List[str] = []
+        try:
+            self._definition = ModelRegistry.get(model_name)
+            self.endpoint = self._definition.endpoint
+            self.pricing = self._definition.pricing
+            self.max_duration = self._definition.max_duration
+            self.supported_resolutions = self._definition.resolutions
+            self.supported_aspect_ratios = self._definition.aspect_ratios
+        except ValueError:
+            # Fallback for models not yet in registry
+            self._definition = None
+            self.endpoint = ""
+            self.pricing: Dict[str, Any] = {}
+            self.max_duration = 60
+            self.supported_resolutions: List[str] = []
+            self.supported_aspect_ratios: List[str] = []
 
     @abstractmethod
     def generate(self, **kwargs) -> AvatarGenerationResult:

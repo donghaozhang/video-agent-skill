@@ -41,6 +41,8 @@ class KlingO3StandardI2VModel(BaseVideoModel):
         - $0.224/second (audio on)
     """
 
+    MODEL_KEY = "kling_o3_standard_i2v"
+
     def __init__(self):
         super().__init__("kling_o3_standard_i2v")
 
@@ -184,6 +186,8 @@ class KlingO3ProI2VModel(BaseVideoModel):
         - $0.28/second (audio on)
     """
 
+    MODEL_KEY = "kling_o3_pro_i2v"
+
     def __init__(self):
         super().__init__("kling_o3_pro_i2v")
 
@@ -322,6 +326,8 @@ class KlingO3StandardRefModel(BaseVideoModel):
         - $0.112/second (audio on)
     """
 
+    MODEL_KEY = "kling_o3_standard_ref"
+
     def __init__(self):
         super().__init__("kling_o3_standard_ref")
 
@@ -449,6 +455,8 @@ class KlingO3ProRefModel(BaseVideoModel):
         - $0.224/second (audio off)
         - $0.28/second (audio on)
     """
+
+    MODEL_KEY = "kling_o3_pro_ref"
 
     def __init__(self):
         super().__init__("kling_o3_pro_ref")

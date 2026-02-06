@@ -28,6 +28,8 @@ class GrokImagineModel(BaseTextToVideoModel):
         - Additional seconds: $0.05 each
     """
 
+    MODEL_KEY = "grok_imagine"
+
     def __init__(self) -> None:
         super().__init__("grok_imagine")
 

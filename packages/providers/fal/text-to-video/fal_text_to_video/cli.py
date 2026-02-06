@@ -12,7 +12,12 @@ Usage:
 import argparse
 import sys
 
+from ai_content_pipeline.registry import ModelRegistry
+import ai_content_pipeline.registry_data  # noqa: F401
+
 from .generator import FALTextToVideoGenerator
+
+T2V_MODELS = ModelRegistry.keys_for_category("text_to_video")
 
 
 def cmd_generate(args):
@@ -26,41 +31,22 @@ def cmd_generate(args):
     # Build kwargs based on model
     kwargs = {}
 
-    if args.model == "kling_2_6_pro":
-        kwargs["duration"] = int(args.duration) if args.duration else 5
-        kwargs["aspect_ratio"] = args.aspect_ratio
+    model_def = ModelRegistry.get(args.model)
+    if args.duration:
+        kwargs["duration"] = args.duration
+    else:
+        kwargs["duration"] = model_def.defaults.get("duration", "5")
+    kwargs["aspect_ratio"] = args.aspect_ratio
+    if hasattr(args, "cfg_scale") and args.cfg_scale is not None:
         kwargs["cfg_scale"] = args.cfg_scale
-        kwargs["generate_audio"] = args.audio
-        if args.negative_prompt:
-            kwargs["negative_prompt"] = args.negative_prompt
-
-    elif args.model in ["kling_3_standard", "kling_3_pro"]:
-        kwargs["duration"] = args.duration if args.duration else "5"
-        kwargs["aspect_ratio"] = args.aspect_ratio
-        kwargs["cfg_scale"] = args.cfg_scale
-        kwargs["generate_audio"] = args.audio
-        if args.negative_prompt:
-            kwargs["negative_prompt"] = args.negative_prompt
-
-    elif args.model == "kling_o3_pro_t2v":
-        kwargs["duration"] = args.duration if args.duration else "5"
-        kwargs["aspect_ratio"] = args.aspect_ratio
-        kwargs["cfg_scale"] = args.cfg_scale
-        kwargs["generate_audio"] = args.audio
-        if args.negative_prompt:
-            kwargs["negative_prompt"] = args.negative_prompt
-
-    elif args.model in ["sora_2", "sora_2_pro"]:
-        kwargs["duration"] = int(args.duration) if args.duration else 4
-        kwargs["aspect_ratio"] = args.aspect_ratio
-        kwargs["delete_video"] = not args.keep_remote
-        if args.model == "sora_2_pro" and args.resolution:
-            kwargs["resolution"] = args.resolution
-
-    elif args.model == "grok_imagine":
-        kwargs["duration"] = int(args.duration) if args.duration else 6
-        kwargs["aspect_ratio"] = args.aspect_ratio
+    if hasattr(args, "audio") and args.audio:
+        kwargs["generate_audio"] = True
+    if args.negative_prompt:
+        kwargs["negative_prompt"] = args.negative_prompt
+    if hasattr(args, "resolution") and args.resolution:
         kwargs["resolution"] = args.resolution
+    if hasattr(args, "keep_remote") and args.keep_remote:
+        kwargs["delete_video"] = False
 
     result = generator.generate_video(
         prompt=args.prompt,
@@ -139,25 +125,15 @@ def cmd_estimate_cost(args):
     try:
         kwargs = {}
 
-        if args.model == "kling_2_6_pro":
-            kwargs["duration"] = int(args.duration) if args.duration else 5
-            kwargs["generate_audio"] = args.audio
-
-        elif args.model in ["kling_3_standard", "kling_3_pro"]:
-            kwargs["duration"] = args.duration if args.duration else "5"
-            kwargs["generate_audio"] = args.audio
-
-        elif args.model == "kling_o3_pro_t2v":
-            kwargs["duration"] = args.duration if args.duration else "5"
-            kwargs["generate_audio"] = args.audio
-
-        elif args.model in ["sora_2", "sora_2_pro"]:
-            kwargs["duration"] = int(args.duration) if args.duration else 4
-            if args.model == "sora_2_pro" and args.resolution:
-                kwargs["resolution"] = args.resolution
-
-        elif args.model == "grok_imagine":
-            kwargs["duration"] = int(args.duration) if args.duration else 6
+        model_def = ModelRegistry.get(args.model)
+        if args.duration:
+            kwargs["duration"] = args.duration
+        else:
+            kwargs["duration"] = model_def.defaults.get("duration", "5")
+        if hasattr(args, "audio") and args.audio:
+            kwargs["generate_audio"] = True
+        if hasattr(args, "resolution") and args.resolution:
+            kwargs["resolution"] = args.resolution
 
         cost = generator.estimate_cost(model=args.model, **kwargs)
 
@@ -219,8 +195,7 @@ Examples:
     gen_parser.add_argument("--prompt", "-p", required=True,
                            help="Text prompt for video generation")
     gen_parser.add_argument("--model", "-m", default="kling_2_6_pro",
-                           choices=["kling_2_6_pro", "kling_3_standard", "kling_3_pro",
-                                   "kling_o3_pro_t2v", "sora_2", "sora_2_pro", "grok_imagine"],
+                           choices=T2V_MODELS,
                            help="Model to use (default: kling_2_6_pro)")
     gen_parser.add_argument("--duration", "-d", default=None,
                            help="Video duration (default: model-specific, grok_imagine=6, others=5)")
@@ -249,16 +224,14 @@ Examples:
 
     # Model info command
     info_parser = subparsers.add_parser("model-info", help="Show model information")
-    info_parser.add_argument("model", choices=["kling_2_6_pro", "kling_3_standard", "kling_3_pro",
-                                             "kling_o3_pro_t2v", "sora_2", "sora_2_pro", "grok_imagine"],
+    info_parser.add_argument("model", choices=T2V_MODELS,
                             help="Model key")
     info_parser.set_defaults(func=cmd_model_info)
 
     # Estimate cost command
     cost_parser = subparsers.add_parser("estimate-cost", help="Estimate generation cost")
     cost_parser.add_argument("--model", "-m", default="kling_2_6_pro",
-                            choices=["kling_2_6_pro", "kling_3_standard", "kling_3_pro",
-                                    "kling_o3_pro_t2v", "sora_2", "sora_2_pro", "grok_imagine"],
+                            choices=T2V_MODELS,
                             help="Model to estimate (default: kling_2_6_pro)")
     cost_parser.add_argument("--duration", "-d", default=None,
                             help="Video duration (default: model-specific)")

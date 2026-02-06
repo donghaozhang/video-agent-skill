@@ -22,6 +22,8 @@ class HailuoModel(BaseVideoModel):
     Pricing: ~$0.05/second
     """
 
+    MODEL_KEY = "hailuo"
+
     def __init__(self):
         super().__init__("hailuo")
 

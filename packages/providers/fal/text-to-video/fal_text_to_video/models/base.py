@@ -14,7 +14,8 @@ try:
 except ImportError:
     raise ImportError("fal-client not installed. Run: pip install fal-client")
 
-from ..config.constants import MODEL_ENDPOINTS, MODEL_PRICING, MODEL_DISPLAY_NAMES
+from ai_content_pipeline.registry import ModelRegistry
+import ai_content_pipeline.registry_data  # noqa: F401
 
 
 class BaseTextToVideoModel(ABC):
@@ -33,9 +34,10 @@ class BaseTextToVideoModel(ABC):
             model_key: Model identifier (e.g., "sora_2", "kling_2_6_pro")
         """
         self.model_key = model_key
-        self.endpoint = MODEL_ENDPOINTS.get(model_key)
-        self.display_name = MODEL_DISPLAY_NAMES.get(model_key, model_key)
-        self.pricing = MODEL_PRICING.get(model_key, {})
+        self._definition = ModelRegistry.get(model_key)
+        self.endpoint = self._definition.endpoint
+        self.display_name = self._definition.name
+        self.pricing = self._definition.pricing
 
         if not self.endpoint:
             raise ValueError(f"Unknown model: {model_key}")

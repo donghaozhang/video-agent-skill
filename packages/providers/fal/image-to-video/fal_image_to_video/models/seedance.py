@@ -22,6 +22,8 @@ class SeedanceModel(BaseVideoModel):
     Pricing: ~$0.08/second
     """
 
+    MODEL_KEY = "seedance_1_5_pro"
+
     def __init__(self):
         super().__init__("seedance_1_5_pro")
 

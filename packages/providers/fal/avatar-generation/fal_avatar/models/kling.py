@@ -24,6 +24,8 @@ class KlingRefToVideoModel(BaseAvatarModel):
     Max References: 4 images
     """
 
+    MODEL_KEY = "kling_ref_to_video"
+
     def __init__(self):
         """Initialize Kling Reference-to-Video model."""
         super().__init__("kling_ref_to_video")
@@ -210,6 +212,8 @@ class KlingV2VReferenceModel(BaseAvatarModel):
     Max Duration: 10 seconds per generation
     """
 
+    MODEL_KEY = "kling_v2v_reference"
+
     def __init__(self):
         """Initialize Kling V2V Reference model."""
         super().__init__("kling_v2v_reference")
@@ -381,6 +385,8 @@ class KlingV2VEditModel(BaseAvatarModel):
     Max Duration: 10 seconds per generation
     """
 
+    MODEL_KEY = "kling_v2v_edit"
+
     def __init__(self):
         """Initialize Kling V2V Edit model."""
         super().__init__("kling_v2v_edit")
@@ -518,6 +524,8 @@ class KlingMotionControlModel(BaseAvatarModel):
     Pricing: ~$0.06/second (standard tier)
     Max Duration: 30s (video orientation) or 10s (image orientation)
     """
+
+    MODEL_KEY = "kling_motion_control"
 
     def __init__(self):
         """Initialize Kling Motion Control model."""

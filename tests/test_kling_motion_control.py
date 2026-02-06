@@ -154,7 +154,7 @@ class TestKlingMotionControlConstants:
         requirements = INPUT_REQUIREMENTS["kling_motion_control"]
         assert "image_url" in requirements["required"]
         assert "video_url" in requirements["required"]
-        assert "character_orientation" in requirements["required"]
+        assert "character_orientation" in requirements["optional"]
 
     def test_model_category_configured(self):
         """Test model is in motion_transfer category."""

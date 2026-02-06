@@ -31,6 +31,8 @@ class Kling26ProModel(BaseTextToVideoModel):
     Pricing: $0.07/second (no audio), $0.14/second (with audio)
     """
 
+    MODEL_KEY = "kling_2_6_pro"
+
     def __init__(self):
         super().__init__("kling_2_6_pro")
 
@@ -127,6 +129,8 @@ class KlingV3StandardModel(BaseTextToVideoModel):
         - $0.252/second (audio on)
         - $0.308/second (with voice control)
     """
+
+    MODEL_KEY = "kling_3_standard"
 
     def __init__(self):
         super().__init__("kling_3_standard")
@@ -258,6 +262,8 @@ class KlingV3ProModel(BaseTextToVideoModel):
         - $0.336/second (audio on)
         - $0.392/second (with voice control)
     """
+
+    MODEL_KEY = "kling_3_pro"
 
     def __init__(self):
         super().__init__("kling_3_pro")

@@ -23,6 +23,8 @@ class OmniHumanModel(BaseAvatarModel):
     Max Duration: 30s (1080p), 60s (720p)
     """
 
+    MODEL_KEY = "omnihuman_v1_5"
+
     def __init__(self):
         """Initialize OmniHuman model."""
         super().__init__("omnihuman_v1_5")

@@ -13,7 +13,12 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from ai_content_pipeline.registry import ModelRegistry
+import ai_content_pipeline.registry_data  # noqa: F401
+
 from .generator import FALImageToVideoGenerator
+
+I2V_MODELS = ModelRegistry.provider_keys_for_category("image_to_video")
 
 
 def cmd_generate(args):
@@ -186,12 +191,7 @@ Examples:
     gen_parser = subparsers.add_parser("generate", help="Generate video from image")
     gen_parser.add_argument("--image", "-i", required=True, help="Input image path or URL")
     gen_parser.add_argument("--model", "-m", default="kling_2_6_pro",
-                           choices=["hailuo", "kling_2_1", "kling_2_6_pro",
-                                   "kling_3_standard", "kling_3_pro",
-                                   "kling_o3_standard_i2v", "kling_o3_pro_i2v",
-                                   "kling_o3_standard_ref", "kling_o3_pro_ref",
-                                   "seedance_1_5_pro", "sora_2", "sora_2_pro",
-                                   "veo_3_1_fast", "wan_2_6", "grok_imagine"],
+                           choices=I2V_MODELS,
                            help="Model to use (default: kling_2_6_pro)")
     gen_parser.add_argument("--prompt", "-p", required=True, help="Text prompt for video generation")
     gen_parser.add_argument("--duration", "-d", default="5", help="Video duration (default: 5)")

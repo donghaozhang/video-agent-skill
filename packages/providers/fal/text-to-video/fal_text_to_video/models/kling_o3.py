@@ -47,6 +47,8 @@ class KlingO3ProT2VModel(BaseTextToVideoModel):
         - $0.28/second (audio on)
     """
 
+    MODEL_KEY = "kling_o3_pro_t2v"
+
     def __init__(self):
         super().__init__("kling_o3_pro_t2v")
 
