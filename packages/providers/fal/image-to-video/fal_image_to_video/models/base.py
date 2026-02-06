@@ -7,7 +7,8 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 import fal_client
 
-from ..config.constants import MODEL_ENDPOINTS, MODEL_DISPLAY_NAMES, MODEL_PRICING
+from ai_content_pipeline.registry import ModelRegistry
+import ai_content_pipeline.registry_data  # side-effect: registers models
 from ..utils.file_utils import download_video, ensure_output_directory
 
 
@@ -24,9 +25,10 @@ class BaseVideoModel(ABC):
             model_key: Model identifier (e.g., "hailuo", "sora_2")
         """
         self.model_key = model_key
-        self.endpoint = MODEL_ENDPOINTS[model_key]
-        self.display_name = MODEL_DISPLAY_NAMES[model_key]
-        self.price_per_second = MODEL_PRICING[model_key]
+        self._definition = ModelRegistry.get_by_provider_key(model_key)
+        self.endpoint = self._definition.endpoint
+        self.display_name = self._definition.name
+        self.price_per_second = self._definition.pricing
 
     @abstractmethod
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -120,6 +122,7 @@ class BaseVideoModel(ABC):
             start_time = time.time()
 
             def on_queue_update(update):
+                """Handle FAL queue progress updates."""
                 if hasattr(update, 'logs') and update.logs:
                     for log in update.logs:
                         print(f"  {log.get('message', str(log))}")
@@ -244,4 +247,22 @@ class BaseVideoModel(ABC):
 
     def estimate_cost(self, duration: int, **kwargs) -> float:
         """Estimate cost for generation."""
-        return self.price_per_second * duration
+        price = self.price_per_second
+        if isinstance(price, dict):
+            if kwargs.get("generate_audio") and "cost_with_audio" in price:
+                price = price["cost_with_audio"]
+            elif "cost_no_audio" in price:
+                price = price["cost_no_audio"]
+            elif "cost" in price:
+                price = price["cost"]
+            else:
+                # Use first numeric value found
+                for v in price.values():
+                    if isinstance(v, (int, float)):
+                        price = v
+                        break
+                else:
+                    raise ValueError(
+                        f"No numeric pricing tier found for model '{self.model_key}'"
+                    )
+        return price * duration

@@ -29,7 +29,10 @@ class Wan26Model(BaseVideoModel):
     Pricing: $0.10/s (720p), $0.15/s (1080p)
     """
 
+    MODEL_KEY = "wan_2_6"
+
     def __init__(self):
+        """Initialize the Wan v2.6 image-to-video model."""
         super().__init__("wan_2_6")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

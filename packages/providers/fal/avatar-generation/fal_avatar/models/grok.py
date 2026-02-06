@@ -25,6 +25,8 @@ class GrokVideoEditModel(BaseAvatarModel):
     Max Prompt: 4,096 characters
     """
 
+    MODEL_KEY = "grok_video_edit"
+
     def __init__(self):
         """Initialize Grok Video Edit model."""
         super().__init__("grok_video_edit")

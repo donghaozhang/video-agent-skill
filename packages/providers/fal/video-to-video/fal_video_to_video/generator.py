@@ -8,14 +8,7 @@ from pathlib import Path
 import fal_client
 from dotenv import load_dotenv
 
-from .models.thinksound import ThinkSoundModel
-from .models.topaz import TopazModel
-from .models.kling_o3 import (
-    KlingO3StandardEditModel,
-    KlingO3ProEditModel,
-    KlingO3StandardV2VRefModel,
-    KlingO3ProV2VRefModel
-)
+from .models.base import BaseModel
 from .utils.validators import validate_model, validate_video_url, validate_video_path
 from .utils.file_utils import upload_video, get_video_info
 from .config.constants import SUPPORTED_MODELS, MODEL_DISPLAY_NAMES
@@ -48,18 +41,25 @@ class FALVideoToVideoGenerator:
         
         fal_client.api_key = self.api_key
         
-        # Initialize models
-        self.models = {
-            "thinksound": ThinkSoundModel(),
-            "topaz": TopazModel(),
-            "kling_o3_standard_edit": KlingO3StandardEditModel(),
-            "kling_o3_pro_edit": KlingO3ProEditModel(),
-            "kling_o3_standard_v2v_ref": KlingO3StandardV2VRefModel(),
-            "kling_o3_pro_v2v_ref": KlingO3ProV2VRefModel()
-        }
-        
+        # Auto-discover and instantiate all models
+        self.models = self._build_models()
+
         print("✅ FAL Video to Video Generator initialized")
-    
+
+    @staticmethod
+    def _build_models():
+        """Auto-discover and instantiate model classes by MODEL_KEY attribute."""
+        from . import models as models_pkg
+        instances = {}
+        for name in dir(models_pkg):
+            cls = getattr(models_pkg, name)
+            if (isinstance(cls, type)
+                    and issubclass(cls, BaseModel)
+                    and cls is not BaseModel
+                    and hasattr(cls, 'MODEL_KEY')):
+                instances[cls.MODEL_KEY] = cls()
+        return instances
+
     def add_audio_to_video(
         self,
         video_url: str,

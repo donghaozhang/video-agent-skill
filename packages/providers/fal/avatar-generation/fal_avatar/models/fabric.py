@@ -21,6 +21,8 @@ class FabricModel(BaseAvatarModel):
     Fast variant: +25% cost
     """
 
+    MODEL_KEY = "fabric_1_0"
+
     def __init__(self, fast: bool = False):
         """
         Initialize Fabric model.
@@ -187,6 +189,8 @@ class FabricTextModel(BaseAvatarModel):
     Pricing: $0.08/sec (480p), $0.15/sec (720p)
     """
 
+    MODEL_KEY = "fabric_1_0_text"
+
     def __init__(self):
         """Initialize Fabric Text model."""
         super().__init__("fabric_1_0_text")
@@ -345,3 +349,17 @@ class FabricTextModel(BaseAvatarModel):
             "description": "Text-to-speech avatar video generation",
             "best_for": ["quick avatars", "no pre-recorded audio"],
         }
+
+
+class FabricFastModel(FabricModel):
+    """VEED Fabric 1.0 Fast variant for auto-discovery."""
+
+    MODEL_KEY = "fabric_1_0_fast"
+
+    def __init__(self) -> None:
+        """Initialize the Fabric 1.0 Fast variant.
+
+        Sets up the speed-optimized Fabric model by delegating to
+        the parent constructor with fast=True.
+        """
+        super().__init__(fast=True)

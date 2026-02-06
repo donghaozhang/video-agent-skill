@@ -8,24 +8,26 @@ from typing import Dict, Any, Optional, List
 import fal_client
 
 from ..utils.file_utils import download_images, ensure_output_directory
-from ..config.constants import MODEL_ENDPOINTS, MODEL_DISPLAY_NAMES
+from ai_content_pipeline.registry import ModelRegistry
+import ai_content_pipeline.registry_data  # side-effect: registers models
 
 
 class BaseModel(ABC):
     """
     Abstract base class for all FAL Image-to-Image models.
     """
-    
+
     def __init__(self, model_key: str):
         """
         Initialize base model.
-        
+
         Args:
             model_key: Model identifier (e.g., "photon", "seededit")
         """
         self.model_key = model_key
-        self.endpoint = MODEL_ENDPOINTS[model_key]
-        self.display_name = MODEL_DISPLAY_NAMES[model_key]
+        self._definition = ModelRegistry.get(model_key)
+        self.endpoint = self._definition.endpoint
+        self.display_name = self._definition.name
     
     @abstractmethod
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

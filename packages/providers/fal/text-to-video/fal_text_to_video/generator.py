@@ -13,29 +13,25 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from .models import (
-    BaseTextToVideoModel,
-    Kling26ProModel,
-    KlingV3StandardModel,
-    KlingV3ProModel,
-    KlingO3ProT2VModel,
-    Sora2Model,
-    Sora2ProModel,
-    GrokImagineModel
-)
+from .models import BaseTextToVideoModel
 from .config import SUPPORTED_MODELS, MODEL_INFO
 
 
-# Model class registry
-MODEL_CLASSES: Dict[str, Type[BaseTextToVideoModel]] = {
-    "kling_2_6_pro": Kling26ProModel,
-    "kling_3_standard": KlingV3StandardModel,
-    "kling_3_pro": KlingV3ProModel,
-    "kling_o3_pro_t2v": KlingO3ProT2VModel,
-    "sora_2": Sora2Model,
-    "sora_2_pro": Sora2ProModel,
-    "grok_imagine": GrokImagineModel
-}
+def _build_model_classes() -> Dict[str, Type['BaseTextToVideoModel']]:
+    """Auto-discover model classes by MODEL_KEY attribute."""
+    from . import models as models_pkg
+    classes = {}
+    for name in dir(models_pkg):
+        cls = getattr(models_pkg, name)
+        if (isinstance(cls, type)
+                and issubclass(cls, BaseTextToVideoModel)
+                and cls is not BaseTextToVideoModel
+                and hasattr(cls, 'MODEL_KEY')):
+            classes[cls.MODEL_KEY] = cls
+    return classes
+
+
+MODEL_CLASSES = _build_model_classes()
 
 
 class FALTextToVideoGenerator:

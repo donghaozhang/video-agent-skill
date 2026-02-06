@@ -12,8 +12,11 @@ class SeedEditModel(BaseModel):
     """
     ByteDance SeedEdit v3 model for accurate image editing with content preservation.
     """
-    
+
+    MODEL_KEY = "seededit"
+
     def __init__(self):
+        """Initialize the SeedEdit model."""
         super().__init__("seededit")
     
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

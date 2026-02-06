@@ -13,8 +13,11 @@ from ..config.constants import MODEL_INFO, DEFAULT_VALUES, ASPECT_RATIOS, REFRAM
 
 class PhotonModel(BaseModel):
     """Luma Photon Flash model for creative image modifications."""
-    
+
+    MODEL_KEY = "photon"
+
     def __init__(self):
+        """Initialize the Photon Flash model."""
         super().__init__("photon")
     
     def _calculate_centered_reframing(
@@ -265,8 +268,11 @@ class PhotonModel(BaseModel):
 
 class PhotonBaseModel(BaseModel):
     """Luma Photon Base model for high-quality creative modifications."""
-    
+
+    MODEL_KEY = "photon_base"
+
     def __init__(self):
+        """Initialize the Photon Base model."""
         super().__init__("photon_base")
     
     def _calculate_centered_reframing(

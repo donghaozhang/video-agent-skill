@@ -28,7 +28,10 @@ class GrokImagineModel(BaseTextToVideoModel):
         - Additional seconds: $0.05 each
     """
 
+    MODEL_KEY = "grok_imagine"
+
     def __init__(self) -> None:
+        """Initialize the Grok Imagine text-to-video model."""
         super().__init__("grok_imagine")
 
     def validate_parameters(self, **kwargs: Any) -> Dict[str, Any]:

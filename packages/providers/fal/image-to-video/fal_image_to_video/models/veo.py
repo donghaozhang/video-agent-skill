@@ -28,7 +28,10 @@ class Veo31FastModel(BaseVideoModel):
     Pricing: $0.10/second (no audio), $0.15/second (with audio)
     """
 
+    MODEL_KEY = "veo_3_1_fast"
+
     def __init__(self):
+        """Initialize the Veo 3.1 Fast image-to-video model."""
         super().__init__("veo_3_1_fast")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

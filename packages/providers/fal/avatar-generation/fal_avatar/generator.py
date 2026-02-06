@@ -2,19 +2,7 @@
 
 from typing import Any, Dict, List, Optional
 
-from .models import (
-    BaseAvatarModel,
-    AvatarGenerationResult,
-    OmniHumanModel,
-    FabricModel,
-    FabricTextModel,
-    KlingRefToVideoModel,
-    KlingV2VReferenceModel,
-    KlingV2VEditModel,
-    KlingMotionControlModel,
-    MultiTalkModel,
-    GrokVideoEditModel,
-)
+from .models import BaseAvatarModel, AvatarGenerationResult
 from .config.constants import (
     MODEL_DISPLAY_NAMES,
     MODEL_CATEGORIES,
@@ -40,19 +28,16 @@ class FALAvatarGenerator:
     """
 
     def __init__(self):
-        """Initialize all available models."""
-        self.models: Dict[str, BaseAvatarModel] = {
-            "omnihuman_v1_5": OmniHumanModel(),
-            "fabric_1_0": FabricModel(fast=False),
-            "fabric_1_0_fast": FabricModel(fast=True),
-            "fabric_1_0_text": FabricTextModel(),
-            "kling_ref_to_video": KlingRefToVideoModel(),
-            "kling_v2v_reference": KlingV2VReferenceModel(),
-            "kling_v2v_edit": KlingV2VEditModel(),
-            "kling_motion_control": KlingMotionControlModel(),
-            "multitalk": MultiTalkModel(),
-            "grok_video_edit": GrokVideoEditModel(),
-        }
+        """Initialize all available models via auto-discovery."""
+        from . import models as models_pkg
+        self.models: Dict[str, BaseAvatarModel] = {}
+        for name in dir(models_pkg):
+            cls = getattr(models_pkg, name)
+            if (isinstance(cls, type)
+                    and issubclass(cls, BaseAvatarModel)
+                    and cls is not BaseAvatarModel
+                    and hasattr(cls, 'MODEL_KEY')):
+                self.models[cls.MODEL_KEY] = cls()
 
     def generate(
         self,

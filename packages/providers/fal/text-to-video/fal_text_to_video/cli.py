@@ -3,280 +3,192 @@
 CLI for FAL Text-to-Video Generation.
 
 Usage:
-    python -m fal_text_to_video.cli generate --prompt "A cat playing" --model kling_2_6_pro
-    python -m fal_text_to_video.cli list-models
-    python -m fal_text_to_video.cli model-info kling_2_6_pro
-    python -m fal_text_to_video.cli estimate-cost --model sora_2_pro --duration 8 --resolution 1080p
+    fal-text-to-video generate --prompt "A cat playing" --model kling_2_6_pro
+    fal-text-to-video list-models
+    fal-text-to-video model-info kling_2_6_pro
+    fal-text-to-video estimate-cost --model sora_2_pro --duration 8 --resolution 1080p
 """
 
-import argparse
 import sys
+
+import click
+
+from ai_content_pipeline.registry import ModelRegistry
+import ai_content_pipeline.registry_data  # side-effect: registers models
 
 from .generator import FALTextToVideoGenerator
 
+T2V_MODELS = ModelRegistry.keys_for_category("text_to_video")
 
-def cmd_generate(args):
+
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
+    """FAL Text-to-Video Generation CLI."""
+    if not ctx.invoked_subcommand:
+        click.echo(ctx.get_help())
+
+
+@cli.command()
+@click.option("--prompt", "-p", required=True, help="Text prompt for video generation")
+@click.option("--model", "-m", default="kling_2_6_pro",
+              type=click.Choice(T2V_MODELS, case_sensitive=True),
+              help="Model to use (default: kling_2_6_pro)")
+@click.option("--duration", "-d", default=None, help="Video duration (default: model-specific)")
+@click.option("--aspect-ratio", "-a", default="16:9",
+              type=click.Choice(["16:9", "9:16", "1:1", "4:3", "3:2", "2:3", "3:4"]),
+              help="Aspect ratio (default: 16:9)")
+@click.option("--resolution", "-r", default="720p",
+              type=click.Choice(["480p", "720p", "1080p"]),
+              help="Resolution (default: 720p)")
+@click.option("--output", "-o", default="output", help="Output directory")
+@click.option("--negative-prompt", default=None, help="Negative prompt (Kling only)")
+@click.option("--cfg-scale", type=float, default=0.5, help="CFG scale 0-1 (Kling only)")
+@click.option("--audio", is_flag=True, help="Generate audio (Kling only)")
+@click.option("--keep-remote", is_flag=True, help="Keep video on remote server (Sora only)")
+@click.option("--mock", is_flag=True, help="Mock mode: simulate without API call (FREE)")
+def generate(prompt, model, duration, aspect_ratio, resolution, output,
+             negative_prompt, cfg_scale, audio, keep_remote, mock):
     """Generate video from text prompt."""
-    generator = FALTextToVideoGenerator(default_model=args.model)
+    generator = FALTextToVideoGenerator(default_model=model)
 
-    mock_label = " [MOCK]" if args.mock else ""
-    print(f"🎬 Generating video with {args.model}{mock_label}...")
-    print(f"   Prompt: {args.prompt[:50]}{'...' if len(args.prompt) > 50 else ''}")
+    mock_label = " [MOCK]" if mock else ""
+    print(f"\U0001f3ac Generating video with {model}{mock_label}...")
+    print(f"   Prompt: {prompt[:50]}{'...' if len(prompt) > 50 else ''}")
 
-    # Build kwargs based on model
     kwargs = {}
 
-    if args.model == "kling_2_6_pro":
-        kwargs["duration"] = int(args.duration) if args.duration else 5
-        kwargs["aspect_ratio"] = args.aspect_ratio
-        kwargs["cfg_scale"] = args.cfg_scale
-        kwargs["generate_audio"] = args.audio
-        if args.negative_prompt:
-            kwargs["negative_prompt"] = args.negative_prompt
-
-    elif args.model in ["kling_3_standard", "kling_3_pro"]:
-        kwargs["duration"] = args.duration if args.duration else "5"
-        kwargs["aspect_ratio"] = args.aspect_ratio
-        kwargs["cfg_scale"] = args.cfg_scale
-        kwargs["generate_audio"] = args.audio
-        if args.negative_prompt:
-            kwargs["negative_prompt"] = args.negative_prompt
-
-    elif args.model == "kling_o3_pro_t2v":
-        kwargs["duration"] = args.duration if args.duration else "5"
-        kwargs["aspect_ratio"] = args.aspect_ratio
-        kwargs["cfg_scale"] = args.cfg_scale
-        kwargs["generate_audio"] = args.audio
-        if args.negative_prompt:
-            kwargs["negative_prompt"] = args.negative_prompt
-
-    elif args.model in ["sora_2", "sora_2_pro"]:
-        kwargs["duration"] = int(args.duration) if args.duration else 4
-        kwargs["aspect_ratio"] = args.aspect_ratio
-        kwargs["delete_video"] = not args.keep_remote
-        if args.model == "sora_2_pro" and args.resolution:
-            kwargs["resolution"] = args.resolution
-
-    elif args.model == "grok_imagine":
-        kwargs["duration"] = int(args.duration) if args.duration else 6
-        kwargs["aspect_ratio"] = args.aspect_ratio
-        kwargs["resolution"] = args.resolution
+    model_def = ModelRegistry.get(model)
+    if duration:
+        kwargs["duration"] = duration
+    else:
+        kwargs["duration"] = model_def.defaults.get("duration", "5")
+    kwargs["aspect_ratio"] = aspect_ratio
+    if cfg_scale is not None:
+        kwargs["cfg_scale"] = cfg_scale
+    if audio:
+        kwargs["generate_audio"] = True
+    if negative_prompt:
+        kwargs["negative_prompt"] = negative_prompt
+    if resolution:
+        kwargs["resolution"] = resolution
+    if keep_remote:
+        kwargs["delete_video"] = False
 
     result = generator.generate_video(
-        prompt=args.prompt,
-        model=args.model,
-        output_dir=args.output,
+        prompt=prompt,
+        model=model,
+        output_dir=output,
         verbose=True,
-        mock=args.mock,
+        mock=mock,
         **kwargs
     )
 
     if result.get("success"):
-        print(f"\n✅ Success{'  [MOCK - No actual API call]' if result.get('mock') else ''}!")
-        print(f"   📁 Output: {result.get('local_path')}")
+        print(f"\n\u2705 Success{'  [MOCK - No actual API call]' if result.get('mock') else ''}!")
+        print(f"   \U0001f4c1 Output: {result.get('local_path')}")
         if result.get('mock'):
-            print(f"   💰 Estimated cost: ${result.get('estimated_cost', 0):.2f} (not charged)")
+            print(f"   \U0001f4b0 Estimated cost: ${result.get('estimated_cost', 0):.2f} (not charged)")
         else:
-            print(f"   💰 Cost: ${result.get('cost_usd', 0):.2f}")
-            print(f"   🔗 URL: {result.get('video_url', 'N/A')}")
-        return 0
+            print(f"   \U0001f4b0 Cost: ${result.get('cost_usd', 0):.2f}")
+            print(f"   \U0001f517 URL: {result.get('video_url', 'N/A')}")
+        sys.exit(0)
     else:
-        print(f"\n❌ Failed: {result.get('error')}")
-        return 1
+        print(f"\n\u274c Failed: {result.get('error')}")
+        sys.exit(1)
 
 
-def cmd_list_models(args):
-    """List available models."""
+@cli.command("list-models")
+def list_models():
+    """List available text-to-video models."""
     generator = FALTextToVideoGenerator()
 
-    print("📋 Available Text-to-Video Models:")
+    print("\U0001f4cb Available Text-to-Video Models:")
     print("=" * 60)
 
     comparison = generator.compare_models()
     for model_key, info in comparison.items():
-        print(f"\n🎥 {info['name']} ({model_key})")
+        print(f"\n\U0001f3a5 {info['name']} ({model_key})")
         print(f"   Provider: {info['provider']}")
         print(f"   Max duration: {info['max_duration']}s")
         print(f"   Pricing: {info['pricing']}")
         print(f"   Features: {', '.join(info['features'])}")
 
-    return 0
 
-
-def cmd_model_info(args):
+@cli.command("model-info")
+@click.argument("model", type=click.Choice(T2V_MODELS, case_sensitive=True))
+def model_info(model):
     """Show detailed model information."""
     generator = FALTextToVideoGenerator()
 
     try:
-        info = generator.get_model_info(args.model)
+        info = generator.get_model_info(model)
 
-        print(f"\n📋 Model: {info.get('name', args.model)}")
+        print(f"\n\U0001f4cb Model: {info.get('name', model)}")
         print("=" * 50)
         print(f"Provider: {info.get('provider', 'Unknown')}")
         print(f"Description: {info.get('description', 'N/A')}")
         print(f"Endpoint: {info.get('endpoint', 'N/A')}")
         print(f"Max duration: {info.get('max_duration', 'N/A')}s")
 
-        print(f"\nFeatures:")
+        print("\nFeatures:")
         for feature in info.get('features', []):
-            print(f"   • {feature}")
+            print(f"   \u2022 {feature}")
 
-        print(f"\nPricing:")
+        print("\nPricing:")
         pricing = info.get('pricing', {})
-        for key, value in pricing.items():
-            print(f"   • {key}: ${value}")
+        if isinstance(pricing, dict):
+            for key, value in pricing.items():
+                print(f"   \u2022 {key}: ${value}")
+        else:
+            print(f"   \u2022 price: ${pricing}")
 
-        return 0
     except ValueError as e:
-        print(f"❌ Error: {e}")
-        return 1
+        print(f"\u274c Error: {e}")
+        sys.exit(1)
 
 
-def cmd_estimate_cost(args):
+@cli.command("estimate-cost")
+@click.option("--model", "-m", default="kling_2_6_pro",
+              type=click.Choice(T2V_MODELS, case_sensitive=True),
+              help="Model to estimate (default: kling_2_6_pro)")
+@click.option("--duration", "-d", default=None, help="Video duration (default: model-specific)")
+@click.option("--resolution", "-r", default="720p",
+              type=click.Choice(["720p", "1080p"]),
+              help="Resolution (Sora 2 Pro only)")
+@click.option("--audio", is_flag=True, help="Include audio (Kling only)")
+def estimate_cost(model, duration, resolution, audio):
     """Estimate cost for video generation."""
     generator = FALTextToVideoGenerator()
 
     try:
         kwargs = {}
 
-        if args.model == "kling_2_6_pro":
-            kwargs["duration"] = int(args.duration) if args.duration else 5
-            kwargs["generate_audio"] = args.audio
+        model_def = ModelRegistry.get(model)
+        if duration:
+            kwargs["duration"] = duration
+        else:
+            kwargs["duration"] = model_def.defaults.get("duration", "5")
+        if audio:
+            kwargs["generate_audio"] = True
+        if resolution:
+            kwargs["resolution"] = resolution
 
-        elif args.model in ["kling_3_standard", "kling_3_pro"]:
-            kwargs["duration"] = args.duration if args.duration else "5"
-            kwargs["generate_audio"] = args.audio
+        cost = generator.estimate_cost(model=model, **kwargs)
 
-        elif args.model == "kling_o3_pro_t2v":
-            kwargs["duration"] = args.duration if args.duration else "5"
-            kwargs["generate_audio"] = args.audio
-
-        elif args.model in ["sora_2", "sora_2_pro"]:
-            kwargs["duration"] = int(args.duration) if args.duration else 4
-            if args.model == "sora_2_pro" and args.resolution:
-                kwargs["resolution"] = args.resolution
-
-        elif args.model == "grok_imagine":
-            kwargs["duration"] = int(args.duration) if args.duration else 6
-
-        cost = generator.estimate_cost(model=args.model, **kwargs)
-
-        print(f"\n💰 Cost Estimate for {args.model}:")
+        print(f"\n\U0001f4b0 Cost Estimate for {model}:")
         print(f"   Estimated cost: ${cost:.2f}")
         print(f"   Parameters: {kwargs}")
 
-        return 0
     except ValueError as e:
-        print(f"❌ Error: {e}")
-        return 1
+        print(f"\u274c Error: {e}")
+        sys.exit(1)
 
 
 def main():
-    """Main CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="FAL Text-to-Video CLI",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Generate video with Kling v2.6 Pro
-  python -m fal_text_to_video.cli generate \\
-    --prompt "A cat playing with a ball of yarn" \\
-    --model kling_2_6_pro \\
-    --duration 5 \\
-    --audio
-
-  # Generate video with Sora 2
-  python -m fal_text_to_video.cli generate \\
-    --prompt "A beautiful sunset over mountains" \\
-    --model sora_2 \\
-    --duration 8
-
-  # Generate video with Sora 2 Pro (1080p)
-  python -m fal_text_to_video.cli generate \\
-    --prompt "Cinematic shot of a futuristic city" \\
-    --model sora_2_pro \\
-    --duration 12 \\
-    --resolution 1080p
-
-  # List available models
-  python -m fal_text_to_video.cli list-models
-
-  # Show model info
-  python -m fal_text_to_video.cli model-info sora_2_pro
-
-  # Estimate cost
-  python -m fal_text_to_video.cli estimate-cost \\
-    --model sora_2_pro \\
-    --duration 8 \\
-    --resolution 1080p
-        """
-    )
-
-    subparsers = parser.add_subparsers(dest="command", help="Commands")
-
-    # Generate command
-    gen_parser = subparsers.add_parser("generate", help="Generate video from text")
-    gen_parser.add_argument("--prompt", "-p", required=True,
-                           help="Text prompt for video generation")
-    gen_parser.add_argument("--model", "-m", default="kling_2_6_pro",
-                           choices=["kling_2_6_pro", "kling_3_standard", "kling_3_pro",
-                                   "kling_o3_pro_t2v", "sora_2", "sora_2_pro", "grok_imagine"],
-                           help="Model to use (default: kling_2_6_pro)")
-    gen_parser.add_argument("--duration", "-d", default=None,
-                           help="Video duration (default: model-specific, grok_imagine=6, others=5)")
-    gen_parser.add_argument("--aspect-ratio", "-a", default="16:9",
-                           choices=["16:9", "9:16", "1:1", "4:3", "3:2", "2:3", "3:4"],
-                           help="Aspect ratio (default: 16:9)")
-    gen_parser.add_argument("--resolution", "-r", default="720p",
-                           choices=["480p", "720p", "1080p"],
-                           help="Resolution (default: 720p)")
-    gen_parser.add_argument("--output", "-o", default="output",
-                           help="Output directory")
-    gen_parser.add_argument("--negative-prompt", help="Negative prompt (Kling only)")
-    gen_parser.add_argument("--cfg-scale", type=float, default=0.5,
-                           help="CFG scale 0-1 (Kling only)")
-    gen_parser.add_argument("--audio", action="store_true",
-                           help="Generate audio (Kling only)")
-    gen_parser.add_argument("--keep-remote", action="store_true",
-                           help="Keep video on remote server (Sora only)")
-    gen_parser.add_argument("--mock", action="store_true",
-                           help="Mock mode: simulate API call without actual generation (FREE)")
-    gen_parser.set_defaults(func=cmd_generate)
-
-    # List models command
-    list_parser = subparsers.add_parser("list-models", help="List available models")
-    list_parser.set_defaults(func=cmd_list_models)
-
-    # Model info command
-    info_parser = subparsers.add_parser("model-info", help="Show model information")
-    info_parser.add_argument("model", choices=["kling_2_6_pro", "kling_3_standard", "kling_3_pro",
-                                             "kling_o3_pro_t2v", "sora_2", "sora_2_pro", "grok_imagine"],
-                            help="Model key")
-    info_parser.set_defaults(func=cmd_model_info)
-
-    # Estimate cost command
-    cost_parser = subparsers.add_parser("estimate-cost", help="Estimate generation cost")
-    cost_parser.add_argument("--model", "-m", default="kling_2_6_pro",
-                            choices=["kling_2_6_pro", "kling_3_standard", "kling_3_pro",
-                                    "kling_o3_pro_t2v", "sora_2", "sora_2_pro", "grok_imagine"],
-                            help="Model to estimate (default: kling_2_6_pro)")
-    cost_parser.add_argument("--duration", "-d", default=None,
-                            help="Video duration (default: model-specific)")
-    cost_parser.add_argument("--resolution", "-r", default="720p",
-                            choices=["720p", "1080p"],
-                            help="Resolution (Sora 2 Pro only)")
-    cost_parser.add_argument("--audio", action="store_true",
-                            help="Include audio (Kling only)")
-    cost_parser.set_defaults(func=cmd_estimate_cost)
-
-    args = parser.parse_args()
-
-    if args.command is None:
-        parser.print_help()
-        return 1
-
-    return args.func(args)
+    """Entry point for console_scripts."""
+    cli()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -10,8 +10,11 @@ from ..config.constants import MODEL_INFO, DEFAULT_VALUES
 
 class ThinkSoundModel(BaseModel):
     """ThinkSound model for AI-powered video audio generation."""
-    
+
+    MODEL_KEY = "thinksound"
+
     def __init__(self):
+        """Initialize the ThinkSound audio generation model."""
         super().__init__("thinksound")
     
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

@@ -30,9 +30,12 @@ class GrokImagineModel(BaseVideoModel):
         - Total for 6s: $0.302
     """
 
+    MODEL_KEY = "grok_imagine"
+
     IMAGE_INPUT_COST = 0.002  # Cost per image input in USD
 
     def __init__(self) -> None:
+        """Initialize the Grok Imagine image-to-video model."""
         super().__init__("grok_imagine")
 
     def validate_parameters(self, **kwargs: Any) -> Dict[str, Any]:

@@ -41,7 +41,10 @@ class KlingO3StandardI2VModel(BaseVideoModel):
         - $0.224/second (audio on)
     """
 
+    MODEL_KEY = "kling_o3_standard_i2v"
+
     def __init__(self):
+        """Initialize the Kling O3 Standard image-to-video model."""
         super().__init__("kling_o3_standard_i2v")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -184,7 +187,10 @@ class KlingO3ProI2VModel(BaseVideoModel):
         - $0.28/second (audio on)
     """
 
+    MODEL_KEY = "kling_o3_pro_i2v"
+
     def __init__(self):
+        """Initialize the Kling O3 Pro image-to-video model."""
         super().__init__("kling_o3_pro_i2v")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -322,7 +328,10 @@ class KlingO3StandardRefModel(BaseVideoModel):
         - $0.112/second (audio on)
     """
 
+    MODEL_KEY = "kling_o3_standard_ref"
+
     def __init__(self):
+        """Initialize the Kling O3 Standard reference-to-video model."""
         super().__init__("kling_o3_standard_ref")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -450,7 +459,10 @@ class KlingO3ProRefModel(BaseVideoModel):
         - $0.28/second (audio on)
     """
 
+    MODEL_KEY = "kling_o3_pro_ref"
+
     def __init__(self):
+        """Initialize the Kling O3 Pro reference-to-video model."""
         super().__init__("kling_o3_pro_ref")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

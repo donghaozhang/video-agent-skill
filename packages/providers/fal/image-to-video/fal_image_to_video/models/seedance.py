@@ -22,7 +22,10 @@ class SeedanceModel(BaseVideoModel):
     Pricing: ~$0.08/second
     """
 
+    MODEL_KEY = "seedance_1_5_pro"
+
     def __init__(self):
+        """Initialize the Seedance v1.5 Pro image-to-video model."""
         super().__init__("seedance_1_5_pro")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

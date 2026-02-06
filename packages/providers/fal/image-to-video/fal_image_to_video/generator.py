@@ -9,23 +9,7 @@ from typing import Dict, Any, Optional, List
 import fal_client
 from dotenv import load_dotenv
 
-from .models import (
-    HailuoModel,
-    KlingModel,
-    Kling26ProModel,
-    KlingV3StandardModel,
-    KlingV3ProModel,
-    KlingO3StandardI2VModel,
-    KlingO3ProI2VModel,
-    KlingO3StandardRefModel,
-    KlingO3ProRefModel,
-    SeedanceModel,
-    Sora2Model,
-    Sora2ProModel,
-    Veo31FastModel,
-    Wan26Model,
-    GrokImagineModel
-)
+from .models.base import BaseVideoModel
 from .utils.file_utils import (
     upload_image,
     upload_file,
@@ -79,26 +63,24 @@ class FALImageToVideoGenerator:
                     )
             fal_client.api_key = api_key
 
-        # Initialize all models
-        self.models = {
-            "hailuo": HailuoModel(),
-            "kling_2_1": KlingModel(),
-            "kling_2_6_pro": Kling26ProModel(),
-            "kling_3_standard": KlingV3StandardModel(),
-            "kling_3_pro": KlingV3ProModel(),
-            "kling_o3_standard_i2v": KlingO3StandardI2VModel(),
-            "kling_o3_pro_i2v": KlingO3ProI2VModel(),
-            "kling_o3_standard_ref": KlingO3StandardRefModel(),
-            "kling_o3_pro_ref": KlingO3ProRefModel(),
-            "seedance_1_5_pro": SeedanceModel(),
-            "sora_2": Sora2Model(),
-            "sora_2_pro": Sora2ProModel(),
-            "veo_3_1_fast": Veo31FastModel(),
-            "wan_2_6": Wan26Model(),
-            "grok_imagine": GrokImagineModel()
-        }
+        # Auto-discover and instantiate all models
+        self.models = self._build_models()
 
         self.output_dir = ensure_output_directory("output")
+
+    @staticmethod
+    def _build_models():
+        """Auto-discover and instantiate model classes by MODEL_KEY attribute."""
+        from . import models as models_pkg
+        instances = {}
+        for name in dir(models_pkg):
+            cls = getattr(models_pkg, name)
+            if (isinstance(cls, type)
+                    and issubclass(cls, BaseVideoModel)
+                    and cls is not BaseVideoModel
+                    and hasattr(cls, 'MODEL_KEY')):
+                instances[cls.MODEL_KEY] = cls()
+        return instances
 
     def generate_video(
         self,

@@ -39,7 +39,10 @@ class NanoBananaProEditModel(BaseModel):
         - Web search: +$0.015 per request
     """
 
+    MODEL_KEY = "nano_banana_pro_edit"
+
     def __init__(self):
+        """Initialize the Nano Banana Pro Edit model."""
         super().__init__("nano_banana_pro_edit")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

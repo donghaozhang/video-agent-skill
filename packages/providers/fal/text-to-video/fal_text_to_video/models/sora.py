@@ -24,7 +24,10 @@ class Sora2Model(BaseTextToVideoModel):
     Pricing: $0.10/second
     """
 
+    MODEL_KEY = "sora_2"
+
     def __init__(self):
+        """Initialize the Sora 2 text-to-video model."""
         super().__init__("sora_2")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -96,7 +99,10 @@ class Sora2ProModel(BaseTextToVideoModel):
     Pricing: $0.30/s (720p), $0.50/s (1080p)
     """
 
+    MODEL_KEY = "sora_2_pro"
+
     def __init__(self):
+        """Initialize the Sora 2 Pro text-to-video model."""
         super().__init__("sora_2_pro")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

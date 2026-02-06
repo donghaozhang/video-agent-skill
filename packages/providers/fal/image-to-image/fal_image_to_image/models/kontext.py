@@ -13,8 +13,11 @@ from ..config.constants import MODEL_INFO, DEFAULT_VALUES
 
 class KontextModel(BaseModel):
     """FLUX Kontext Dev model for contextual image editing."""
-    
+
+    MODEL_KEY = "kontext"
+
     def __init__(self):
+        """Initialize the FLUX Kontext model."""
         super().__init__("kontext")
     
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -65,8 +68,11 @@ class KontextModel(BaseModel):
 
 class KontextMultiModel(BaseModel):
     """FLUX Kontext [max] Multi model for multi-image processing."""
-    
+
+    MODEL_KEY = "kontext_multi"
+
     def __init__(self):
+        """Initialize the FLUX Kontext Multi model."""
         super().__init__("kontext_multi")
     
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

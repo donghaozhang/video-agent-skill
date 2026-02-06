@@ -17,6 +17,8 @@ class MultiTalkModel(BaseAvatarModel):
     Pricing: Base rate at 480p, 2x at 720p, 1.25x for >81 frames
     """
 
+    MODEL_KEY = "multitalk"
+
     def __init__(self):
         """Initialize MultiTalk model."""
         super().__init__("multitalk")
