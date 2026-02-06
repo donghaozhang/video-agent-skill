@@ -1,4 +1,4 @@
-# Fix Model Registration Sprawl: Centralized Registry
+# Fix Model Registration Sprawl: Centralized Registry ✅ COMPLETE
 
 ## Problem Statement
 
@@ -39,7 +39,7 @@ AFTER (Proposed):
 
 ---
 
-## Subtask 1: Create Central Model Registry
+## Subtask 1: Create Central Model Registry ✅ DONE
 
 **Time estimate:** 20 minutes
 **New file:** `packages/core/ai_content_pipeline/ai_content_pipeline/registry.py`
@@ -196,7 +196,7 @@ def test_duplicate_key_overwrites():
 
 ---
 
-## Subtask 2: Populate Registry with All Existing Models
+## Subtask 2: Populate Registry with All Existing Models ✅ DONE
 
 **Time estimate:** 45 minutes
 **New file:** `packages/core/ai_content_pipeline/ai_content_pipeline/registry_data.py`
@@ -462,7 +462,7 @@ def test_no_duplicate_keys():
 
 ---
 
-## Subtask 3: Make Provider Constants Read from Registry
+## Subtask 3: Make Provider Constants Read from Registry ✅ DONE
 
 **Time estimate:** 45 minutes
 
@@ -817,7 +817,7 @@ DEFAULT_CHAIN_CONFIG = {
 
 ---
 
-## Subtask 4: Make CLI Dynamic (Remove Hardcoded Choices)
+## Subtask 4: Make CLI Dynamic (Remove Hardcoded Choices) ✅ DONE
 
 **Time estimate:** 20 minutes
 
@@ -935,7 +935,7 @@ I2V_MODELS = ModelRegistry.keys_for_category("image_to_video")
 
 ---
 
-## Subtask 5: Make Model Classes Self-Describing
+## Subtask 5: Make Model Classes Self-Describing ✅ DONE
 
 **Time estimate:** 15 minutes
 
@@ -1077,7 +1077,7 @@ from ..config.constants import MODEL_ENDPOINTS, MODEL_DISPLAY_NAMES
 
 ---
 
-## Subtask 6: Auto-Discovery for Generator MODEL_CLASSES
+## Subtask 6: Auto-Discovery for Generator MODEL_CLASSES ✅ DONE
 
 **Time estimate:** 20 minutes
 
@@ -1298,7 +1298,7 @@ def test_generator_instantiates_all():
 
 ---
 
-## Subtask 7: Validation Script (Guard Against Drift)
+## Subtask 7: Validation Script (Guard Against Drift) ✅ DONE
 
 **Time estimate:** 15 minutes
 **New file:** `scripts/validate_registry.py`
