@@ -121,6 +121,10 @@ import ai_content_pipeline.registry_data  # noqa: F401
 
 from .generator import FALTextToVideoGenerator
 
+# Note: T2V uses keys_for_category (registry keys) because t2v model keys
+# match their provider keys. I2V uses provider_keys_for_category because
+# some i2v models have different registry vs provider keys (e.g. registry
+# key "kling_3_standard_i2v" maps to provider key "kling_3_standard").
 T2V_MODELS = ModelRegistry.keys_for_category("text_to_video")
 
 
@@ -344,6 +348,9 @@ import ai_content_pipeline.registry_data  # noqa: F401
 
 from .generator import FALImageToVideoGenerator
 
+# Note: I2V uses provider_keys_for_category (not keys_for_category) because
+# some i2v models have disambiguated registry keys (e.g. "kling_3_standard_i2v")
+# but the CLI and generator need the original provider key ("kling_3_standard").
 I2V_MODELS = ModelRegistry.provider_keys_for_category("image_to_video")
 
 
