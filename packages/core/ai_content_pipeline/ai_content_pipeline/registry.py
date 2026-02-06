@@ -93,7 +93,7 @@ class ModelRegistry:
     _provider_key_map: ClassVar[Dict[str, str]] = {}
 
     @classmethod
-    def register(cls, model: ModelDefinition):
+    def register(cls, model: ModelDefinition) -> None:
         """Register a model definition.
 
         Args:
@@ -259,7 +259,7 @@ class ModelRegistry:
         raise ValueError(f"Unknown model: {provider_key}. Available: {available}")
 
     @classmethod
-    def clear(cls):
+    def clear(cls) -> None:
         """Clear all registered models. Used for testing."""
         cls._models = {}
         cls._provider_key_map = {}
