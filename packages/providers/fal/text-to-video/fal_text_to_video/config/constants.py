@@ -120,8 +120,8 @@ DURATION_OPTIONS = {
     "veo3": ["5s", "6s", "7s", "8s"],
     "veo3_fast": ["5s", "6s", "7s", "8s"],
     "kling_2_6_pro": ["5", "10"],
-    "kling_3_standard": ["5", "10", "12"],
-    "kling_3_pro": ["5", "10", "12"],
+    "kling_3_standard": [str(d) for d in range(3, 16)],  # 3-15 seconds
+    "kling_3_pro": [str(d) for d in range(3, 16)],  # 3-15 seconds
     "kling_o3_pro_t2v": ["3", "5", "10", "15"],
     "sora_2": [4, 8, 12],
     "sora_2_pro": [4, 8, 12],
