@@ -10,7 +10,9 @@ from ..config.constants import MODEL_INFO, DEFAULT_VALUES
 
 class TopazModel(BaseModel):
     """Topaz Video Upscale model for professional-grade video enhancement."""
-    
+
+    MODEL_KEY = "topaz"
+
     def __init__(self):
         super().__init__("topaz")
     

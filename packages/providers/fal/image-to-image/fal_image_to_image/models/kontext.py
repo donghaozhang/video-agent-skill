@@ -13,7 +13,9 @@ from ..config.constants import MODEL_INFO, DEFAULT_VALUES
 
 class KontextModel(BaseModel):
     """FLUX Kontext Dev model for contextual image editing."""
-    
+
+    MODEL_KEY = "kontext"
+
     def __init__(self):
         super().__init__("kontext")
     
@@ -65,7 +67,9 @@ class KontextModel(BaseModel):
 
 class KontextMultiModel(BaseModel):
     """FLUX Kontext [max] Multi model for multi-image processing."""
-    
+
+    MODEL_KEY = "kontext_multi"
+
     def __init__(self):
         super().__init__("kontext_multi")
     

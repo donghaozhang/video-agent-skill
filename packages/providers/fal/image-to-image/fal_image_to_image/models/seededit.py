@@ -12,7 +12,9 @@ class SeedEditModel(BaseModel):
     """
     ByteDance SeedEdit v3 model for accurate image editing with content preservation.
     """
-    
+
+    MODEL_KEY = "seededit"
+
     def __init__(self):
         super().__init__("seededit")
     

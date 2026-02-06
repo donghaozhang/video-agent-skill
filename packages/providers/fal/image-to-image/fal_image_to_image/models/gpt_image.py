@@ -10,6 +10,8 @@ from ..config.constants import MODEL_INFO, DEFAULT_VALUES
 class GPTImage15EditModel(BaseModel):
     """GPT Image 1.5 Edit model for GPT-powered image modifications."""
 
+    MODEL_KEY = "gpt_image_1_5_edit"
+
     def __init__(self):
         super().__init__("gpt_image_1_5_edit")
 

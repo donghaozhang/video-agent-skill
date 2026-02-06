@@ -10,7 +10,9 @@ from ..config.constants import MODEL_INFO, DEFAULT_VALUES
 
 class ThinkSoundModel(BaseModel):
     """ThinkSound model for AI-powered video audio generation."""
-    
+
+    MODEL_KEY = "thinksound"
+
     def __init__(self):
         super().__init__("thinksound")
     

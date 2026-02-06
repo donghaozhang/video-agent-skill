@@ -9,7 +9,9 @@ from ..config.constants import MODEL_INFO, DEFAULT_VALUES
 
 class ClarityModel(BaseModel):
     """Clarity Upscaler model for high-quality image upscaling."""
-    
+
+    MODEL_KEY = "clarity"
+
     def __init__(self):
         super().__init__("clarity")
     

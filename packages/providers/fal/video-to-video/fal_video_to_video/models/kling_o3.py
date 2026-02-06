@@ -39,6 +39,8 @@ class KlingO3StandardEditModel(BaseModel):
     Pricing: $0.252/second
     """
 
+    MODEL_KEY = "kling_o3_standard_edit"
+
     def __init__(self):
         super().__init__("kling_o3_standard_edit")
 
@@ -129,6 +131,8 @@ class KlingO3ProEditModel(BaseModel):
 
     Pricing: $0.336/second
     """
+
+    MODEL_KEY = "kling_o3_pro_edit"
 
     def __init__(self):
         super().__init__("kling_o3_pro_edit")
@@ -222,6 +226,8 @@ class KlingO3StandardV2VRefModel(BaseModel):
 
     Pricing: $0.252/second
     """
+
+    MODEL_KEY = "kling_o3_standard_v2v_ref"
 
     def __init__(self):
         super().__init__("kling_o3_standard_v2v_ref")
@@ -319,6 +325,8 @@ class KlingO3ProV2VRefModel(BaseModel):
 
     Pricing: $0.336/second
     """
+
+    MODEL_KEY = "kling_o3_pro_v2v_ref"
 
     def __init__(self):
         super().__init__("kling_o3_pro_v2v_ref")

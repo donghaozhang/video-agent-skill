@@ -39,6 +39,8 @@ class NanoBananaProEditModel(BaseModel):
         - Web search: +$0.015 per request
     """
 
+    MODEL_KEY = "nano_banana_pro_edit"
+
     def __init__(self):
         super().__init__("nano_banana_pro_edit")
 
