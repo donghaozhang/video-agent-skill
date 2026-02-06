@@ -60,7 +60,7 @@ The original plan called for migrating all 3 CLIs to Click in one shot. After de
 
 ## Current Architecture
 
-```
+```text
 ENTRY POINTS (setup.py lines 210-221):
   ai-content-pipeline  -> __main__.py:main()        [argparse, 25 commands]
   aicp                 -> __main__.py:main()        [alias]
@@ -71,7 +71,7 @@ ENTRY POINTS (setup.py lines 210-221):
 
 ## Target Architecture
 
-```
+```text
 ENTRY POINTS (setup.py):
   ai-content-pipeline  -> __main__.py:main()        [argparse, 25 commands]  <- UNCHANGED
   aicp                 -> __main__.py:main()        [alias]                  <- UNCHANGED
@@ -736,7 +736,7 @@ fal-image-to-video list-models
 
 ## Implementation Order & Dependencies
 
-```
+```text
 Subtask 1: Migrate fal-text-to-video CLI (30 min) ----+
                                                         |
 Subtask 2: Migrate fal-image-to-video CLI (30 min) ----+ (parallel with 1)
