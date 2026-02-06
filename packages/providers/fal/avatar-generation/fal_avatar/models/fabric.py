@@ -356,6 +356,10 @@ class FabricFastModel(FabricModel):
 
     MODEL_KEY = "fabric_1_0_fast"
 
-    def __init__(self):
-        """Initialize the fast variant."""
+    def __init__(self) -> None:
+        """Initialize the Fabric 1.0 Fast variant.
+
+        Sets up the speed-optimized Fabric model by delegating to
+        the parent constructor with fast=True.
+        """
         super().__init__(fast=True)

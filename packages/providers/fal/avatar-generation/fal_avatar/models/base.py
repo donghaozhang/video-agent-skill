@@ -3,8 +3,11 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
+import logging
 import time
 import os
+
+logger = logging.getLogger(__name__)
 
 # Try to import fal_client, gracefully handle if not available
 try:
@@ -39,7 +42,7 @@ class BaseAvatarModel(ABC):
             model_name: Unique identifier for the model
         """
         from ai_content_pipeline.registry import ModelRegistry
-        import ai_content_pipeline.registry_data  # noqa: F401
+        import ai_content_pipeline.registry_data  # side-effect: registers models
 
         self.model_name = model_name
         try:
@@ -50,7 +53,7 @@ class BaseAvatarModel(ABC):
             self.supported_resolutions = self._definition.resolutions
             self.supported_aspect_ratios = self._definition.aspect_ratios
         except ValueError:
-            # Fallback for models not yet in registry
+            logger.warning("Model '%s' not found in registry, using fallback defaults", model_name)
             self._definition = None
             self.endpoint = ""
             self.pricing: Dict[str, Any] = {}

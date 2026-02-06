@@ -16,8 +16,13 @@ Source data migrated from:
 from .registry import ModelDefinition, ModelRegistry
 
 
-def register_all_models():
-    """Register all models. Called once at import time."""
+def register_all_models() -> None:
+    """Register all AI models into the central ModelRegistry.
+
+    Populates the ModelRegistry with definitions for all supported models
+    across all categories (text-to-video, image-to-video, avatar, etc.).
+    Called once at module import time.
+    """
 
     # =========================================================================
     # TEXT-TO-VIDEO MODELS (10)

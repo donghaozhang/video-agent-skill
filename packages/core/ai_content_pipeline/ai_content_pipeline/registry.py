@@ -23,7 +23,7 @@ Usage:
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Any
+from typing import ClassVar, Dict, List, Any
 
 
 @dataclass
@@ -89,7 +89,7 @@ class ModelRegistry:
     Class-level registry that all provider packages read from.
     Models are registered at import time via registry_data.py.
     """
-    _models: Dict[str, ModelDefinition] = {}
+    _models: ClassVar[Dict[str, ModelDefinition]] = {}
 
     @classmethod
     def register(cls, model: ModelDefinition):
