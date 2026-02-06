@@ -1,4 +1,4 @@
-# Unify CLI Framework: Migrate Argparse Provider CLIs to Click
+# Unify CLI Framework: Migrate Argparse Provider CLIs to Click - COMPLETE
 
 ## Problem Statement
 
@@ -84,7 +84,7 @@ Provider CLIs run standalone. Unified CLI stays argparse until handler modules a
 
 ---
 
-## Subtask 1: Migrate `fal-text-to-video` CLI from Argparse to Click
+## Subtask 1: Migrate `fal-text-to-video` CLI from Argparse to Click - DONE
 
 **Time estimate:** 30 minutes
 
@@ -309,7 +309,7 @@ if __name__ == "__main__":
 
 ---
 
-## Subtask 2: Migrate `fal-image-to-video` CLI from Argparse to Click
+## Subtask 2: Migrate `fal-image-to-video` CLI from Argparse to Click - DONE
 
 **Time estimate:** 30 minutes
 
@@ -517,7 +517,7 @@ if __name__ == "__main__":
 
 ---
 
-## Subtask 3: Add Click CliRunner Tests for Provider CLIs
+## Subtask 3: Add Click CliRunner Tests for Provider CLIs - DONE
 
 **Time estimate:** 15 minutes
 
@@ -650,7 +650,7 @@ class TestImageToVideoCLI:
 
 ---
 
-## Subtask 4: Verify setup.py and Dependencies
+## Subtask 4: Verify setup.py and Dependencies - DONE
 
 **Time estimate:** 10 minutes
 
@@ -701,7 +701,7 @@ install_requires = [
 
 ---
 
-## Subtask 5: Verification
+## Subtask 5: Verification - DONE
 
 **Time estimate:** 10 minutes
 

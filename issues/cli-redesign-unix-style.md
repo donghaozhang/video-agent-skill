@@ -128,9 +128,9 @@ class KlingModel:
         self.duration = str(kwargs.get("duration", self.defaults["duration"]))
 ```
 
-### Recommendation 4: One CLI Framework
+### Recommendation 4: One CLI Framework ✅ DONE (Provider CLIs)
 
-Pick one (Click is better for complex CLIs) and use it everywhere. Remove the argparse provider CLIs or make them thin wrappers around the unified interface.
+Provider CLIs (`fal-text-to-video`, `fal-image-to-video`) migrated to Click. Unified CLI stays argparse (see `issues/unify-cli-framework.md` for rationale).
 
 ### Recommendation 5: Pipe-Friendly Output
 

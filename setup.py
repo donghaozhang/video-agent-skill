@@ -42,7 +42,7 @@ install_requires = [
     "typing-extensions>=4.0.0",
     "pyyaml>=6.0",
     "pathlib2>=2.3.7",
-    "argparse>=1.4.0",
+    "click>=8.0.0",
     # Essential AI service clients
     "fal-client>=0.4.0",
     "replicate>=0.15.0",
