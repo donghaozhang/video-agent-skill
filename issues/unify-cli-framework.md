@@ -824,12 +824,14 @@ This enables `aicp t2v generate --prompt "..."` and `aicp i2v generate --image i
 ## Files Summary
 
 ### Files to create
+
 | File | Purpose | Lines |
 |---|---|---|
 | `tests/test_t2v_cli_click.py` | Click CliRunner tests for text-to-video | ~60 |
 | `tests/test_i2v_cli_click.py` | Click CliRunner tests for image-to-video | ~60 |
 
 ### Files to modify
+
 | File | Change | Risk |
 |---|---|---|
 | `packages/providers/fal/text-to-video/fal_text_to_video/cli.py` | Full rewrite: argparse -> Click | Low (self-contained) |
@@ -837,6 +839,7 @@ This enables `aicp t2v generate --prompt "..."` and `aicp i2v generate --image i
 | `setup.py` | Add `click>=8.0.0` dep, remove `argparse>=1.4.0` | Minimal |
 
 ### Files NOT modified (explicitly preserved)
+
 | File | Why |
 |---|---|
 | `packages/core/ai_content_pipeline/ai_content_pipeline/__main__.py` | 1,010 lines, 25 commands, 18 coupled handlers - too risky |
