@@ -19,7 +19,8 @@ This is the **AI Content Pipeline** - a unified Python package for multi-modal A
 - **Unified Interface**: Single package with console commands `ai-content-pipeline` and `aicp`
 - **YAML Configuration**: Multi-step content generation workflows
 - **Parallel Execution**: 2-3x speedup with thread-based parallel processing
-- **Multi-Model Support**: 53 AI models across 9 categories
+- **Multi-Model Support**: 73 AI models across 12 categories
+- **Central Model Registry**: Single source of truth in `registry.py` + `registry_data.py`
 - **Cost Management**: Built-in cost estimation and tracking
 - **Organized Output**: Structured output directories with proper file management
 
@@ -36,7 +37,7 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-**Memory**: Virtual environment created at `/home/zdhpe/veo3-video-generation/venv/` with all dependencies installed. Always activate before running scripts.
+**Memory**: Virtual environment at project root `venv/`. Always activate before running scripts (`venv\Scripts\activate` on Windows, `source venv/bin/activate` on Linux/Mac).
 
 ## Common Commands
 
@@ -77,6 +78,12 @@ ai-content-pipeline list-video-models
 
 ### 🧪 Testing Commands
 ```bash
+# Run full pytest suite (~572 tests, ~25s)
+python -m pytest tests/ -v
+
+# Registry tests only
+python -m pytest tests/test_registry.py tests/test_registry_data.py tests/test_auto_discovery.py -v
+
 # Quick smoke tests (30 seconds)
 python tests/test_core.py
 
@@ -86,11 +93,8 @@ python tests/test_integration.py
 # Interactive demonstration
 python tests/demo.py --interactive
 
-# Run all tests
-python tests/run_all_tests.py
-
-# Quick test mode
-python tests/run_all_tests.py --quick
+# Validate registry consistency
+python scripts/validate_registry.py
 ```
 
 ## Architecture
@@ -100,30 +104,39 @@ python tests/run_all_tests.py --quick
 ai-content-pipeline/
 ├── packages/
 │   ├── core/
-│   │   ├── ai_content_pipeline/     # Main unified pipeline
-│   │   └── ai_content_platform/     # Platform framework
+│   │   ├── ai_content_pipeline/     # Main unified pipeline + central registry
+│   │   │   ├── registry.py          # ModelDefinition + ModelRegistry (source of truth)
+│   │   │   └── registry_data.py     # All 73 model registrations
+│   │   └── ai_content_platform/     # Platform framework + vimax CLI
 │   ├── providers/
 │   │   ├── google/veo/              # Google Veo integration
 │   │   └── fal/                     # FAL AI services
-│   │       ├── text-to-image/       # Image generation
-│   │       ├── image-to-image/      # Image transformation
-│   │       ├── text-to-video/       # Video generation
-│   │       └── avatar-generation/   # Avatar creation
+│   │       ├── text-to-image/       # Image generation (8 models)
+│   │       ├── image-to-image/      # Image transformation (8 models)
+│   │       ├── text-to-video/       # Video generation (10 models, Click CLI)
+│   │       ├── image-to-video/      # Image-to-video (15 models, Click CLI)
+│   │       ├── video-to-video/      # Video-to-video (4 models)
+│   │       ├── avatar-generation/   # Avatar creation (10 models)
+│   │       └── speech-to-text/      # Speech transcription (1 model)
 │   └── services/
 │       ├── text-to-speech/          # ElevenLabs TTS
 │       └── video-tools/             # Video processing
+├── scripts/                         # Validation scripts
 ├── input/                           # Configuration files
 ├── output/                          # Generated content
-├── tests/                           # Test suites
+├── tests/                           # Test suites (pytest)
 ├── docs/                            # Documentation
 └── setup.py                         # Package installation
 ```
 
 ### AI Content Pipeline Architecture
-- **Unified Package**: Single installable package with console commands
+- **Unified Package**: Single installable package with console commands (`ai-content-pipeline`, `aicp`, `vimax`)
+- **Central Model Registry**: `registry.py` + `registry_data.py` — single source of truth for all model metadata
+- **Auto-Discovery**: Generator classes use `MODEL_KEY` class attributes for automatic model registration
+- **Provider CLIs**: Provider-level CLIs use Click framework (`fal-text-to-video`, `fal-image-to-video`)
 - **YAML Configuration**: Multi-step workflow definitions
 - **Parallel Execution**: Thread-based processing with `PIPELINE_PARALLEL_ENABLED=true`
-- **Multi-Model Support**: 53 AI models across 9 categories
+- **Multi-Model Support**: 73 AI models across 12 categories
 - **Cost Management**: Built-in estimation and tracking
 - **Organized Output**: Structured file management
 
@@ -185,74 +198,95 @@ gcloud config set project your-project-id
 ## Testing Strategy
 
 ### Test Structure
-- **`tests/test_core.py`** - Quick smoke tests (30 seconds)
-- **`tests/test_integration.py`** - Comprehensive integration tests (2-3 minutes)
-- **`tests/demo.py`** - Interactive demonstration and examples
-- **`tests/run_all_tests.py`** - Test runner with `--quick` option
+- **`tests/test_registry.py`** - Central registry unit tests
+- **`tests/test_registry_data.py`** - Registry data validation tests
+- **`tests/test_auto_discovery.py`** - Model auto-discovery tests
+- **`tests/test_t2v_cli_click.py`** - Text-to-video Click CLI tests
+- **`tests/test_i2v_cli_click.py`** - Image-to-video Click CLI tests
+- **`tests/test_core.py`** - Quick smoke tests
+- **`tests/test_integration.py`** - Comprehensive integration tests
+- **`tests/unit/`** - Unit tests for pipeline, vimax, and utilities
 
 ### Test Commands
 ```bash
-# Quick development check
+# Full pytest suite (~572 tests, ~25s)
+python -m pytest tests/ -v
+
+# Registry tests only
+python -m pytest tests/test_registry.py tests/test_registry_data.py tests/test_auto_discovery.py -v
+
+# Validate registry consistency
+python scripts/validate_registry.py
+
+# Quick smoke tests
 python tests/test_core.py
-
-# Full validation
-python tests/test_integration.py
-
-# Interactive demo
-python tests/demo.py --interactive
-
-# Run all tests
-python tests/run_all_tests.py
-
-# Quick mode (core tests only)
-python tests/run_all_tests.py --quick
 ```
 
-## Available AI Models
+## Available AI Models (73 models, 12 categories)
 
 ### 📦 Text-to-Image (8 models)
 - **FLUX.1 Dev** - Highest quality, 12B parameter model
 - **FLUX.1 Schnell** - Fastest inference speed
+- **Runway Gen-4** - Runway's latest generation model
 - **Imagen 4** - Google's photorealistic model
-- **Seedream v3** - Multilingual support
+- **Seedream v3 / v3 Fast** - Multilingual support
 - **Nano Banana Pro** - Fast, high-quality generation
 - **GPT Image 1.5** - GPT-powered image generation
 
 ### 📦 Image-to-Image (8 models)
-- **Photon Flash** - Creative modifications
-- **Photon Base** - Standard transformations
-- **FLUX variants** - Advanced image editing
+- **Photon Flash / Base** - Creative modifications and standard transformations
+- **FLUX Kontext Pro / Max** - Advanced image editing
 - **Clarity Upscaler** - Resolution enhancement
 - **Nano Banana Pro Edit** - Fast image editing
 - **GPT Image 1.5 Edit** - GPT-powered image editing
+- **SeedEdit v3** - ByteDance image editing
 
-### 📦 Image-to-Video (12 models)
-- **Veo 3** - Google's latest video model
-- **Veo 2** - Previous generation Veo
-- **Hailuo** - MiniMax video generation
-- **Kling** - High-quality video synthesis
-- **Grok Imagine** - xAI text/image-to-video with audio (1-15s, $0.05/s)
+### 📦 Text-to-Video (10 models)
+- **Veo 3 / Veo 3 Fast** - Google's latest video models
+- **Kling v2.6 Pro** - High-quality Kling video
+- **Kling v3 Standard / Pro** - Latest Kling generation
+- **Kling O3 Pro** - Omni 3 with element-based character consistency
+- **Sora 2 / Sora 2 Pro** - OpenAI video generation
+- **Hailuo Pro** - MiniMax video generation
+- **Grok Imagine** - xAI text-to-video with audio
+
+### 📦 Image-to-Video (15 models)
+- **Veo 3.1 Fast** - Google's latest i2v model
+- **Hailuo** - MiniMax i2v generation
+- **Kling v2.1 / v2.6 Pro / v3 Standard / v3 Pro** - Kling i2v variants
+- **Kling O3 Standard / O3 Pro** - Omni 3 i2v with element consistency
+- **Seedance v1.5 Pro** - ByteDance dance/motion video
+- **Sora 2 / Sora 2 Pro** - OpenAI i2v generation
+- **Wan v2.6** - Alibaba i2v generation
+- **Grok Imagine** - xAI i2v with audio
+
+### 📦 Video-to-Video (4 models)
+- **Kling O3 Pro Edit / Standard Edit** - AI video editing
+- **Kling O3 Pro V2V / Standard V2V** - Video-to-video reference transfer
 
 ### 📦 Image Understanding (7 models)
-- **Gemini variants** - Description, classification, OCR, Q&A
+- **Gemini variants** - Description, classification, OCR, Q&A, composition, objects
 
 ### 📦 Prompt Generation (5 models)
-- **OpenRouter models** - Video prompt optimization
+- **OpenRouter models** - Video prompt optimization (artistic, cinematic, dramatic, realistic styles)
 
-### 📦 Audio/Video Processing (2 models)
-- **ThinksSound** - Audio generation
-- **Topaz** - Video upscaling
+### 📦 Add Audio (1 model)
+- **ThinksSound** - AI audio generation from video
 
-### 📦 Avatar Generation (9 models)
+### 📦 Upscale Video (1 model)
+- **Topaz** - AI video upscaling
+
+### 📦 Avatar Generation (10 models)
 - **OmniHuman v1.5** - High-quality audio-driven animation (ByteDance)
-- **VEED Fabric 1.0** - Cost-effective lip-sync
-- **VEED Fabric 1.0 Fast** - Speed-optimized lip-sync
-- **VEED Fabric 1.0 Text** - Text-to-speech + lip-sync
+- **VEED Fabric 1.0 / Fast / Text** - Lip-sync variants
 - **Kling O1 Ref-to-Video** - Character consistency
-- **Kling O1 V2V Reference** - Style transfer
-- **Kling O1 V2V Edit** - Video editing
+- **Kling O1 V2V Reference / Edit** - Style transfer and editing
 - **Kling v2.6 Motion Control** - Motion transfer from video to image
+- **Grok Video Edit** - xAI video editing
 - **AI Avatar Multi** - Multi-person conversations
+
+### 📦 Text-to-Speech (3 models)
+- **ElevenLabs Standard / Turbo / v3** - Text-to-speech generation
 
 ### 📦 Speech-to-Text (1 model)
 - **ElevenLabs Scribe v2** - Fast, accurate transcription with speaker diarization
@@ -261,7 +295,8 @@ python tests/run_all_tests.py --quick
 
 ### 🎯 **Unified Interface**
 - Single package installation with `pip install -e .`
-- Console commands: `ai-content-pipeline` and `aicp`
+- Console commands: `ai-content-pipeline`, `aicp`, and `vimax`
+- Provider CLIs: `fal-text-to-video`, `fal-image-to-video` (Click-based)
 - Consistent API across all AI models
 
 ### 📋 **YAML Configuration**
@@ -303,10 +338,9 @@ python tests/run_all_tests.py --quick
 ## Project Development Guidelines
 
 ### 🔄 Project Awareness & Context
-- **Always read `PLANNING.md`** at the start of a new conversation to understand the project's architecture, goals, style, and constraints.
-- **Check `TASK.md`** before starting a new task. If the task isn't listed, add it with a brief description and today's date.
-- **Use consistent naming conventions, file structure, and architecture patterns** as described in `PLANNING.md`.
-- **Use venv_linux** (the virtual environment) whenever executing Python commands, including for unit tests.
+- **Always read `CLAUDE.md`** at the start of a new conversation to understand the project's architecture, goals, style, and constraints.
+- **Use consistent naming conventions, file structure, and architecture patterns** as described in this file.
+- **Activate the virtual environment** (`venv\Scripts\activate` on Windows, `source venv/bin/activate` on Linux/Mac) before executing Python commands.
 
 ### 🧱 Code Structure & Modularity
 - **Never create a file longer than 500 lines of code.** If a file approaches this limit, refactor by splitting it into modules or helper files.
@@ -339,8 +373,8 @@ python tests/run_all_tests.py --quick
 - **PyPI URL**: https://pypi.org/project/video-ai-studio/
 
 ### ✅ Task Completion
-- **Mark completed tasks in `TASK.md`** immediately after finishing them.
-- Add new sub-tasks or TODOs discovered during development to `TASK.md` under a "Discovered During Work" section.
+- Track tasks via GitHub Issues and PRs.
+- Add new sub-tasks or TODOs discovered during development as GitHub issues.
 
 ### 📎 Style & Conventions
 - **Use Python** as the primary language.
