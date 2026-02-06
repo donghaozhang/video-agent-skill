@@ -262,5 +262,7 @@ class BaseVideoModel(ABC):
                         price = v
                         break
                 else:
-                    return 0.0
+                    raise ValueError(
+                        f"No numeric pricing tier found for model '{self.model_key}'"
+                    )
         return price * duration
