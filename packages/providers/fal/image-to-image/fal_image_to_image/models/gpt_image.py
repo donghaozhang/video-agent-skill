@@ -13,6 +13,7 @@ class GPTImage15EditModel(BaseModel):
     MODEL_KEY = "gpt_image_1_5_edit"
 
     def __init__(self):
+        """Initialize the GPT Image 1.5 Edit model."""
         super().__init__("gpt_image_1_5_edit")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

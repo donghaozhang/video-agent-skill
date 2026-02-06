@@ -34,6 +34,7 @@ class Kling26ProModel(BaseTextToVideoModel):
     MODEL_KEY = "kling_2_6_pro"
 
     def __init__(self):
+        """Initialize the Kling v2.6 Pro text-to-video model."""
         super().__init__("kling_2_6_pro")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -133,6 +134,7 @@ class KlingV3StandardModel(BaseTextToVideoModel):
     MODEL_KEY = "kling_3_standard"
 
     def __init__(self):
+        """Initialize the Kling v3 Standard text-to-video model."""
         super().__init__("kling_3_standard")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -266,6 +268,7 @@ class KlingV3ProModel(BaseTextToVideoModel):
     MODEL_KEY = "kling_3_pro"
 
     def __init__(self):
+        """Initialize the Kling v3 Pro text-to-video model."""
         super().__init__("kling_3_pro")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

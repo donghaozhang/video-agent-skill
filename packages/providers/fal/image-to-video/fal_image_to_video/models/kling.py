@@ -32,6 +32,7 @@ class KlingModel(BaseVideoModel):
     MODEL_KEY = "kling_2_1"
 
     def __init__(self):
+        """Initialize the Kling v2.1 image-to-video model."""
         super().__init__("kling_2_1")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -108,6 +109,7 @@ class Kling26ProModel(BaseVideoModel):
     MODEL_KEY = "kling_2_6_pro"
 
     def __init__(self):
+        """Initialize the Kling v2.6 Pro image-to-video model."""
         super().__init__("kling_2_6_pro")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -200,6 +202,7 @@ class KlingV3StandardModel(BaseVideoModel):
     MODEL_KEY = "kling_3_standard"
 
     def __init__(self):
+        """Initialize the Kling v3 Standard image-to-video model."""
         super().__init__("kling_3_standard")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -349,6 +352,7 @@ class KlingV3ProModel(BaseVideoModel):
     MODEL_KEY = "kling_3_pro"
 
     def __init__(self):
+        """Initialize the Kling v3 Pro image-to-video model."""
         super().__init__("kling_3_pro")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

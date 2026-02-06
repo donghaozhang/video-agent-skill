@@ -13,6 +13,7 @@ class ClarityModel(BaseModel):
     MODEL_KEY = "clarity"
 
     def __init__(self):
+        """Initialize the Clarity Upscaler model."""
         super().__init__("clarity")
     
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

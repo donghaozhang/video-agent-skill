@@ -31,6 +31,7 @@ class Veo31FastModel(BaseVideoModel):
     MODEL_KEY = "veo_3_1_fast"
 
     def __init__(self):
+        """Initialize the Veo 3.1 Fast image-to-video model."""
         super().__init__("veo_3_1_fast")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

@@ -17,6 +17,7 @@ class PhotonModel(BaseModel):
     MODEL_KEY = "photon"
 
     def __init__(self):
+        """Initialize the Photon Flash model."""
         super().__init__("photon")
     
     def _calculate_centered_reframing(
@@ -271,6 +272,7 @@ class PhotonBaseModel(BaseModel):
     MODEL_KEY = "photon_base"
 
     def __init__(self):
+        """Initialize the Photon Base model."""
         super().__init__("photon_base")
     
     def _calculate_centered_reframing(

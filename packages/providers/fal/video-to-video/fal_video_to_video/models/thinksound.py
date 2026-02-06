@@ -14,6 +14,7 @@ class ThinkSoundModel(BaseModel):
     MODEL_KEY = "thinksound"
 
     def __init__(self):
+        """Initialize the ThinkSound audio generation model."""
         super().__init__("thinksound")
     
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

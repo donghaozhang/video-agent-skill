@@ -50,6 +50,7 @@ class KlingO3ProT2VModel(BaseTextToVideoModel):
     MODEL_KEY = "kling_o3_pro_t2v"
 
     def __init__(self):
+        """Initialize the Kling O3 Pro text-to-video model."""
         super().__init__("kling_o3_pro_t2v")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

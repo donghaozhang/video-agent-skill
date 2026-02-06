@@ -14,6 +14,7 @@ class TopazModel(BaseModel):
     MODEL_KEY = "topaz"
 
     def __init__(self):
+        """Initialize the Topaz video upscaling model."""
         super().__init__("topaz")
     
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

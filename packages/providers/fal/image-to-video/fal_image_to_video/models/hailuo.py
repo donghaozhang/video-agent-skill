@@ -25,6 +25,7 @@ class HailuoModel(BaseVideoModel):
     MODEL_KEY = "hailuo"
 
     def __init__(self):
+        """Initialize the Hailuo image-to-video model."""
         super().__init__("hailuo")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

@@ -16,6 +16,7 @@ class SeedEditModel(BaseModel):
     MODEL_KEY = "seededit"
 
     def __init__(self):
+        """Initialize the SeedEdit model."""
         super().__init__("seededit")
     
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

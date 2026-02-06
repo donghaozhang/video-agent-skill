@@ -42,6 +42,7 @@ class KlingO3StandardEditModel(BaseModel):
     MODEL_KEY = "kling_o3_standard_edit"
 
     def __init__(self):
+        """Initialize the Kling O3 Standard Edit video-to-video model."""
         super().__init__("kling_o3_standard_edit")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -135,6 +136,7 @@ class KlingO3ProEditModel(BaseModel):
     MODEL_KEY = "kling_o3_pro_edit"
 
     def __init__(self):
+        """Initialize the Kling O3 Pro Edit video-to-video model."""
         super().__init__("kling_o3_pro_edit")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -230,6 +232,7 @@ class KlingO3StandardV2VRefModel(BaseModel):
     MODEL_KEY = "kling_o3_standard_v2v_ref"
 
     def __init__(self):
+        """Initialize the Kling O3 Standard V2V Reference video-to-video model."""
         super().__init__("kling_o3_standard_v2v_ref")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -329,6 +332,7 @@ class KlingO3ProV2VRefModel(BaseModel):
     MODEL_KEY = "kling_o3_pro_v2v_ref"
 
     def __init__(self):
+        """Initialize the Kling O3 Pro V2V Reference video-to-video model."""
         super().__init__("kling_o3_pro_v2v_ref")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

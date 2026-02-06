@@ -30,6 +30,7 @@ class Sora2Model(BaseVideoModel):
     MODEL_KEY = "sora_2"
 
     def __init__(self):
+        """Initialize the Sora 2 image-to-video model."""
         super().__init__("sora_2")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:
@@ -106,6 +107,7 @@ class Sora2ProModel(BaseVideoModel):
     MODEL_KEY = "sora_2_pro"
 
     def __init__(self):
+        """Initialize the Sora 2 Pro image-to-video model."""
         super().__init__("sora_2_pro")
 
     def validate_parameters(self, **kwargs) -> Dict[str, Any]:

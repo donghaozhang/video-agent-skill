@@ -122,6 +122,7 @@ class BaseVideoModel(ABC):
             start_time = time.time()
 
             def on_queue_update(update):
+                """Handle FAL queue progress updates."""
                 if hasattr(update, 'logs') and update.logs:
                     for log in update.logs:
                         print(f"  {log.get('message', str(log))}")
