@@ -13,7 +13,7 @@ def validate():
     errors = []
 
     from ai_content_pipeline.registry import ModelRegistry
-    import ai_content_pipeline.registry_data  # noqa: F401
+    import ai_content_pipeline.registry_data  # side-effect: registers models
 
     all_keys = ModelRegistry.all_keys()
 
