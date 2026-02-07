@@ -5,7 +5,7 @@ the right entry point, and lists importable hidden imports.
 
 File paths:
     - Spec:  aicp.spec (project root)
-    - Entry: packages/core/ai_content_pipeline/ai_content_pipeline/__main__.py
+    - Entry: aicp_entry.py (project root)
 """
 
 import re

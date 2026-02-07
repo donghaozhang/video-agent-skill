@@ -442,7 +442,7 @@ class ChainExecutor:
         total_time = time.time() - start_time
 
         if not self.quiet:
-            print(f"\nChain completed successfully!")
+            print("\nChain completed successfully!")
             print(f"Total time: {total_time:.1f}s")
             print(f"Total cost: ${total_cost:.3f}")
 
