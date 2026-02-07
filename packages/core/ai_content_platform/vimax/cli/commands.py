@@ -343,9 +343,26 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
     artist = StoryboardArtist(config)
 
     async def run():
-        return await artist.process(script_obj, portrait_registry=portrait_registry)
+        # Pre-resolve references so CLI can display them before generation
+        if portrait_registry and len(portrait_registry.portraits) > 0:
+            resolved = await artist.resolve_references(script_obj, portrait_registry)
+            return resolved, await artist.process(script_obj, portrait_registry=portrait_registry)
+        return 0, await artist.process(script_obj)
 
-    result = run_async(run())
+    resolved_count, result = run_async(run())
+
+    # Display resolved references per shot
+    if portrait_registry and resolved_count > 0:
+        click.echo(f"\n   Resolved references for {resolved_count} shots:")
+        for scene in script_obj.scenes:
+            for shot in scene.shots:
+                if shot.character_references:
+                    refs = ", ".join(
+                        f"{name} -> {path}" for name, path in shot.character_references.items()
+                    )
+                    click.echo(f"     {shot.shot_id}: {refs}")
+                elif shot.characters:
+                    click.echo(f"     {shot.shot_id}: (no matching portraits for {shot.characters})")
 
     if result.success:
         click.echo("\nStoryboard generated successfully!")

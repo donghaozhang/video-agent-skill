@@ -97,8 +97,18 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
             self._reference_selector = ReferenceImageSelector(ReferenceSelectorConfig())
             await self._reference_selector.initialize()
 
-    def _build_prompt(self, shot: ShotDescription, scene: Scene) -> str:
-        """Build image generation prompt from shot description."""
+    def _build_prompt(
+        self,
+        shot: ShotDescription,
+        scene: Scene,
+        registry: Optional[CharacterPortraitRegistry] = None,
+    ) -> str:
+        """Build image generation prompt from shot description.
+
+        When character references have been resolved on the shot, appends
+        per-character appearance descriptions (dress, face, look) and an
+        instruction telling the model to use the input image for each character.
+        """
         parts = [self.config.style_prefix]
 
         # Add scene context
@@ -123,12 +133,63 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
         if shot.shot_type.value in shot_type_hints:
             parts.append(shot_type_hints[shot.shot_type.value])
 
+        # Add character appearance + reference instructions
+        if shot.character_references:
+            for name in shot.character_references:
+                desc = ""
+                if registry:
+                    portrait = registry.get_portrait(name)
+                    if portrait and portrait.description:
+                        desc = portrait.description
+                if desc:
+                    parts.append(f"{name}: {desc}.")
+                parts.append(f"Use the input image for {name}.")
+
         return " ".join(parts)
 
     def _safe_slug(self, value: str) -> str:
         """Sanitize a string for use in filesystem paths."""
         safe = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("_")
         return safe or "untitled"
+
+    async def resolve_references(
+        self,
+        script: Script,
+        registry: CharacterPortraitRegistry,
+    ) -> int:
+        """
+        Pre-populate character_references on all shots from the portrait registry.
+
+        Iterates through every shot in the script. For each character listed in a
+        shot, the best portrait view is selected based on camera angle and shot type,
+        then written into ``shot.character_references`` and ``shot.primary_reference_image``.
+
+        Args:
+            script: Script whose shots will be enriched in-place.
+            registry: Portrait registry to resolve references from.
+
+        Returns:
+            Number of shots that received at least one reference.
+        """
+        await self._ensure_reference_selector()
+
+        resolved_count = 0
+        for scene in script.scenes:
+            for shot in scene.shots:
+                if not shot.characters:
+                    continue
+                ref_result = await self._reference_selector.select_for_shot(
+                    shot, registry
+                )
+                if ref_result.selected_references:
+                    shot.character_references = ref_result.selected_references
+                if ref_result.primary_reference:
+                    shot.primary_reference_image = ref_result.primary_reference
+                    resolved_count += 1
+                    self.logger.debug(
+                        f"Resolved {shot.shot_id}: {ref_result.selection_reason}"
+                    )
+        return resolved_count
 
     async def process(
         self,
@@ -156,11 +217,30 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
         )
 
         if use_refs:
-            await self._ensure_reference_selector()
-            self.logger.info(
-                f"Generating storyboard for: {script.title} "
-                f"(with {len(registry.portraits)} character references)"
+            # Check if references are already resolved (e.g. by CLI calling resolve_references)
+            already_resolved = any(
+                shot.primary_reference_image
+                for scene in script.scenes
+                for shot in scene.shots
+                if shot.characters
             )
+            if already_resolved:
+                resolved = sum(
+                    1 for scene in script.scenes
+                    for shot in scene.shots
+                    if shot.primary_reference_image
+                )
+                self.logger.info(
+                    f"Generating storyboard for: {script.title} "
+                    f"(references already resolved for {resolved} shots)"
+                )
+            else:
+                resolved = await self.resolve_references(script, registry)
+                self.logger.info(
+                    f"Generating storyboard for: {script.title} "
+                    f"(resolved references for {resolved} shots "
+                    f"from {len(registry.portraits)} characters)"
+                )
         else:
             self.logger.info(f"Generating storyboard for: {script.title} (no references)")
 
@@ -180,24 +260,12 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
                     shot_index += 1
                     self.logger.info(f"Generating shot {shot_index}: {shot.shot_id}")
 
-                    # Build prompt
-                    prompt = self._build_prompt(shot, scene)
+                    # Build prompt (pass registry for character descriptions)
+                    prompt = self._build_prompt(shot, scene, registry=registry)
                     output_path = str(output_dir / f"{self._safe_slug(shot.shot_id)}.png")
 
-                    # Select reference image if available
-                    reference_image = None
-                    if use_refs and shot.characters:
-                        ref_result = await self._reference_selector.select_for_shot(
-                            shot, registry
-                        )
-                        if ref_result.primary_reference:
-                            reference_image = ref_result.primary_reference
-                            shot.character_references = ref_result.selected_references
-                            shot.primary_reference_image = ref_result.primary_reference
-                            self.logger.debug(
-                                f"Shot {shot.shot_id}: using reference "
-                                f"({ref_result.selection_reason})"
-                            )
+                    # Use pre-resolved reference from shot.primary_reference_image
+                    reference_image = shot.primary_reference_image if use_refs else None
 
                     # Generate image with or without reference
                     if reference_image:
@@ -297,19 +365,37 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
         if use_refs:
             await self._ensure_reference_selector()
 
+        # Pre-populate references on shots if registry available
+        if use_refs:
+            for shot in shots:
+                if not shot.characters:
+                    continue
+                ref_result = await self._reference_selector.select_for_shot(shot, registry)
+                if ref_result.selected_references:
+                    shot.character_references = ref_result.selected_references
+                if ref_result.primary_reference:
+                    shot.primary_reference_image = ref_result.primary_reference
+
         images = []
         output_dir = Path(self.config.output_dir) / self._safe_slug(title)
         output_dir.mkdir(parents=True, exist_ok=True)
 
         for i, shot in enumerate(shots):
             prompt = f"{self.config.style_prefix} {shot.image_prompt or shot.description}"
+            if shot.character_references:
+                for name in shot.character_references:
+                    desc = ""
+                    if registry:
+                        portrait = registry.get_portrait(name)
+                        if portrait and portrait.description:
+                            desc = portrait.description
+                    if desc:
+                        prompt += f" {name}: {desc}."
+                    prompt += f" Use the input image for {name}."
             output_path = str(output_dir / f"shot_{i+1:03d}.png")
 
-            # Select reference image if available
-            reference_image = None
-            if use_refs and shot.characters:
-                ref_result = await self._reference_selector.select_for_shot(shot, registry)
-                reference_image = ref_result.primary_reference
+            # Use pre-resolved reference from shot
+            reference_image = shot.primary_reference_image if use_refs else None
 
             # Generate with or without reference
             if reference_image:

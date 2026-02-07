@@ -122,21 +122,175 @@ vimax generate-portraits --characters characters.json --image-model flux_dev --v
 
 #### `generate-storyboard` - Generate Storyboard
 
-Generate storyboard images from a screenplay.
+Generate storyboard images from a screenplay. Supports character reference images for visual consistency across shots by matching camera angles to portrait views.
 
 ```bash
-vimax generate-storyboard --script screenplay.json --output storyboard/
-vimax generate-storyboard --script screenplay.json --portraits registry.json --style cinematic
+# Basic: text-to-image only (no character references)
+vimax generate-storyboard --script script.json --output storyboard/
+
+# With character references for consistency
+vimax generate-storyboard --script script.json --portraits registry.json --output storyboard/
+
+# Photorealistic style (override default "storyboard panel" look)
+vimax generate-storyboard --script script.json --portraits registry.json --style "photorealistic, cinematic lighting, " --output storyboard/
+
+# High-quality with strong reference matching
+vimax generate-storyboard --script script.json --portraits registry.json --reference-strength 0.8 --image-model flux_dev --output storyboard/
 ```
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--script` | required | Screenplay JSON file |
-| `--output` | `output/` | Output directory |
-| `--image-model` | `nano_banana_pro` | Image generation model |
-| `--style` | none | Visual style (cinematic, anime, etc.) |
-| `--portraits` | none | Portrait registry for character consistency |
-| `--reference-strength` | auto | How strongly to match reference images |
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--script` | `-s` | required | Screenplay JSON file (see format below) |
+| `--output` | `-o` | `media/generated/vimax/storyboard` | Output directory for generated images |
+| `--image-model` | | `nano_banana_pro` | Image generation model |
+| `--style` | | `storyboard panel, cinematic composition, ` | Style prefix prepended to every prompt |
+| `--portraits` | `-p` | none | Portrait registry JSON for character consistency |
+| `--reference-model` | | `nano_banana_pro` | Model used for reference-based generation (image-to-image) |
+| `--reference-strength` | | `0.6` | How strongly to match reference images (0.0-1.0) |
+
+**How `--style` works:** The style string is prepended to every shot's `image_prompt`. The default `"storyboard panel, cinematic composition, "` produces illustrated storyboard panels. To get photorealistic output, change it:
+
+| Style Value | Result |
+|-------------|--------|
+| `"storyboard panel, cinematic composition, "` (default) | Illustrated storyboard panels |
+| `"photorealistic, cinematic lighting, "` | Photorealistic film stills |
+| `"anime, cel shaded, "` | Anime-style frames |
+| `"cinematic, "` | General cinematic look |
+| `""` (empty string) | No style prefix, uses raw image_prompt |
+
+**How reference images work:**
+1. When `--portraits` is provided, each shot's `characters` list is checked against the registry
+2. The `camera_angle` is mapped to a portrait view (see mapping below)
+3. The best matching portrait is used as input to an image-to-image model (`--reference-model`)
+4. Without `--portraits`, plain text-to-image is used (~$0.002/image vs ~$0.15/image with references)
+
+**Camera angle to portrait view mapping:**
+
+| camera_angle in script | Portrait view used |
+|------------------------|-------------------|
+| `front`, `eye_level`, `straight_on`, `face_on` | `front_view` |
+| `side`, `profile`, `left`, `right` | `side_view` |
+| `back`, `behind`, `rear` | `back_view` |
+| `three_quarter`, `45_degree`, `angled` | `three_quarter_view` |
+
+If the preferred view is not available, falls back to `front_view`, then any available view.
+
+**Shot types** (affects reference view preference):
+
+| shot_type | Preferred views | Notes |
+|-----------|----------------|-------|
+| `close_up` | front, three_quarter | Strong reference influence (face fills frame) |
+| `extreme_close_up` | front | Very strong reference influence |
+| `medium` | front, three_quarter, side | Good reference influence |
+| `two_shot` | front, three_quarter, side | Uses first character's portrait as primary |
+| `wide` | front, side, back | Weak reference influence (character is small) |
+| `establishing` | front, side | Weak reference influence |
+| `over_the_shoulder` | back, three_quarter | Back/side view works best |
+| `pov` | (none) | No reference used |
+| `insert` | (none) | No reference used |
+
+##### Script JSON Format
+
+The `--script` file must be a JSON with this structure:
+
+```json
+{
+  "title": "The Meeting",
+  "logline": "Optional one-line summary.",
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "title": "The Arrival",
+      "description": "Scene description for context.",
+      "location": "Warm coffee shop with large windows",
+      "time": "Morning, golden hour light",
+      "shots": [
+        {
+          "shot_id": "shot_001",
+          "shot_type": "wide",
+          "description": "Miranda walks through the front door.",
+          "camera_movement": "static",
+          "camera_angle": "eye_level",
+          "characters": ["Miranda"],
+          "duration_seconds": 5.0,
+          "image_prompt": "Cinematic wide shot of a warm cozy coffee shop, a woman in a gray blazer walks through the door, morning sunlight"
+        }
+      ]
+    }
+  ],
+  "total_duration": 17.0
+}
+```
+
+**Required fields per shot:** `shot_id`, `description`
+
+**Optional fields:** `shot_type` (default: `medium`), `camera_movement` (default: `static`), `camera_angle` (default: `eye_level`), `characters` (default: `[]`), `duration_seconds` (default: `5.0`), `image_prompt` (if omitted, `description` is used)
+
+**Camera movements:** `static`, `pan`, `tilt`, `zoom`, `dolly`, `tracking`, `crane`, `handheld`
+
+##### Portrait Registry JSON Format
+
+The `--portraits` file maps character names to portrait image paths:
+
+```json
+{
+  "project_id": "my_project",
+  "portraits": {
+    "Miranda": {
+      "character_name": "Miranda",
+      "front_view": "path/to/miranda_front.png",
+      "side_view": null,
+      "back_view": null,
+      "three_quarter_view": "path/to/miranda_3quarter.png"
+    },
+    "Elena": {
+      "character_name": "Elena",
+      "front_view": "path/to/elena_front.png",
+      "side_view": null,
+      "back_view": null,
+      "three_quarter_view": null
+    }
+  }
+}
+```
+
+Portrait paths can be local file paths (absolute or relative) — they are uploaded to FAL at runtime. Only provide views you have images for; set others to `null`.
+
+##### Cost Breakdown
+
+| Mode | Cost per image | When used |
+|------|---------------|-----------|
+| Text-to-image (no portraits) | ~$0.002 | `--portraits` not provided |
+| Reference-based (`nano_banana_pro`) | ~$0.15 | `--portraits` provided, character found in shot |
+| Reference-based (`flux_kontext`) | ~$0.025 | Using `--reference-model flux_kontext` |
+
+##### Example: Full Storyboard Workflow
+
+```bash
+# 1. Create script.json (manually or via generate-script)
+vimax generate-script --idea "Two friends reunite at a coffee shop" --output script.json
+
+# 2. Create portraits (manually or via generate-portraits pipeline)
+#    Place character images in a folder, create registry.json pointing to them
+
+# 3. Generate storyboard - photorealistic with strong character matching
+vimax generate-storyboard \
+  --script script.json \
+  --portraits registry.json \
+  --style "photorealistic, cinematic lighting, shallow depth of field, " \
+  --reference-strength 0.8 \
+  --output storyboard/
+
+# 4. Check output
+ls storyboard/  # One .png per shot
+```
+
+**Tips:**
+- Use `--reference-strength 0.8` for close-ups to get strong face matching
+- Use `--reference-strength 0.4-0.6` for wide shots to allow more creative freedom
+- The default `--style` produces storyboard panel illustrations — change it for photorealistic output
+- Character names in `script.json` shots must exactly match keys in `registry.json` portraits
+- More portrait views = better angle matching (provide at least `front_view`)
 
 ### Utility Commands
 
