@@ -9,6 +9,7 @@ File paths:
     - .github/workflows/publish-check.yml
     - .github/workflows/binary.yml
     - .github/workflows/release.yml
+    - .github/workflows/on-merge.yml
 """
 
 from pathlib import Path
@@ -192,3 +193,89 @@ class TestExistingWorkflowsUnchanged:
         push_trigger = triggers.get("push", {})
         tags = push_trigger.get("tags", [])
         assert len(tags) > 0, "release.yml must trigger on tag pushes"
+
+
+class TestOnMergeWorkflow:
+    """Verify on-merge.yml handles changelog + latest release."""
+
+    def test_on_merge_yml_exists(self):
+        """on-merge.yml must exist."""
+        assert (WORKFLOWS_DIR / "on-merge.yml").exists()
+
+    def test_on_merge_triggers_on_pr_closed(self):
+        """on-merge.yml must trigger on pull_request closed events."""
+        data = yaml.safe_load(
+            (WORKFLOWS_DIR / "on-merge.yml").read_text(encoding="utf-8")
+        )
+        triggers = data.get("on", data.get(True, {}))
+        pr_trigger = triggers.get("pull_request", {})
+        types = pr_trigger.get("types", [])
+        assert "closed" in types, (
+            "on-merge.yml must trigger on pull_request closed"
+        )
+
+    def test_on_merge_has_changelog_job(self):
+        """on-merge.yml must have a changelog job."""
+        data = yaml.safe_load(
+            (WORKFLOWS_DIR / "on-merge.yml").read_text(encoding="utf-8")
+        )
+        jobs = data.get("jobs", {})
+        assert "changelog" in jobs, "on-merge.yml must have a 'changelog' job"
+
+    def test_on_merge_has_build_wheel_job(self):
+        """on-merge.yml must have a build-wheel job."""
+        data = yaml.safe_load(
+            (WORKFLOWS_DIR / "on-merge.yml").read_text(encoding="utf-8")
+        )
+        jobs = data.get("jobs", {})
+        assert "build-wheel" in jobs, (
+            "on-merge.yml must have a 'build-wheel' job"
+        )
+
+    def test_on_merge_has_build_binary_job(self):
+        """on-merge.yml must have a build-binary job."""
+        data = yaml.safe_load(
+            (WORKFLOWS_DIR / "on-merge.yml").read_text(encoding="utf-8")
+        )
+        jobs = data.get("jobs", {})
+        assert "build-binary" in jobs, (
+            "on-merge.yml must have a 'build-binary' job"
+        )
+
+    def test_on_merge_has_latest_release_job(self):
+        """on-merge.yml must have an update-latest-release job."""
+        data = yaml.safe_load(
+            (WORKFLOWS_DIR / "on-merge.yml").read_text(encoding="utf-8")
+        )
+        jobs = data.get("jobs", {})
+        assert "update-latest-release" in jobs, (
+            "on-merge.yml must have an 'update-latest-release' job"
+        )
+
+    def test_on_merge_updates_changelog_file(self):
+        """on-merge.yml must reference CHANGELOG.md."""
+        text = (WORKFLOWS_DIR / "on-merge.yml").read_text(encoding="utf-8")
+        assert "CHANGELOG.md" in text, (
+            "on-merge.yml must reference CHANGELOG.md"
+        )
+
+    def test_on_merge_builds_4_platforms(self):
+        """on-merge.yml binary matrix must cover 4 OS targets."""
+        data = yaml.safe_load(
+            (WORKFLOWS_DIR / "on-merge.yml").read_text(encoding="utf-8")
+        )
+        jobs = data.get("jobs", {})
+        build_job = jobs.get("build-binary", {})
+        strategy = build_job.get("strategy", {})
+        matrix = strategy.get("matrix", {})
+        includes = matrix.get("include", [])
+        assert len(includes) == 4, (
+            f"on-merge.yml binary job should have 4 matrix entries, found {len(includes)}"
+        )
+
+    def test_on_merge_checks_merged_flag(self):
+        """on-merge.yml jobs must check github.event.pull_request.merged."""
+        text = (WORKFLOWS_DIR / "on-merge.yml").read_text(encoding="utf-8")
+        assert "pull_request.merged == true" in text, (
+            "on-merge.yml must check that the PR was actually merged"
+        )
