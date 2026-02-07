@@ -210,37 +210,37 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
 
         # Use provided registry or fall back to instance registry
         registry = portrait_registry or self._portrait_registry
-        use_refs = (
-            self.config.use_character_references
-            and registry is not None
-            and len(registry.portraits) > 0
+        has_registry = registry is not None and len(registry.portraits) > 0
+
+        # Check for inline references already present in the script JSON
+        has_inline_refs = any(
+            shot.primary_reference_image
+            for scene in script.scenes
+            for shot in scene.shots
         )
 
-        if use_refs:
-            # Check if references are already resolved (e.g. by CLI calling resolve_references)
-            already_resolved = any(
-                shot.primary_reference_image
-                for scene in script.scenes
-                for shot in scene.shots
-                if shot.characters
+        use_refs = self.config.use_character_references and (has_registry or has_inline_refs)
+
+        if use_refs and has_registry and not has_inline_refs:
+            # Registry provided but shots not yet resolved — resolve now
+            resolved = await self.resolve_references(script, registry)
+            self.logger.info(
+                f"Generating storyboard for: {script.title} "
+                f"(resolved references for {resolved} shots "
+                f"from {len(registry.portraits)} characters)"
             )
-            if already_resolved:
-                resolved = sum(
-                    1 for scene in script.scenes
-                    for shot in scene.shots
-                    if shot.primary_reference_image
-                )
-                self.logger.info(
-                    f"Generating storyboard for: {script.title} "
-                    f"(references already resolved for {resolved} shots)"
-                )
-            else:
-                resolved = await self.resolve_references(script, registry)
-                self.logger.info(
-                    f"Generating storyboard for: {script.title} "
-                    f"(resolved references for {resolved} shots "
-                    f"from {len(registry.portraits)} characters)"
-                )
+        elif use_refs:
+            # References already on shots (inline from JSON or pre-resolved by CLI)
+            resolved = sum(
+                1 for scene in script.scenes
+                for shot in scene.shots
+                if shot.primary_reference_image
+            )
+            self.logger.info(
+                f"Generating storyboard for: {script.title} "
+                f"(using {'inline' if not has_registry else 'pre-resolved'} "
+                f"references for {resolved} shots)"
+            )
         else:
             self.logger.info(f"Generating storyboard for: {script.title} (no references)")
 
@@ -356,17 +356,13 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
         await self._ensure_adapter()
 
         registry = portrait_registry or self._portrait_registry
-        use_refs = (
-            self.config.use_character_references
-            and registry is not None
-            and len(registry.portraits) > 0
-        )
+        has_registry = registry is not None and len(registry.portraits) > 0
+        has_inline_refs = any(shot.primary_reference_image for shot in shots)
+        use_refs = self.config.use_character_references and (has_registry or has_inline_refs)
 
-        if use_refs:
+        # Pre-populate references from registry if not already inline
+        if use_refs and has_registry and not has_inline_refs:
             await self._ensure_reference_selector()
-
-        # Pre-populate references on shots if registry available
-        if use_refs:
             for shot in shots:
                 if not shot.characters:
                     continue

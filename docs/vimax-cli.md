@@ -158,11 +158,24 @@ vimax generate-storyboard --script script.json --portraits registry.json --refer
 | `"cinematic, "` | General cinematic look |
 | `""` (empty string) | No style prefix, uses raw image_prompt |
 
-**How reference images work:**
+**Two ways to provide character references:**
+
+| Approach | How it works | When to use |
+|----------|-------------|-------------|
+| **Registry** (`--portraits`) | Separate `registry.json` with multi-view portraits. References are auto-resolved per shot based on camera angle. | Multiple stories reusing the same characters |
+| **Inline** (in script JSON) | `character_references` and `primary_reference_image` baked into each shot. No `--portraits` needed. | Self-contained scripts, quick one-off shoots |
+
+**How reference resolution works (registry approach):**
 1. When `--portraits` is provided, each shot's `characters` list is checked against the registry
 2. The `camera_angle` is mapped to a portrait view (see mapping below)
 3. The best matching portrait is used as input to an image-to-image model (`--reference-model`)
-4. Without `--portraits`, plain text-to-image is used (~$0.002/image vs ~$0.15/image with references)
+
+**How inline references work:**
+1. Each shot in the script JSON includes `character_references` (name-to-path map) and `primary_reference_image`
+2. No `--portraits` flag needed — the CLI auto-detects inline references
+3. The image paths are used directly for reference-based generation
+
+Without either approach, plain text-to-image is used (~$0.002/image vs ~$0.15/image with references).
 
 **Camera angle to portrait view mapping:**
 
@@ -191,7 +204,9 @@ If the preferred view is not available, falls back to `front_view`, then any ava
 
 ##### Script JSON Format
 
-The `--script` file must be a JSON with this structure:
+The `--script` file must be a JSON with this structure.
+
+**Basic script (no inline references — use with `--portraits`):**
 
 ```json
 {
@@ -222,15 +237,65 @@ The `--script` file must be a JSON with this structure:
 }
 ```
 
+**Script with inline character references (no `--portraits` needed):**
+
+```json
+{
+  "title": "Golden Hour",
+  "logline": "A photographer and her model on a rooftop at sunset.",
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "title": "The Setup",
+      "description": "Sophie sets up her camera on the rooftop.",
+      "location": "Modern rooftop terrace, city skyline",
+      "time": "Late afternoon, golden hour",
+      "shots": [
+        {
+          "shot_id": "shot_001",
+          "shot_type": "medium",
+          "description": "Sophie adjusts her camera on the rooftop.",
+          "camera_movement": "static",
+          "camera_angle": "three_quarter",
+          "characters": ["Sophie"],
+          "duration_seconds": 4.0,
+          "image_prompt": "Cinematic medium shot of a woman with wavy brown hair in a floral dress looking through a camera on a rooftop, golden sunset",
+          "character_references": {
+            "Sophie": "portraits/sophie_front.png"
+          },
+          "primary_reference_image": "portraits/sophie_front.png"
+        },
+        {
+          "shot_id": "shot_002",
+          "shot_type": "two_shot",
+          "description": "Sophie and Jade meet on the rooftop.",
+          "camera_movement": "static",
+          "camera_angle": "front",
+          "characters": ["Sophie", "Jade"],
+          "duration_seconds": 5.0,
+          "image_prompt": "Two women on a rooftop at golden hour, one in a floral dress with a camera, the other in a sequined jacket and jeans",
+          "character_references": {
+            "Sophie": "portraits/sophie_front.png",
+            "Jade": "portraits/jade_front.png"
+          },
+          "primary_reference_image": "portraits/sophie_front.png"
+        }
+      ]
+    }
+  ],
+  "total_duration": 9.0
+}
+```
+
 **Required fields per shot:** `shot_id`, `description`
 
-**Optional fields:** `shot_type` (default: `medium`), `camera_movement` (default: `static`), `camera_angle` (default: `eye_level`), `characters` (default: `[]`), `duration_seconds` (default: `5.0`), `image_prompt` (if omitted, `description` is used)
+**Optional fields:** `shot_type` (default: `medium`), `camera_movement` (default: `static`), `camera_angle` (default: `eye_level`), `characters` (default: `[]`), `duration_seconds` (default: `5.0`), `image_prompt` (if omitted, `description` is used), `character_references` (name-to-image-path map), `primary_reference_image` (path to main reference for the shot)
 
 **Camera movements:** `static`, `pan`, `tilt`, `zoom`, `dolly`, `tracking`, `crane`, `handheld`
 
 ##### Portrait Registry JSON Format
 
-The `--portraits` file maps character names to portrait image paths:
+The `--portraits` file maps character names to portrait image paths and appearance descriptions:
 
 ```json
 {
@@ -238,6 +303,7 @@ The `--portraits` file maps character names to portrait image paths:
   "portraits": {
     "Miranda": {
       "character_name": "Miranda",
+      "description": "Professional woman with long brown hair, wearing a gray business blazer over a white blouse, warm brown eyes, confident expression",
       "front_view": "path/to/miranda_front.png",
       "side_view": null,
       "back_view": null,
@@ -245,6 +311,7 @@ The `--portraits` file maps character names to portrait image paths:
     },
     "Elena": {
       "character_name": "Elena",
+      "description": "Beautiful woman with wavy brown hair, wearing a red floral top, soft features, warm friendly smile",
       "front_view": "path/to/elena_front.png",
       "side_view": null,
       "back_view": null,
@@ -254,14 +321,17 @@ The `--portraits` file maps character names to portrait image paths:
 }
 ```
 
-Portrait paths can be local file paths (absolute or relative) — they are uploaded to FAL at runtime. Only provide views you have images for; set others to `null`.
+- **`description`**: Character appearance only — dress, face, look. No background or surroundings. This is appended to image prompts when using the registry approach.
+- Portrait paths can be local file paths (absolute or relative) — they are uploaded to FAL at runtime.
+- Only provide views you have images for; set others to `null`.
+- The `description` field is optional (defaults to empty string) but strongly recommended for better results.
 
 ##### Cost Breakdown
 
 | Mode | Cost per image | When used |
 |------|---------------|-----------|
-| Text-to-image (no portraits) | ~$0.002 | `--portraits` not provided |
-| Reference-based (`nano_banana_pro`) | ~$0.15 | `--portraits` provided, character found in shot |
+| Text-to-image (no references) | ~$0.002 | No `--portraits` and no inline references |
+| Reference-based (`nano_banana_pro`) | ~$0.15 | `--portraits` or inline references used |
 | Reference-based (`flux_kontext`) | ~$0.025 | Using `--reference-model flux_kontext` |
 
 ##### Example: Full Storyboard Workflow
