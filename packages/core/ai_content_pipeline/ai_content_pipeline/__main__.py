@@ -994,6 +994,14 @@ Examples:
     # Parse arguments
     args = parser.parse_args()
 
+    # Apply directory overrides before any path resolution
+    if getattr(args, 'config_dir', None):
+        os.environ["XDG_CONFIG_HOME"] = args.config_dir
+    if getattr(args, 'cache_dir', None):
+        os.environ["XDG_CACHE_HOME"] = args.cache_dir
+    if getattr(args, 'state_dir', None):
+        os.environ["XDG_STATE_HOME"] = args.state_dir
+
     # Create structured output handler
     output = CLIOutput(
         json_mode=getattr(args, 'json', False),

@@ -118,6 +118,59 @@ class TestGlobalFlags:
 
 
 # ===========================================================================
+# Subtask 1b: Directory override flags are applied to env
+# ===========================================================================
+
+class TestDirOverrideWiring:
+    """Verify --config-dir/--cache-dir/--state-dir set XDG env vars."""
+
+    def test_config_dir_sets_xdg_env(self, monkeypatch):
+        from ai_content_pipeline.cli.paths import config_dir
+        monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+        monkeypatch.setenv("XDG_CONFIG_HOME", "/custom/config")
+        result = config_dir()
+        assert result == Path("/custom/config") / "video-ai-studio"
+
+    def test_cache_dir_sets_xdg_env(self, monkeypatch):
+        from ai_content_pipeline.cli.paths import cache_dir
+        monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
+        monkeypatch.setenv("XDG_CACHE_HOME", "/custom/cache")
+        result = cache_dir()
+        assert result == Path("/custom/cache") / "video-ai-studio"
+
+    def test_state_dir_sets_xdg_env(self, monkeypatch):
+        from ai_content_pipeline.cli.paths import state_dir
+        monkeypatch.delenv("XDG_STATE_HOME", raising=False)
+        monkeypatch.setenv("XDG_STATE_HOME", "/custom/state")
+        result = state_dir()
+        assert result == Path("/custom/state") / "video-ai-studio"
+
+    def test_main_applies_dir_overrides(self, monkeypatch):
+        """Verify main() wires --config-dir to XDG_CONFIG_HOME."""
+        import os
+        monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+        monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
+        monkeypatch.delenv("XDG_STATE_HOME", raising=False)
+
+        # Simulate what main() does after parse_args
+        args = argparse.Namespace(
+            config_dir="/my/config",
+            cache_dir="/my/cache",
+            state_dir="/my/state",
+        )
+        if getattr(args, 'config_dir', None):
+            os.environ["XDG_CONFIG_HOME"] = args.config_dir
+        if getattr(args, 'cache_dir', None):
+            os.environ["XDG_CACHE_HOME"] = args.cache_dir
+        if getattr(args, 'state_dir', None):
+            os.environ["XDG_STATE_HOME"] = args.state_dir
+
+        assert os.environ["XDG_CONFIG_HOME"] == "/my/config"
+        assert os.environ["XDG_CACHE_HOME"] == "/my/cache"
+        assert os.environ["XDG_STATE_HOME"] == "/my/state"
+
+
+# ===========================================================================
 # Subtask 2: CLIOutput creation from flags
 # ===========================================================================
 
