@@ -152,22 +152,23 @@ class TestDirOverrideWiring:
         monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
         monkeypatch.delenv("XDG_STATE_HOME", raising=False)
 
-        # Simulate what main() does after parse_args
+        # Simulate what main() does after parse_args, using monkeypatch
+        # for automatic cleanup to avoid env pollution across tests
         args = argparse.Namespace(
             config_dir="/my/config",
             cache_dir="/my/cache",
             state_dir="/my/state",
         )
         if getattr(args, 'config_dir', None):
-            os.environ["XDG_CONFIG_HOME"] = args.config_dir
+            monkeypatch.setenv("XDG_CONFIG_HOME", args.config_dir)
         if getattr(args, 'cache_dir', None):
-            os.environ["XDG_CACHE_HOME"] = args.cache_dir
+            monkeypatch.setenv("XDG_CACHE_HOME", args.cache_dir)
         if getattr(args, 'state_dir', None):
-            os.environ["XDG_STATE_HOME"] = args.state_dir
+            monkeypatch.setenv("XDG_STATE_HOME", args.state_dir)
 
-        assert os.environ["XDG_CONFIG_HOME"] == "/my/config"
-        assert os.environ["XDG_CACHE_HOME"] == "/my/cache"
-        assert os.environ["XDG_STATE_HOME"] == "/my/state"
+        assert os.environ.get("XDG_CONFIG_HOME") == "/my/config"
+        assert os.environ.get("XDG_CACHE_HOME") == "/my/cache"
+        assert os.environ.get("XDG_STATE_HOME") == "/my/state"
 
 
 # ===========================================================================
