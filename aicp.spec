@@ -28,6 +28,7 @@ a = Analysis(
     hiddenimports=[
         # Core pipeline
         'ai_content_pipeline',
+        'ai_content_pipeline.__main__',
         'ai_content_pipeline._version',
         'ai_content_pipeline.config',
         'ai_content_pipeline.config.constants',
