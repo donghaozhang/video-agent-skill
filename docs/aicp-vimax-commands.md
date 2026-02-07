@@ -1,6 +1,6 @@
-# ViMax CLI Reference
+# AICP ViMax Commands Reference
 
-ViMax is a standalone CLI for advanced AI video generation pipelines. It converts ideas, scripts, and novels into videos using LLM-powered agents for screenwriting, character extraction, storyboard generation, and video synthesis.
+ViMax provides advanced AI video generation pipelines as a subcommand group under the `aicp` CLI. It converts ideas, scripts, and novels into videos using LLM-powered agents for screenwriting, character extraction, storyboard generation, and video synthesis.
 
 ## Installation
 
@@ -8,7 +8,7 @@ ViMax is included in the main package:
 
 ```bash
 pip install -e .
-vimax --help
+aicp vimax --help
 ```
 
 ## Commands
@@ -20,9 +20,9 @@ vimax --help
 Generate a complete video from a text idea. Runs the full pipeline: idea → screenplay → characters → portraits → storyboard → video.
 
 ```bash
-vimax idea2video --idea "A samurai's journey through feudal Japan" --output output/
-vimax idea2video --idea "A detective solves a mystery" --duration 30 --video-model veo3
-vimax idea2video --idea "Space exploration" --no-portraits --image-model flux_dev
+aicp vimax idea2video --idea "A samurai's journey through feudal Japan" --output output/
+aicp vimax idea2video --idea "A detective solves a mystery" --duration 30 --video-model veo3
+aicp vimax idea2video --idea "Space exploration" --no-portraits --image-model flux_dev
 ```
 
 | Flag | Default | Description |
@@ -40,8 +40,8 @@ vimax idea2video --idea "Space exploration" --no-portraits --image-model flux_de
 Generate video from an existing screenplay JSON file.
 
 ```bash
-vimax script2video --script screenplay.json --output output/
-vimax script2video --script screenplay.json --portraits registry.json --video-model veo3
+aicp vimax script2video --script screenplay.json --output output/
+aicp vimax script2video --script screenplay.json --portraits registry.json --video-model veo3
 ```
 
 | Flag | Default | Description |
@@ -57,8 +57,8 @@ vimax script2video --script screenplay.json --portraits registry.json --video-mo
 Convert a full novel into a multi-chapter movie.
 
 ```bash
-vimax novel2movie --novel story.txt --title "Epic Adventure" --output output/
-vimax novel2movie --novel novel.txt --title "Mystery" --max-scenes 20 --video-model veo3
+aicp vimax novel2movie --novel story.txt --title "Epic Adventure" --output output/
+aicp vimax novel2movie --novel novel.txt --title "Mystery" --max-scenes 20 --video-model veo3
 ```
 
 | Flag | Default | Description |
@@ -77,8 +77,8 @@ vimax novel2movie --novel novel.txt --title "Mystery" --max-scenes 20 --video-mo
 Generate a screenplay JSON from a text idea.
 
 ```bash
-vimax generate-script --idea "A detective mystery in Tokyo" --output script.json
-vimax generate-script --idea "Space opera" --duration 60 --model claude-3.5-sonnet
+aicp vimax generate-script --idea "A detective mystery in Tokyo" --output script.json
+aicp vimax generate-script --idea "Space opera" --duration 60 --model claude-3.5-sonnet
 ```
 
 | Flag | Default | Description |
@@ -93,8 +93,8 @@ vimax generate-script --idea "Space opera" --duration 60 --model claude-3.5-sonn
 Extract character descriptions from text using an LLM.
 
 ```bash
-vimax extract-characters --text "The old wizard Gandalf and the hobbit Frodo..."
-vimax extract-characters --text story.txt --model gpt-4 --output characters.json
+aicp vimax extract-characters --text "The old wizard Gandalf and the hobbit Frodo..."
+aicp vimax extract-characters --text story.txt --model gpt-4 --output characters.json
 ```
 
 | Flag | Default | Description |
@@ -108,8 +108,8 @@ vimax extract-characters --text story.txt --model gpt-4 --output characters.json
 Generate multi-view portraits from character descriptions for visual consistency.
 
 ```bash
-vimax generate-portraits --characters characters.json --save-registry registry.json
-vimax generate-portraits --characters characters.json --image-model flux_dev --views front side
+aicp vimax generate-portraits --characters characters.json --save-registry registry.json
+aicp vimax generate-portraits --characters characters.json --image-model flux_dev --views front side
 ```
 
 | Flag | Default | Description |
@@ -126,22 +126,22 @@ Generate storyboard images from a screenplay. Supports character reference image
 
 ```bash
 # Basic: text-to-image only (no character references)
-vimax generate-storyboard --script script.json --output storyboard/
+aicp vimax generate-storyboard --script script.json --output storyboard/
 
 # With character references for consistency
-vimax generate-storyboard --script script.json --portraits registry.json --output storyboard/
+aicp vimax generate-storyboard --script script.json --portraits registry.json --output storyboard/
 
 # Photorealistic style (override default "storyboard panel" look)
-vimax generate-storyboard --script script.json --portraits registry.json --style "photorealistic, cinematic lighting, " --output storyboard/
+aicp vimax generate-storyboard --script script.json --portraits registry.json --style "photorealistic, cinematic lighting, " --output storyboard/
 
 # High-quality with strong reference matching
-vimax generate-storyboard --script script.json --portraits registry.json --reference-strength 0.8 --image-model flux_dev --output storyboard/
+aicp vimax generate-storyboard --script script.json --portraits registry.json --reference-strength 0.8 --image-model flux_dev --output storyboard/
 ```
 
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
 | `--script` | `-s` | required | Screenplay JSON file (see format below) |
-| `--output` | `-o` | `media/generated/vimax/storyboard` | Output directory for generated images |
+| `--output` | `-o` | `media/generated/aicp vimax/storyboard` | Output directory for generated images |
 | `--image-model` | | `nano_banana_pro` | Image generation model |
 | `--style` | | `storyboard panel, cinematic composition, ` | Style prefix prepended to every prompt |
 | `--portraits` | `-p` | none | Portrait registry JSON for character consistency |
@@ -338,13 +338,13 @@ The `--portraits` file maps character names to portrait image paths and appearan
 
 ```bash
 # 1. Create script.json (manually or via generate-script)
-vimax generate-script --idea "Two friends reunite at a coffee shop" --output script.json
+aicp vimax generate-script --idea "Two friends reunite at a coffee shop" --output script.json
 
 # 2. Create portraits (manually or via generate-portraits pipeline)
 #    Place character images in a folder, create registry.json pointing to them
 
 # 3. Generate storyboard - photorealistic with strong character matching
-vimax generate-storyboard \
+aicp vimax generate-storyboard \
   --script script.json \
   --portraits registry.json \
   --style "photorealistic, cinematic lighting, shallow depth of field, " \
@@ -369,7 +369,7 @@ ls storyboard/  # One .png per shot
 Create a portrait registry from existing portrait images.
 
 ```bash
-vimax create-registry --portraits-dir portraits/ --project-id my-project
+aicp vimax create-registry --portraits-dir portraits/ --project-id my-project
 ```
 
 #### `show-registry` - Show Registry Contents
@@ -377,7 +377,7 @@ vimax create-registry --portraits-dir portraits/ --project-id my-project
 Display the contents of a portrait registry.
 
 ```bash
-vimax show-registry --registry registry.json
+aicp vimax show-registry --registry registry.json
 ```
 
 #### `list-models` - List Available Models
@@ -385,7 +385,7 @@ vimax show-registry --registry registry.json
 Show all models available for each pipeline step.
 
 ```bash
-vimax list-models
+aicp vimax list-models
 ```
 
 ## Available Models
@@ -428,28 +428,28 @@ vimax list-models
 
 ### Quick video from an idea
 ```bash
-vimax idea2video --idea "A cat exploring a magical forest" --video-model kling
+aicp vimax idea2video --idea "A cat exploring a magical forest" --video-model kling
 ```
 
 ### High-quality production
 ```bash
 # Step 1: Generate screenplay
-vimax generate-script --idea "A noir detective story" --model claude-3.5-sonnet --output script.json
+aicp vimax generate-script --idea "A noir detective story" --model claude-3.5-sonnet --output script.json
 
 # Step 2: Extract and generate character portraits
-vimax extract-characters --text script.json --output characters.json
-vimax generate-portraits --characters characters.json --image-model flux_dev --save-registry registry.json
+aicp vimax extract-characters --text script.json --output characters.json
+aicp vimax generate-portraits --characters characters.json --image-model flux_dev --save-registry registry.json
 
 # Step 3: Generate storyboard with character consistency
-vimax generate-storyboard --script script.json --portraits registry.json --style cinematic --output storyboard/
+aicp vimax generate-storyboard --script script.json --portraits registry.json --style cinematic --output storyboard/
 
 # Step 4: Generate video
-vimax script2video --script script.json --portraits registry.json --video-model veo3 --output final/
+aicp vimax script2video --script script.json --portraits registry.json --video-model veo3 --output final/
 ```
 
 ### Novel adaptation
 ```bash
-vimax novel2movie --novel my_novel.txt --title "The Great Adventure" --video-model veo3
+aicp vimax novel2movie --novel my_novel.txt --title "The Great Adventure" --video-model veo3
 ```
 
 ## Architecture
@@ -457,7 +457,7 @@ vimax novel2movie --novel my_novel.txt --title "The Great Adventure" --video-mod
 ViMax is built on an agent-based architecture:
 
 ```
-vimax CLI (Click)
+aicp vimax CLI (Click)
   |
   +-- Pipelines (orchestration)
   |   +-- Idea2VideoPipeline
@@ -478,13 +478,13 @@ vimax CLI (Click)
       +-- VideoAdapter (FAL AI)
 ```
 
-Source: `packages/core/ai_content_platform/vimax/`
+Source: `packages/core/ai_content_platform/aicp vimax/`
 
 ## Relationship to aicp
 
-`vimax` is a **separate CLI entry point**, not a subcommand of `aicp`:
+`aicp vimax` is a **separate CLI entry point**, not a subcommand of `aicp`:
 
 - `aicp` — single-step content generation (images, videos, audio, pipelines)
-- `vimax` — multi-step narrative pipelines (idea → screenplay → storyboard → video)
+- `aicp vimax` — multi-step narrative pipelines (idea → screenplay → storyboard → video)
 
 Both are installed from the same package and share the same model registry.

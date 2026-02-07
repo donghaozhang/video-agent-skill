@@ -1,7 +1,8 @@
 """
 CLI Commands for ViMax Pipelines
 
-Adds vimax-* commands to the ai-content-pipeline CLI.
+Provides the ``vimax`` Click subgroup, registered under the main
+``aicp`` CLI.  Usage: ``aicp vimax <command>``.
 """
 
 import click
@@ -17,7 +18,10 @@ def run_async(coro):
 
 @click.group()
 def vimax():
-    """ViMax pipeline commands for novel-to-video generation."""
+    """ViMax pipeline commands for novel-to-video generation.
+
+    Access via: aicp vimax <command>
+    """
     pass
 
 
@@ -578,8 +582,11 @@ def show_registry(registry):
 
 @vimax.command("list-models")
 def list_models():
-    """List available models for ViMax pipelines."""
-    click.echo("Available Models for ViMax Pipelines\n")
+    """List available models for ViMax pipelines.
+
+    Usage: aicp vimax list-models
+    """
+    click.echo("Available Models for ViMax Pipelines (aicp vimax)\n")
 
     click.echo("Image Generation:")
     models = [
