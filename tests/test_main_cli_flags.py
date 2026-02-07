@@ -24,6 +24,13 @@ from ai_content_pipeline.cli.output import CLIOutput, read_input
 from ai_content_pipeline.cli.stream import StreamEmitter, NullEmitter
 from ai_content_pipeline.cli.click_app import cli
 
+# Check if vimax (ai_content_platform) is available
+try:
+    import ai_content_platform.vimax.cli.commands  # noqa: F401
+    HAS_VIMAX = True
+except ImportError:
+    HAS_VIMAX = False
+
 
 # ===========================================================================
 # Global flag parsing via Click
@@ -50,12 +57,14 @@ class TestGlobalFlags:
         assert "create-video" in result.output
         assert "run-chain" in result.output
 
+    @pytest.mark.skipif(not HAS_VIMAX, reason="ai_content_platform not installed")
     def test_vimax_subgroup_visible(self):
         runner = CliRunner()
         result = runner.invoke(cli, ["--help"])
         assert result.exit_code == 0
         assert "vimax" in result.output
 
+    @pytest.mark.skipif(not HAS_VIMAX, reason="ai_content_platform not installed")
     def test_vimax_subgroup_help(self):
         runner = CliRunner()
         result = runner.invoke(cli, ["vimax", "--help"])

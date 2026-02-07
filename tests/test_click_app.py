@@ -15,6 +15,13 @@ from click.testing import CliRunner
 
 from ai_content_pipeline.cli.click_app import cli
 
+# Check if vimax (ai_content_platform) is available
+try:
+    import ai_content_platform.vimax.cli.commands  # noqa: F401
+    HAS_VIMAX = True
+except ImportError:
+    HAS_VIMAX = False
+
 
 @pytest.fixture
 def runner():
@@ -54,8 +61,9 @@ class TestRootGroup:
             "transfer-motion", "list-motion-models", "transcribe",
             "list-speech-models", "generate-grid", "upscale-image",
             "init-project", "organize-project", "structure-info",
-            "vimax",
         ]
+        if HAS_VIMAX:
+            expected_commands.append("vimax")
         for cmd in expected_commands:
             assert cmd in result.output, f"Command '{cmd}' missing from help"
 
@@ -70,6 +78,7 @@ class TestRootGroup:
 # Vimax subgroup
 # ===========================================================================
 
+@pytest.mark.skipif(not HAS_VIMAX, reason="ai_content_platform not installed")
 class TestVimaxSubgroup:
     def test_vimax_help(self, runner):
         result = runner.invoke(cli, ["vimax", "--help"])
