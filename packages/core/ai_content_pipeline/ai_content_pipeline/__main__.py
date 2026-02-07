@@ -17,6 +17,7 @@ from typing import Optional, Dict, Any
 from .pipeline.manager import AIPipelineManager
 from .config.constants import SUPPORTED_MODELS, MODEL_RECOMMENDATIONS
 from .cli.exit_codes import error_exit, EXIT_INVALID_ARGS, EXIT_MISSING_CONFIG
+from .cli.interactive import confirm, is_interactive
 
 # Try to import FAL Avatar Generator
 try:
@@ -120,9 +121,8 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
             template_content = f.read()
     
     if env_path.exists():
-        response = input(f"⚠️  .env file already exists at {env_path}. Overwrite? (y/N): ")
-        if response.lower() != 'y':
-            print("❌ Setup cancelled.")
+        if not confirm(f".env file already exists at {env_path}. Overwrite?"):
+            print("Setup cancelled.")
             return
     
     try:
@@ -263,8 +263,7 @@ def run_chain(args):
         print(f"💰 Estimated cost: ${cost_info['total_cost']:.3f}")
         
         if not args.no_confirm:
-            response = input("\nProceed with execution? (y/N): ")
-            if response.lower() not in ['y', 'yes']:
+            if not confirm("\nProceed with execution?"):
                 print("Execution cancelled.")
                 sys.exit(0)
         
@@ -600,7 +599,7 @@ Examples:
     chain_parser.add_argument("--config", required=True, help="Path to chain configuration (YAML/JSON)")
     chain_parser.add_argument("--input-text", help="Input text for the chain (optional if prompt defined in config)")
     chain_parser.add_argument("--prompt-file", help="Path to text file containing the prompt")
-    chain_parser.add_argument("--no-confirm", action="store_true", default=True, help="Skip confirmation prompt")
+    chain_parser.add_argument("--no-confirm", action="store_true", default=False, help="Skip confirmation prompt (auto-set in CI)")
     chain_parser.add_argument("--save-json", help="Save results as JSON")
     
     # Create examples command
