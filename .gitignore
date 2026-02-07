@@ -156,6 +156,10 @@ logs/
 *.backup
 *~
 
+# PyInstaller artifacts (build/ and dist/ already covered above)
+*.spec.bak
+*.manifest
+
 # Test artifacts
 test_results/
 coverage/

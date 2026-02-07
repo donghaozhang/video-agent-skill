@@ -39,3 +39,7 @@ jobs:
       - name: Run integration tests
         run: |
           python tests/test_integration.py
+
+      - name: Run full pytest suite
+        run: |
+          python -m pytest tests/ -v --tb=short --override-ini='testpaths=tests'

@@ -5,12 +5,25 @@ This setup.py consolidates all packages in the AI Content Generation Suite
 into a single installable package with optional dependencies.
 """
 
+import re
 from setuptools import setup, find_packages
 from pathlib import Path
 
+# Read version from the single source of truth (_version.py)
+# Reason: We parse the file as text instead of importing to avoid triggering
+# the full package import chain (which requires installed dependencies).
+_version_file = Path(__file__).parent / "packages" / "core" / "ai_content_pipeline" / "ai_content_pipeline" / "_version.py"
+_version_match = re.search(
+    r'^__version__\s*=\s*["\']([^"\']+)["\']',
+    _version_file.read_text(encoding="utf-8"),
+    re.MULTILINE,
+)
+if not _version_match:
+    raise RuntimeError("Unable to find __version__ in _version.py")
+VERSION = _version_match.group(1)
+
 # Package metadata
 PACKAGE_NAME = "video_ai_studio"
-VERSION = "1.0.19"
 AUTHOR = "donghao zhang"
 AUTHOR_EMAIL = "zdhpeter@gmail.com"
 DESCRIPTION = "Comprehensive AI content generation suite with multiple providers and services"
