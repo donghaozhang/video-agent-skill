@@ -259,43 +259,51 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create latest release
-        run: |
-          gh release create latest \
-            --title "Latest Build (v${{ steps.version.outputs.VERSION }})" \
-            --notes "$(cat <<'NOTES'
-          ## Latest Build
-
-          **Version**: ${{ steps.version.outputs.VERSION }}
-          **PR**: #${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}
-          **Updated**: $(date -u +%Y-%m-%d\ %H:%M\ UTC)
-
-          ### Install
-
-          **pip** (recommended):
-          ```bash
-          pip install video-ai-studio
-          ```
-
-          **Binary** (no Python required):
-          ```bash
-          # Linux
-          curl -L https://github.com/${{ github.repository }}/releases/download/latest/aicp-linux-x86_64 -o aicp
-          chmod +x aicp
-
-          # macOS (Apple Silicon)
-          curl -L https://github.com/${{ github.repository }}/releases/download/latest/aicp-macos-arm64 -o aicp
-          chmod +x aicp
-
-          # Windows
-          curl -L https://github.com/${{ github.repository }}/releases/download/latest/aicp-windows-x64.exe -o aicp.exe
-          ```
-
-          ---
-          This is a rolling release updated on every merge to main.
-          For stable releases, see [tagged releases](https://github.com/${{ github.repository }}/releases).
-          NOTES
-          )" \
-            --prerelease \
-            release-assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          REPO: ${{ github.repository }}
+        run: |
+          UPDATED="$(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          # Build release notes file (avoids script injection from PR title)
+          {
+            echo "## Latest Build"
+            echo ""
+            echo "**Version**: ${VERSION}"
+            echo "**PR**: #${PR_NUMBER} — ${PR_TITLE}"
+            echo "**Updated**: ${UPDATED}"
+            echo ""
+            echo "### Install"
+            echo ""
+            echo "**pip** (recommended):"
+            echo '```bash'
+            echo 'pip install video-ai-studio'
+            echo '```'
+            echo ""
+            echo "**Binary** (no Python required):"
+            echo '```bash'
+            echo "# Linux"
+            echo "curl -L https://github.com/${REPO}/releases/download/latest/aicp-linux-x86_64 -o aicp"
+            echo "chmod +x aicp"
+            echo ""
+            echo "# macOS (Apple Silicon)"
+            echo "curl -L https://github.com/${REPO}/releases/download/latest/aicp-macos-arm64 -o aicp"
+            echo "chmod +x aicp"
+            echo ""
+            echo "# Windows"
+            echo "curl -L https://github.com/${REPO}/releases/download/latest/aicp-windows-x64.exe -o aicp.exe"
+            echo '```'
+            echo ""
+            echo "---"
+            echo "This is a rolling release updated on every merge to main."
+            echo "For stable releases, see [tagged releases](https://github.com/${REPO}/releases)."
+          } > release-notes.md
+
+          gh release create latest \
+            --title "Latest Build (v${VERSION})" \
+            --notes-file release-notes.md \
+            --prerelease \
+            release-assets/*
