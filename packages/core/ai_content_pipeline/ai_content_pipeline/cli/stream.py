@@ -29,10 +29,12 @@ class StreamEmitter:
         self.start_time = time.time()
 
     def _emit(self, event_type: str, data: Dict[str, Any],
-              stream=sys.stderr):
+              stream=None):
         """Emit a single JSONL event."""
         if not self.enabled:
             return
+        if stream is None:
+            stream = sys.stderr
         event = {
             "schema_version": SCHEMA_VERSION,
             "event": event_type,
@@ -93,7 +95,7 @@ class StreamEmitter:
             "elapsed_seconds": round(time.time() - self.start_time, 3),
             **result,
         }
-        print(json.dumps(final, default=str), file=sys.stdout, flush=True)
+        print(json.dumps(final, default=str), flush=True)
 
 
 class NullEmitter:
