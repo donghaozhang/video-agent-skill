@@ -16,6 +16,7 @@ from typing import Optional, Dict, Any
 
 from .pipeline.manager import AIPipelineManager
 from .config.constants import SUPPORTED_MODELS, MODEL_RECOMMENDATIONS
+from .cli.exit_codes import error_exit, EXIT_INVALID_ARGS, EXIT_MISSING_CONFIG
 
 # Try to import FAL Avatar Generator
 try:
@@ -187,11 +188,7 @@ def create_video(args):
             print(f"\n📄 Full result saved to: {json_path}")
             
     except Exception as e:
-        print(f"\n❌ Error: {e}")
-        if args.debug:
-            import traceback
-            traceback.print_exc()
-        sys.exit(1)
+        error_exit(e, debug=getattr(args, 'debug', False))
 
 
 def run_chain(args):
@@ -313,11 +310,7 @@ def run_chain(args):
             print(f"\n📄 Results saved to: {json_path}")
             
     except Exception as e:
-        print(f"\n❌ Error: {e}")
-        if args.debug:
-            import traceback
-            traceback.print_exc()
-        sys.exit(1)
+        error_exit(e, debug=getattr(args, 'debug', False))
 
 
 def generate_image(args):
@@ -370,11 +363,7 @@ def generate_image(args):
             print(f"\n📄 Result saved to: {json_path}")
             
     except Exception as e:
-        print(f"\n❌ Error: {e}")
-        if args.debug:
-            import traceback
-            traceback.print_exc()
-        sys.exit(1)
+        error_exit(e, debug=getattr(args, 'debug', False))
 
 
 def create_examples(args):
@@ -385,8 +374,7 @@ def create_examples(args):
         print("✅ Example configurations created successfully!")
 
     except Exception as e:
-        print(f"\n❌ Error: {e}")
-        sys.exit(1)
+        error_exit(e, debug=getattr(args, 'debug', False))
 
 
 def generate_avatar(args):
@@ -476,11 +464,7 @@ def generate_avatar(args):
             print(f"\n📄 Result saved to: {json_path}")
 
     except Exception as e:
-        print(f"\n❌ Error: {e}")
-        if args.debug:
-            import traceback
-            traceback.print_exc()
-        sys.exit(1)
+        error_exit(e, debug=getattr(args, 'debug', False))
 
 
 def list_avatar_models(args):

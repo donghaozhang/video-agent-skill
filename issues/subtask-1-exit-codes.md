@@ -8,7 +8,7 @@
 
 ## Objective
 
-Replace all `sys.exit(1)` with semantic exit codes. Route all errors to stderr. Show stack traces only with `--debug`.
+Replace all `sys.exit(1)` with semantic exit codes. Route all errors to stderr. Show stack traces only with `--debug` (which already exists at `__main__.py:598`).
 
 ---
 
@@ -91,15 +91,24 @@ def _register_known_exceptions():
     register_exception(FileNotFoundError, EXIT_MISSING_CONFIG)
     register_exception(PermissionError, EXIT_MISSING_CONFIG)
 
-    # Framework exceptions (try-import to avoid hard dependency)
+    # Framework exceptions from ai_content_platform/core/exceptions.py
+    # (try-import to avoid hard dependency)
     try:
         from ai_content_platform.core.exceptions import (
-            ConfigurationError,
-            ValidationError,
-            PipelineExecutionError,
+            ValidationError,           # line 39
+            ConfigurationError,        # line 44
+            PipelineConfigurationError,  # line 9
+            PipelineExecutionError,    # line 49
+            StepExecutionError,        # line 14
+            ServiceNotAvailableError,  # line 19
+            APIKeyError,               # line 24
         )
         register_exception(ValidationError, EXIT_INVALID_ARGS)
         register_exception(ConfigurationError, EXIT_MISSING_CONFIG)
+        register_exception(PipelineConfigurationError, EXIT_MISSING_CONFIG)
+        register_exception(APIKeyError, EXIT_MISSING_CONFIG)
+        register_exception(ServiceNotAvailableError, EXIT_PROVIDER_ERROR)
+        register_exception(StepExecutionError, EXIT_PIPELINE_ERROR)
         register_exception(PipelineExecutionError, EXIT_PIPELINE_ERROR)
     except ImportError:
         pass
@@ -119,7 +128,7 @@ _register_known_exceptions()
 
 **File**: `packages/core/ai_content_pipeline/ai_content_pipeline/__main__.py`
 
-**Current pattern** (repeated ~15 times):
+**Current pattern** (found at lines 189-194, 315-320, 372-377, 387-389, 478-483):
 ```python
 except Exception as e:
     print(f"\n❌ Error: {e}")
@@ -138,34 +147,46 @@ except Exception as e:
 ```
 
 **Changes**:
-1. Add `from .cli.exit_codes import error_exit` at top of file
-2. Replace every `except` block that does `print(...) + sys.exit(1)` with `error_exit(e, debug=...)`
-3. Ensure `--debug` flag is in the global argument parser (it may already exist)
-4. Change all informational `print()` calls that report errors to use `file=sys.stderr`
+1. Add `from .cli.exit_codes import error_exit` at top of file (line ~17)
+2. Replace the 5 except blocks listed above with `error_exit(e, debug=...)`
+3. `--debug` flag already exists at line 598: `parser.add_argument("--debug", action="store_true", help="Enable debug output")`
+4. Change error `print()` calls at lines 56-58 (video_analysis), 219-223 (run_chain missing file), 233-234, 241-242, 249-250, 258-259, 261-262 to use `file=sys.stderr`
+5. Also update `video_analysis.py:56-58` which uses `print()` + `sys.exit(1)` directly
 
 ### Step 4: Update provider CLIs
 
 **File**: `packages/providers/fal/text-to-video/fal_text_to_video/cli.py`
 
-Add at top:
+The t2v CLI has `sys.exit(1)` at lines 98 and 148, and `sys.exit(0)` at line 95.
+
+Add at top (after line 14):
 ```python
-from ai_content_pipeline.cli.exit_codes import error_exit, EXIT_PROVIDER_ERROR
+from ai_content_pipeline.cli.exit_codes import error_exit
 ```
 
-Replace:
+Replace line 97-98:
 ```python
-except Exception as e:
-    click.echo(f"❌ Generation failed: {e}")
+    # Before:
+    print(f"\n❌ Failed: {result.get('error')}")
     sys.exit(1)
+    # After:
+    error_exit(Exception(result.get('error', 'Unknown error')))
 ```
 
-With:
+Replace line 146-148 (`model-info` ValueError handler):
 ```python
-except Exception as e:
-    error_exit(e)
+    # Before:
+    except ValueError as e:
+        print(f"❌ Error: {e}")
+        sys.exit(1)
+    # After:
+    except ValueError as e:
+        error_exit(e)
 ```
 
-Same for `packages/providers/fal/image-to-video/fal_image_to_video/cli.py`.
+**File**: `packages/providers/fal/image-to-video/fal_image_to_video/cli.py`
+
+Has `sys.exit(1)` at lines 87, 122, 188 and `sys.exit(0)` at lines 84, 119. Same pattern of changes.
 
 ### Step 5: Write tests
 

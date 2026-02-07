@@ -12,17 +12,37 @@ Add `--yes` / `--non-interactive` flags to skip all confirmation prompts. Auto-d
 
 ---
 
+## Critical Finding: `--no-confirm` defaults to True
+
+**WARNING**: At `__main__.py:635`, `--no-confirm` is defined with `default=True`:
+```python
+chain_parser.add_argument("--no-confirm", action="store_true", default=True, help="Skip confirmation prompt")
+```
+This means the confirmation prompt at lines 278-282 is **already bypassed by default**. This is a safety concern — pipelines will execute without cost confirmation unless the user explicitly passes `--no-no-confirm` (which doesn't exist).
+
+**Fix**: Change `--no-confirm` default to `False` and introduce `--yes` as the proper opt-in flag.
+
+---
+
 ## Step-by-Step Implementation
 
-### Step 1: Add `--yes` to global parser
+### Step 1: Add `--yes` to global parser + fix `--no-confirm`
 
 **File**: `packages/core/ai_content_pipeline/ai_content_pipeline/__main__.py`
 
-In the global argument parser (before subparsers):
+In the global argument parser (line 598-599, after `--debug` and `--base-dir`):
 
 ```python
 parser.add_argument('--yes', '-y', action='store_true', default=False,
     help='Skip all confirmation prompts (non-interactive mode)')
+```
+
+Fix `--no-confirm` at line 635 — change default to `False`:
+```python
+# Before:
+chain_parser.add_argument("--no-confirm", action="store_true", default=True, help="Skip confirmation prompt")
+# After:
+chain_parser.add_argument("--no-confirm", action="store_true", default=False, help="Skip confirmation prompt (deprecated: use --yes)")
 ```
 
 ### Step 2: Create confirm helper
@@ -93,42 +113,60 @@ def confirm(message: str, args=None, default: bool = False) -> bool:
 
 **File**: `packages/core/ai_content_pipeline/ai_content_pipeline/__main__.py`
 
-**Current** (~line 279):
+**Location 1 — `run_chain()` at lines 278-282:**
 ```python
-response = input("\nProceed with execution? (y/N): ")
-if response.lower() not in ['y', 'yes']:
-    print("Execution cancelled.")
-    sys.exit(0)
-```
+# Before:
+if not args.no_confirm:
+    response = input("\nProceed with execution? (y/N): ")
+    if response.lower() not in ['y', 'yes']:
+        print("Execution cancelled.")
+        sys.exit(0)
 
-**New**:
-```python
-from .cli.output import confirm
-
+# After:
 if not confirm("\nProceed with execution?", args):
     output.info("Execution cancelled.")
     sys.exit(0)
 ```
 
-Find all instances of `input(` used for confirmation and replace with `confirm()`.
+**Location 2 — `setup_env()` at lines 121-125:**
+```python
+# Before:
+if env_path.exists():
+    response = input(f"⚠️  .env file already exists at {env_path}. Overwrite? (y/N): ")
+    if response.lower() != 'y':
+        print("❌ Setup cancelled.")
+        return
+
+# After:
+if env_path.exists():
+    if not confirm(f"⚠️  .env file already exists at {env_path}. Overwrite?", args):
+        output.info("Setup cancelled.")
+        return
+```
+
+These are the only 2 `input()` calls in `__main__.py` used for confirmation.
 
 ### Step 4: Update `ai_content_platform` CLI
 
 **File**: `packages/core/ai_content_platform/cli/commands.py`
 
-**Current** (~line 96): Cost threshold confirmation
+**Current** (lines 96-99): Cost threshold confirmation
 ```python
-if estimated_cost > 1.0:
-    click.confirm("Cost exceeds $1.00. Continue?", abort=True)
+if cost_summary.total_estimated_cost > 1.0:
+    if not click.confirm(f"Proceed with estimated cost of ${cost_summary.total_estimated_cost:.2f}?"):
+        console.print("Pipeline execution cancelled.")
+        return
 ```
 
 **New**:
 ```python
-if estimated_cost > 1.0 and not ctx.obj.get('yes', False):
-    click.confirm("Cost exceeds $1.00. Continue?", abort=True)
+if cost_summary.total_estimated_cost > 1.0 and not ctx.obj.get('yes', False):
+    if not click.confirm(f"Proceed with estimated cost of ${cost_summary.total_estimated_cost:.2f}?"):
+        console.print("Pipeline execution cancelled.")
+        return
 ```
 
-Pass `--yes` through Click context.
+Pass `--yes` through Click context by adding to the CLI group in `cli/main.py`.
 
 ### Step 5: Write tests
 

@@ -17,14 +17,16 @@
 | `vimax` | Click | `vimax/cli/commands.py` | 597 |
 | `ai-content-platform` | Click | `cli/main.py` | 286 |
 
-**Key Problems**:
-1. JSON output only via `--save-json FILENAME` (writes to file, not stdout)
+**Key Problems** (verified against codebase 2026-02-07):
+1. JSON output only via `--save-json FILENAME` (writes to file, not stdout). Exception: `cli/commands.py:220` has `--format json` for `cost` command only.
 2. Exit codes are only `0` and `1` (no semantic differentiation)
-3. Error messages go to stdout (not stderr)
-4. Interactive prompts with no `--yes` / `--non-interactive` bypass
+3. Error messages go to stdout via `print()` (not stderr) — in `__main__.py`, `executor.py` (~15 print calls), `manager.py:56`, `video_analysis.py:56`
+4. `--no-confirm` exists (`__main__.py:635`) but defaults to `True` (skips by default). `setup_env()` at line 122 still uses raw `input()`. `cli/commands.py:97` uses `click.confirm()`.
 5. No stdin support for piping
 6. No XDG path conventions
 7. Mixed argparse/Click across packages
+8. `executor.py` has ~15 `print()` statements that would corrupt `--json` stdout output
+9. `manager.py:56` prints `"✅ AI Pipeline Manager initialized"` to stdout on every instantiation
 
 ---
 
@@ -59,7 +61,7 @@
 
 | File | Changes |
 |------|---------|
-| `packages/core/ai_content_pipeline/ai_content_pipeline/__main__.py` | Use `error_exit()` helper, route errors to stderr, add `--debug` flag |
+| `packages/core/ai_content_pipeline/ai_content_pipeline/__main__.py` | Use `error_exit()` helper, route errors to stderr (`--debug` already exists at line 598) |
 | `packages/providers/fal/text-to-video/fal_text_to_video/cli.py` | Use shared exit codes |
 | `packages/providers/fal/image-to-video/fal_image_to_video/cli.py` | Use shared exit codes |
 
@@ -73,11 +75,15 @@ EXIT_MISSING_CONFIG = 3
 EXIT_PROVIDER_ERROR = 4
 EXIT_PIPELINE_ERROR = 5
 
+# Maps actual exception classes from ai_content_platform/core/exceptions.py
 EXCEPTION_MAP = {
-    ValidationError: EXIT_INVALID_ARGS,
-    ConfigurationError: EXIT_MISSING_CONFIG,
-    ProviderError: EXIT_PROVIDER_ERROR,
-    PipelineExecutionError: EXIT_PIPELINE_ERROR,
+    ValidationError: EXIT_INVALID_ARGS,          # exceptions.py:39
+    ConfigurationError: EXIT_MISSING_CONFIG,      # exceptions.py:44
+    PipelineConfigurationError: EXIT_MISSING_CONFIG,  # exceptions.py:9
+    APIKeyError: EXIT_MISSING_CONFIG,             # exceptions.py:24
+    ServiceNotAvailableError: EXIT_PROVIDER_ERROR,    # exceptions.py:19
+    StepExecutionError: EXIT_PIPELINE_ERROR,      # exceptions.py:14
+    PipelineExecutionError: EXIT_PIPELINE_ERROR,  # exceptions.py:49
 }
 
 def error_exit(error, debug=False):
@@ -270,12 +276,13 @@ def confirm(message, args):
     return response.lower() in ('y', 'yes')
 ```
 
-### Current Interactive Points
+### Current Interactive Points (verified)
 
 | File | Line | Current Code | Change |
 |------|------|-------------|--------|
-| `__main__.py` | ~279 | `input("\nProceed with execution? (y/N): ")` | Use `confirm()` helper |
-| `cli/commands.py` | ~96 | Cost threshold confirmation | Respect `--yes` |
+| `__main__.py` | 122 | `input(f"⚠️  .env file already exists...")` in `setup_env()` | Use `confirm()` helper |
+| `__main__.py` | 278-282 | `input("\nProceed with execution? (y/N): ")` in `run_chain()` — **NOTE: `--no-confirm` defaults to `True` (line 635), so this is already bypassed by default** | Use `confirm()` helper; change `--no-confirm` default to `False` for safety |
+| `cli/commands.py` | 96-99 | `click.confirm(f"Proceed with estimated cost...")` | Pass `--yes` via Click context |
 
 ### Test Cases
 - `test_yes_flag_skips_confirmation`

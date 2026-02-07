@@ -177,34 +177,48 @@ def run_chain(args, manager, output):
 
 **File**: `packages/core/ai_content_pipeline/ai_content_pipeline/pipeline/executor.py`
 
-In `ChainExecutor.execute()`, accept an optional emitter:
-
+The current `execute()` method signature (line 100-105):
 ```python
-def execute(self, chain, input_data=None, stream_emitter=None, **kwargs):
-    """Execute a content creation chain.
+def execute(self, chain: ContentCreationChain, input_data: str, **kwargs) -> ChainResult:
+```
 
-    Args:
-        chain: The pipeline chain to execute.
-        input_data: Optional initial input.
-        stream_emitter: Optional StreamEmitter for progress events.
-    """
+The main loop is at lines 130-179. Each step already has:
+- Step start print at line 131: `print(f"\nStep {i+1}/{len(enabled_steps)}: {step.step_type.value} ({step.model})")`
+- Step complete print at line 179: `print(f"Step completed in {step_result.get('processing_time', 0):.1f}s")`
+- Cost accumulation at line 154: `total_cost += step_result.get("cost", 0.0)`
+
+**Add `stream_emitter` parameter** — pass through `**kwargs`:
+```python
+def execute(self, chain: ContentCreationChain, input_data: str, stream_emitter=None, **kwargs) -> ChainResult:
+    from ..cli.stream import NullEmitter
     emitter = stream_emitter or NullEmitter()
 
-    for i, step in enumerate(chain.steps):
-        emitter.step_start(i, step.step_type.value, step.model)
+    # ... existing setup (lines 117-128) ...
 
-        try:
-            step_result = self._execute_step(step, context, **kwargs)
-            emitter.step_complete(
-                i,
-                cost=step_result.get('cost', 0),
-                output_path=step_result.get('output_path'),
-                duration=step_result.get('duration', 0),
-            )
-        except Exception as e:
-            emitter.step_error(i, str(e), step.step_type.value)
-            raise
+    # At line 130, inside the for loop:
+    for i, step in enumerate(enabled_steps):
+        emitter.step_start(i, step.step_type.value, step.model)
+        print(f"\nStep {i+1}/{len(enabled_steps)}: {step.step_type.value} ({step.model})")
+
+        # ... existing step execution (lines 133-151) ...
+
+        # After line 154 (cost accumulation):
+        emitter.step_complete(
+            i,
+            cost=step_result.get('cost', 0),
+            output_path=step_result.get('output_path'),
+            duration=step_result.get('processing_time', 0),
+        )
+
+        # At failure (line 156-160):
+        if not step_result.get("success", False):
+            emitter.step_error(i, step_result.get("error", "Unknown error"), step.step_type.value)
+            # ... existing failure handling ...
 ```
+
+**NOTE**: The executor's existing `print()` statements are preserved for human mode. In `--stream` mode, they go to stdout but the stream events go to stderr. For `--json --stream` mode, the `print()` statements need to be suppressed — this requires passing the `CLIOutput` instance or redirecting stdout. This is a trade-off we can address in a follow-up.
+
+The `manager.execute_chain()` at line 158 just delegates to `self.executor.execute()`, so the `stream_emitter` kwarg passes through naturally via `**kwargs`.
 
 ### Step 4: Write tests
 

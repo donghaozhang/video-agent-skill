@@ -126,22 +126,40 @@ resolved_state_dir = Path(args.state_dir) if args.state_dir else state_dir()
 
 **File**: `packages/core/ai_content_pipeline/ai_content_pipeline/pipeline/manager.py`
 
-Currently temp files go to `./temp/`. Optionally use XDG cache:
+Current `__init__` (lines 31-56):
+```python
+def __init__(self, base_dir: str = None):
+    self.base_dir = Path(base_dir) if base_dir else Path.cwd()
+    self.output_dir = self.base_dir / "output"
+    self.temp_dir = self.output_dir / "temp"  # NOTE: temp is UNDER output/
+    # ...
+    print(f"✅ AI Pipeline Manager initialized (base: {self.base_dir})")
+```
+
+And `FileManager.__init__` (file_manager.py lines 21-36):
+```python
+def __init__(self, base_dir: str = None):
+    self.base_dir = Path(base_dir) if base_dir else Path.cwd()
+    self.output_dir = self.base_dir / "output"
+    self.temp_dir = self.base_dir / "temp"  # NOTE: different from manager (base/temp not output/temp)
+    self.input_dir = self.base_dir / "input"
+```
+
+**Change**: Add optional `cache_dir` parameter (not `use_xdg_cache` flag — keep it explicit):
 
 ```python
-from ..cli.paths import cache_dir
+from ..cli.paths import cache_dir as xdg_cache_dir
 
 class AIPipelineManager:
-    def __init__(self, base_dir=None, use_xdg_cache=False):
+    def __init__(self, base_dir: str = None, temp_dir: str = None):
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
         self.output_dir = self.base_dir / "output"
-
-        if use_xdg_cache:
-            self.temp_dir = cache_dir() / "temp"
-        else:
-            self.temp_dir = self.base_dir / "temp"
+        self.temp_dir = Path(temp_dir) if temp_dir else self.output_dir / "temp"
         # ...
 ```
+
+This allows CLI to pass `--cache-dir` explicitly: `AIPipelineManager(base_dir=args.base_dir, temp_dir=resolved_cache_dir / "temp")`.
+Default behavior is unchanged (temp under output/).
 
 ### Step 4: Use XDG config for .env lookup
 
