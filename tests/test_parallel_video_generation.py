@@ -293,20 +293,17 @@ class TestParallelErrorHandling:
             ImageToVideoExecutor
         )
 
-        call_count = [0]
-
         def mock_generate(input_data, model, **kwargs):
-            call_count[0] += 1
-            # Fail on second call
-            if call_count[0] == 2:
+            # Fail deterministically on img2 (thread-safe: based on input, not call order)
+            if "img2" in input_data.get("image_path", ""):
                 return MockGenerationResult(
                     success=False,
                     error="Simulated failure"
                 )
             return MockGenerationResult(
                 success=True,
-                output_path=f"/output/video_{call_count[0]}.mp4",
-                output_url=f"https://example.com/video_{call_count[0]}.mp4"
+                output_path=f"/output/{Path(input_data['image_path']).stem}.mp4",
+                output_url=f"https://example.com/{Path(input_data['image_path']).stem}.mp4"
             )
 
         mock_generator = Mock()

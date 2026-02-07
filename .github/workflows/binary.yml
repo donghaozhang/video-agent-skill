@@ -1,0 +1,85 @@
+name: Build Binaries
+
+# Builds standalone Python binaries using PyInstaller.
+# - On PRs: uploads binaries as workflow artifacts for testing.
+# - On tag pushes: attaches binaries to the GitHub Release.
+#
+# Requires: aicp.spec at project root.
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write  # Needed to attach assets to releases
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: aicp-linux-x86_64
+          - os: macos-latest
+            artifact_name: aicp-macos-arm64
+          - os: macos-15-intel
+            artifact_name: aicp-macos-x86_64
+          - os: windows-latest
+            artifact_name: aicp-windows-x64.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pyinstaller
+
+      - name: Build binary
+        run: pyinstaller aicp.spec
+
+      - name: Rename binary (Unix)
+        if: runner.os != 'Windows'
+        run: mv dist/aicp dist/${{ matrix.artifact_name }}
+
+      - name: Rename binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Move-Item dist/aicp.exe dist/${{ matrix.artifact_name }}
+
+      - name: Smoke test (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x dist/${{ matrix.artifact_name }}
+          dist/${{ matrix.artifact_name }} --help
+
+      - name: Smoke test (Windows)
+        if: runner.os == 'Windows'
+        run: dist/${{ matrix.artifact_name }} --help
+
+      - name: Upload artifact (PR)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}
+          retention-days: 7
+
+      - name: Attach to release (tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.artifact_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

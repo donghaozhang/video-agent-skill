@@ -15,6 +15,7 @@ import click
 
 from ai_content_pipeline.registry import ModelRegistry
 import ai_content_pipeline.registry_data  # side-effect: registers models
+from ai_content_pipeline.cli.exit_codes import error_exit, EXIT_PROVIDER_ERROR
 
 from .generator import FALTextToVideoGenerator
 
@@ -92,10 +93,8 @@ def generate(prompt, model, duration, aspect_ratio, resolution, output,
         else:
             print(f"   \U0001f4b0 Cost: ${result.get('cost_usd', 0):.2f}")
             print(f"   \U0001f517 URL: {result.get('video_url', 'N/A')}")
-        sys.exit(0)
     else:
-        print(f"\n\u274c Failed: {result.get('error')}")
-        sys.exit(1)
+        error_exit(RuntimeError(result.get('error', 'Unknown generation error')))
 
 
 @cli.command("list-models")
@@ -144,8 +143,7 @@ def model_info(model):
             print(f"   \u2022 price: ${pricing}")
 
     except ValueError as e:
-        print(f"\u274c Error: {e}")
-        sys.exit(1)
+        error_exit(e)
 
 
 @cli.command("estimate-cost")
@@ -181,8 +179,7 @@ def estimate_cost(model, duration, resolution, audio):
         print(f"   Parameters: {kwargs}")
 
     except ValueError as e:
-        print(f"\u274c Error: {e}")
-        sys.exit(1)
+        error_exit(e)
 
 
 def main():

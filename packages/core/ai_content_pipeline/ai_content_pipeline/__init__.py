@@ -12,7 +12,8 @@ Features:
 - YAML/JSON configuration system
 """
 
-__version__ = "1.0.18"
+from ._version import __version__
+
 __author__ = "AI Content Pipeline Team"
 
 from .pipeline.manager import AIPipelineManager

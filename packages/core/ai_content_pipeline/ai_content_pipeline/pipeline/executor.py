@@ -44,15 +44,17 @@ class ChainExecutor:
     Uses specialized step executors for each step type.
     """
 
-    def __init__(self, file_manager: FileManager):
+    def __init__(self, file_manager: FileManager, quiet: bool = False):
         """
         Initialize chain executor.
 
         Args:
             file_manager: FileManager instance for handling files
+            quiet: Suppress informational print output
         """
         self.file_manager = file_manager
         self.report_generator = ReportGenerator()
+        self.quiet = quiet
 
         # Initialize model generators
         text_to_image = UnifiedTextToImageGenerator()
@@ -91,16 +93,20 @@ class ChainExecutor:
             from .parallel_extension import ParallelExtension
             self._parallel_extension = ParallelExtension(self)
             if self._parallel_extension.enabled:
-                print("Parallel execution extension loaded and enabled")
+                if not self.quiet:
+                    print("Parallel execution extension loaded and enabled")
             else:
-                print("Parallel execution extension loaded but disabled (set PIPELINE_PARALLEL_ENABLED=true to enable)")
+                if not self.quiet:
+                    print("Parallel execution extension loaded but disabled (set PIPELINE_PARALLEL_ENABLED=true to enable)")
         except ImportError:
-            print("Parallel execution extension not available")
+            if not self.quiet:
+                print("Parallel execution extension not available")
 
     def execute(
         self,
         chain: ContentCreationChain,
         input_data: str,
+        stream_emitter=None,
         **kwargs
     ) -> ChainResult:
         """
@@ -109,11 +115,15 @@ class ChainExecutor:
         Args:
             chain: ContentCreationChain to execute
             input_data: Initial input data (text, image path, or video path)
+            stream_emitter: Optional StreamEmitter for JSONL progress events
             **kwargs: Additional execution parameters
 
         Returns:
             ChainResult with execution results
         """
+        from ..cli.stream import NullEmitter
+        emitter = stream_emitter or NullEmitter()
+
         start_time = time.time()
         step_results = []
         outputs = {}
@@ -124,11 +134,14 @@ class ChainExecutor:
 
         enabled_steps = chain.get_enabled_steps()
 
-        print(f"Starting chain execution: {len(enabled_steps)} steps")
+        if not self.quiet:
+            print(f"Starting chain execution: {len(enabled_steps)} steps")
 
         try:
             for i, step in enumerate(enabled_steps):
-                print(f"\nStep {i+1}/{len(enabled_steps)}: {step.step_type.value} ({step.model})")
+                emitter.step_start(i, step.step_type.value, step.model)
+                if not self.quiet:
+                    print(f"\nStep {i+1}/{len(enabled_steps)}: {step.step_type.value} ({step.model})")
 
                 # Check if this is a parallel step and extension is available
                 if (self._parallel_extension and
@@ -154,10 +167,19 @@ class ChainExecutor:
                 total_cost += step_result.get("cost", 0.0)
 
                 if not step_result.get("success", False):
+                    emitter.step_error(i, step_result.get("error", "Unknown error"), step.step_type.value)
                     return self._handle_failure(
                         chain, input_data, step_results, outputs,
                         total_cost, start_time, i, step_result.get("error", "Unknown error")
                     )
+
+                # Emit step completion
+                emitter.step_complete(
+                    i,
+                    cost=step_result.get("cost", 0.0),
+                    output_path=step_result.get("output_path"),
+                    duration=step_result.get("processing_time", 0.0),
+                )
 
                 # Update current data for next step
                 self._update_step_context(step, step_result, step_context)
@@ -176,7 +198,8 @@ class ChainExecutor:
                         total_cost, i, step_result
                     )
 
-                print(f"Step completed in {step_result.get('processing_time', 0):.1f}s")
+                if not self.quiet:
+                    print(f"Step completed in {step_result.get('processing_time', 0):.1f}s")
 
             # Chain completed successfully
             return self._handle_success(
@@ -250,7 +273,8 @@ class ChainExecutor:
                 step_result.get("extracted_prompt") or
                 step_result.get("output_text")
             )
-            print("Stored generated prompt, keeping image data for next step")
+            if not self.quiet:
+                print("Stored generated prompt, keeping image data for next step")
 
     def _get_next_step_input(
         self,
@@ -359,7 +383,7 @@ class ChainExecutor:
             chain.config,
             step_number=step_index+1
         )
-        if intermediate_path:
+        if intermediate_path and not self.quiet:
             print(f"Intermediate results saved: {intermediate_path}")
 
     def _handle_failure(
@@ -374,7 +398,8 @@ class ChainExecutor:
         error_msg: str
     ) -> ChainResult:
         """Handle step failure and return ChainResult."""
-        print(f"Step failed: {error_msg}")
+        if not self.quiet:
+            print(f"Step failed: {error_msg}")
         total_time = time.time() - start_time
 
         execution_report = self.report_generator.create_execution_report(
@@ -389,7 +414,7 @@ class ChainExecutor:
         )
 
         report_path = self.report_generator.save_execution_report(execution_report, chain.config)
-        if report_path:
+        if report_path and not self.quiet:
             print(f"Failure report saved: {report_path}")
 
         return ChainResult(
@@ -416,9 +441,10 @@ class ChainExecutor:
         """Handle successful chain completion and return ChainResult."""
         total_time = time.time() - start_time
 
-        print(f"\nChain completed successfully!")
-        print(f"Total time: {total_time:.1f}s")
-        print(f"Total cost: ${total_cost:.3f}")
+        if not self.quiet:
+            print("\nChain completed successfully!")
+            print(f"Total time: {total_time:.1f}s")
+            print(f"Total cost: ${total_cost:.3f}")
 
         execution_report = self.report_generator.create_execution_report(
             chain=chain,
@@ -431,7 +457,7 @@ class ChainExecutor:
         )
 
         report_path = self.report_generator.save_execution_report(execution_report, chain.config)
-        if report_path:
+        if report_path and not self.quiet:
             print(f"Execution report saved: {report_path}")
 
         return ChainResult(
@@ -455,7 +481,8 @@ class ChainExecutor:
         error_msg: str
     ) -> ChainResult:
         """Handle unexpected exception and return ChainResult."""
-        print(f"Chain execution failed: {error_msg}")
+        if not self.quiet:
+            print(f"Chain execution failed: {error_msg}")
         total_time = time.time() - start_time
 
         execution_report = self.report_generator.create_execution_report(
@@ -470,7 +497,7 @@ class ChainExecutor:
         )
 
         report_path = self.report_generator.save_execution_report(execution_report, chain.config)
-        if report_path:
+        if report_path and not self.quiet:
             print(f"Error report saved: {report_path}")
 
         return ChainResult(

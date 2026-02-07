@@ -1,0 +1,311 @@
+name: On Merge to Main
+
+# Runs after every PR merge to main:
+# 1. Auto-updates CHANGELOG.md with the merged PR title/body
+# 2. Builds wheel + sdist
+# 3. Builds standalone binaries for all platforms
+# 4. Updates the "latest" GitHub release with fresh artifacts
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  # -------------------------------------------------------------------
+  # Job 1: Update CHANGELOG.md with merged PR info
+  # -------------------------------------------------------------------
+  changelog:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+      changelog_entry: ${{ steps.entry.outputs.ENTRY }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read current version
+        id: version
+        run: |
+          VERSION=$(python3 << 'PYEOF'
+          import re
+          with open('packages/core/ai_content_pipeline/ai_content_pipeline/_version.py') as f:
+              m = re.search(r'__version__\s*=\s*"(.*?)"', f.read())
+              print(m.group(1))
+          PYEOF
+          )
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog entry
+        id: entry
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+
+          # Categorize from PR title prefix (feat:, fix:, docs:, etc.)
+          CATEGORY="Changed"
+          if echo "$PR_TITLE" | grep -qi "^feat"; then
+            CATEGORY="Added"
+          elif echo "$PR_TITLE" | grep -qi "^fix"; then
+            CATEGORY="Fixed"
+          elif echo "$PR_TITLE" | grep -qi "^docs"; then
+            CATEGORY="Documentation"
+          elif echo "$PR_TITLE" | grep -qi "^refactor\|^chore"; then
+            CATEGORY="Changed"
+          fi
+
+          # Build entry text
+          ENTRY="- ${PR_TITLE} (#${PR_NUMBER}) @${PR_AUTHOR}"
+          echo "ENTRY=${ENTRY}" >> $GITHUB_OUTPUT
+          echo "CATEGORY=${CATEGORY}" >> $GITHUB_OUTPUT
+          echo "DATE=${DATE}" >> $GITHUB_OUTPUT
+
+      - name: Update CHANGELOG.md
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+          ENTRY: ${{ steps.entry.outputs.ENTRY }}
+          CATEGORY: ${{ steps.entry.outputs.CATEGORY }}
+          DATE: ${{ steps.entry.outputs.DATE }}
+        run: |
+          CHANGELOG="docs/CHANGELOG.md"
+
+          # Check if an [Unreleased] section exists
+          if grep -q "^\## \[Unreleased\]" "$CHANGELOG"; then
+            # Check if the category subsection exists under [Unreleased]
+            if awk '/^## \[Unreleased\]/,/^## \[/' "$CHANGELOG" | grep -q "^### ${CATEGORY}"; then
+              # Append entry under existing category
+              sed -i "/^## \[Unreleased\]/,/^## \[/{/^### ${CATEGORY}/a\\
+          ${ENTRY}
+          }" "$CHANGELOG"
+            else
+              # Add new category section after [Unreleased] header
+              sed -i "/^## \[Unreleased\]/a\\
+          \\
+          ### ${CATEGORY}\\
+          ${ENTRY}" "$CHANGELOG"
+            fi
+          else
+            # Create [Unreleased] section at the top (after the header lines)
+            sed -i "/^## \[/i\\
+          ## [Unreleased]\\
+          \\
+          ### ${CATEGORY}\\
+          ${ENTRY}\\
+          " "$CHANGELOG"
+          fi
+
+      - name: Commit changelog update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/CHANGELOG.md
+          git diff --cached --quiet && echo "No changelog changes" && exit 0
+          git commit -m "docs: Update CHANGELOG for PR #${{ github.event.pull_request.number }}"
+          git push origin main
+
+  # -------------------------------------------------------------------
+  # Job 2: Build wheel + sdist
+  # -------------------------------------------------------------------
+  build-wheel:
+    if: github.event.pull_request.merged == true
+    needs: changelog
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build distributions
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+          retention-days: 90
+
+  # -------------------------------------------------------------------
+  # Job 3: Build cross-platform binaries
+  # -------------------------------------------------------------------
+  build-binary:
+    if: github.event.pull_request.merged == true
+    needs: changelog
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: aicp-linux-x86_64
+          - os: macos-latest
+            artifact_name: aicp-macos-arm64
+          - os: macos-15-intel
+            artifact_name: aicp-macos-x86_64
+          - os: windows-latest
+            artifact_name: aicp-windows-x64.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pyinstaller
+
+      - name: Build binary
+        run: pyinstaller aicp.spec
+
+      - name: Rename binary (Unix)
+        if: runner.os != 'Windows'
+        run: mv dist/aicp dist/${{ matrix.artifact_name }}
+
+      - name: Rename binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Move-Item dist/aicp.exe dist/${{ matrix.artifact_name }}
+
+      - name: Smoke test (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x dist/${{ matrix.artifact_name }}
+          dist/${{ matrix.artifact_name }} --help
+
+      - name: Smoke test (Windows)
+        if: runner.os == 'Windows'
+        run: dist/${{ matrix.artifact_name }} --help
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}
+          retention-days: 90
+
+  # -------------------------------------------------------------------
+  # Job 4: Update "latest" rolling release with all artifacts
+  # -------------------------------------------------------------------
+  update-latest-release:
+    if: github.event.pull_request.merged == true
+    needs: [build-wheel, build-binary]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(python3 << 'PYEOF'
+          import re
+          with open('packages/core/ai_content_pipeline/ai_content_pipeline/_version.py') as f:
+              m = re.search(r'__version__\s*=\s*"(.*?)"', f.read())
+              print(m.group(1))
+          PYEOF
+          )
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          # Copy wheel/sdist
+          cp artifacts/python-dist/* release-assets/ 2>/dev/null || true
+          # Copy binaries
+          for dir in artifacts/aicp-*; do
+            if [ -d "$dir" ]; then
+              cp "$dir"/* release-assets/ 2>/dev/null || true
+            fi
+          done
+          echo "Release assets:"
+          ls -la release-assets/
+
+      - name: Delete existing latest release
+        run: |
+          gh release delete latest --yes 2>/dev/null || true
+          git push origin :refs/tags/latest 2>/dev/null || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create latest release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          REPO: ${{ github.repository }}
+        run: |
+          UPDATED="$(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          # Build release notes file (avoids script injection from PR title)
+          {
+            echo "## Latest Build"
+            echo ""
+            echo "**Version**: ${VERSION}"
+            echo "**PR**: #${PR_NUMBER} — ${PR_TITLE}"
+            echo "**Updated**: ${UPDATED}"
+            echo ""
+            echo "### Install"
+            echo ""
+            echo "**pip** (recommended):"
+            echo '```bash'
+            echo 'pip install video-ai-studio'
+            echo '```'
+            echo ""
+            echo "**Binary** (no Python required):"
+            echo '```bash'
+            echo "# Linux"
+            echo "curl -L https://github.com/${REPO}/releases/download/latest/aicp-linux-x86_64 -o aicp"
+            echo "chmod +x aicp"
+            echo ""
+            echo "# macOS (Apple Silicon)"
+            echo "curl -L https://github.com/${REPO}/releases/download/latest/aicp-macos-arm64 -o aicp"
+            echo "chmod +x aicp"
+            echo ""
+            echo "# Windows"
+            echo "curl -L https://github.com/${REPO}/releases/download/latest/aicp-windows-x64.exe -o aicp.exe"
+            echo '```'
+            echo ""
+            echo "---"
+            echo "This is a rolling release updated on every merge to main."
+            echo "For stable releases, see [tagged releases](https://github.com/${REPO}/releases)."
+          } > release-notes.md
+
+          gh release create latest \
+            --title "Latest Build (v${VERSION})" \
+            --notes-file release-notes.md \
+            --prerelease \
+            release-assets/*

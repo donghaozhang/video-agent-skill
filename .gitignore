@@ -1,3 +1,6 @@
+# Completed issue tracking (local archive only)
+issues/completed/
+
 # Video files
 *.mp4
 *.avi
@@ -155,6 +158,10 @@ logs/
 *.bak
 *.backup
 *~
+
+# PyInstaller artifacts (build/ and dist/ already covered above)
+*.spec.bak
+*.manifest
 
 # Test artifacts
 test_results/
