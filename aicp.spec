@@ -19,7 +19,18 @@ PROJECT_ROOT = Path(SPECPATH)
 
 a = Analysis(
     [str(PROJECT_ROOT / 'aicp_entry.py')],
-    pathex=[str(PROJECT_ROOT)],
+    pathex=[
+        str(PROJECT_ROOT),
+        # Package source directories so PyInstaller can discover modules
+        # (editable installs are not reliably resolved by PyInstaller)
+        str(PROJECT_ROOT / 'packages' / 'core' / 'ai_content_pipeline'),
+        str(PROJECT_ROOT / 'packages' / 'core'),
+        str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'text-to-video'),
+        str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'image-to-video'),
+        str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'image-to-image'),
+        str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'video-to-video'),
+        str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'avatar-generation'),
+    ],
     binaries=[],
     datas=[
         # Config YAML files needed at runtime
@@ -35,6 +46,8 @@ a = Analysis(
         'ai_content_pipeline.models',
         'ai_content_pipeline.pipeline',
         'ai_content_pipeline.pipeline.manager',
+        'ai_content_pipeline.pipeline.executor',
+        'ai_content_pipeline.pipeline.step_executors',
         'ai_content_pipeline.cli',
         'ai_content_pipeline.cli.exit_codes',
         'ai_content_pipeline.cli.interactive',
