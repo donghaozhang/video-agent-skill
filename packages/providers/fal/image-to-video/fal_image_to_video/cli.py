@@ -15,6 +15,7 @@ import click
 
 from ai_content_pipeline.registry import ModelRegistry
 import ai_content_pipeline.registry_data  # side-effect: registers models
+from ai_content_pipeline.cli.exit_codes import error_exit, EXIT_PROVIDER_ERROR
 
 from .generator import FALImageToVideoGenerator
 
@@ -81,10 +82,8 @@ def generate(image, model, prompt, duration, output, end_frame,
         print(f"   \U0001f4c1 Output: {result.get('local_path')}")
         print(f"   \U0001f4b0 Cost: ${result.get('cost_estimate', 0):.2f}")
         print(f"   \u23f1\ufe0f Time: {result.get('processing_time', 0):.1f}s")
-        sys.exit(0)
     else:
-        print(f"\n\u274c Failed: {result.get('error')}")
-        sys.exit(1)
+        error_exit(RuntimeError(result.get('error', 'Unknown generation error')))
 
 
 @cli.command()
@@ -116,10 +115,8 @@ def interpolate(start_frame, end_frame, model, prompt, duration):
         print(f"\n\u2705 Success!")
         print(f"   \U0001f4c1 Output: {result.get('local_path')}")
         print(f"   \U0001f4b0 Cost: ${result.get('cost_estimate', 0):.2f}")
-        sys.exit(0)
     else:
-        print(f"\n\u274c Failed: {result.get('error')}")
-        sys.exit(1)
+        error_exit(RuntimeError(result.get('error', 'Unknown interpolation error')))
 
 
 @cli.command("list-models")
@@ -184,8 +181,7 @@ def model_info(model):
             print(f"   {status} {param}")
 
     except ValueError as e:
-        print(f"\u274c Error: {e}")
-        sys.exit(1)
+        error_exit(e)
 
 
 def main():

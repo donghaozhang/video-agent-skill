@@ -213,11 +213,9 @@ def run_chain(args):
                     input_data = f.read().strip()
                     print(f"📝 Using prompt from file ({args.prompt_file}): {input_data}")
             except FileNotFoundError:
-                print(f"❌ Prompt file not found: {args.prompt_file}")
-                sys.exit(1)
+                error_exit(FileNotFoundError(f"Prompt file not found: {args.prompt_file}"))
             except Exception as e:
-                print(f"❌ Error reading prompt file: {e}")
-                sys.exit(1)
+                error_exit(e, debug=getattr(args, 'debug', False))
         
         if not input_data:
             # Try to get input from chain config based on input type
@@ -227,24 +225,21 @@ def run_chain(args):
                     input_data = config_input
                     print(f"📝 Using prompt from config: {input_data}")
                 else:
-                    print("❌ No input text provided. Use --input-text, --prompt-file, or add 'prompt' field to config.")
-                    sys.exit(1)
+                    error_exit(ValueError("No input text provided. Use --input-text, --prompt-file, or add 'prompt' field to config."))
             elif initial_input_type == "video":
                 config_input = chain.config.get("input_video")
                 if config_input:
                     input_data = config_input
                     print(f"📹 Using video from config: {input_data}")
                 else:
-                    print("❌ No input video provided. Use --input-text or add 'input_video' field to config.")
-                    sys.exit(1)
+                    error_exit(ValueError("No input video provided. Use --input-text or add 'input_video' field to config."))
             elif initial_input_type == "image":
                 config_input = chain.config.get("input_image")
                 if config_input:
                     input_data = config_input
                     print(f"🖼️ Using image from config: {input_data}")
                 else:
-                    print("❌ No input image provided. Use --input-text or add 'input_image' field to config.")
-                    sys.exit(1)
+                    error_exit(ValueError("No input image provided. Use --input-text or add 'input_image' field to config."))
             elif initial_input_type == "any":
                 # For parallel groups that accept any input type
                 config_input = chain.config.get("prompt")
@@ -252,21 +247,16 @@ def run_chain(args):
                     input_data = config_input
                     print(f"📝 Using prompt from config: {input_data}")
                 else:
-                    print("❌ No input provided for parallel group. Add 'prompt' field to config or use --input-text.")
-                    sys.exit(1)
+                    error_exit(ValueError("No input provided for parallel group. Add 'prompt' field to config or use --input-text."))
             else:
-                print(f"❌ Unknown input type: {initial_input_type}")
-                sys.exit(1)
+                error_exit(ValueError(f"Unknown input type: {initial_input_type}"))
         elif args.input_text:
             print(f"📝 Using input text: {input_data}")
         
         # Validate chain
         errors = chain.validate()
         if errors:
-            print(f"❌ Chain validation failed:")
-            for error in errors:
-                print(f"   • {error}")
-            sys.exit(1)
+            error_exit(ValueError(f"Chain validation failed: {'; '.join(errors)}"))
         
         # Show cost estimate
         cost_info = manager.estimate_chain_cost(chain)
@@ -380,9 +370,7 @@ def create_examples(args):
 def generate_avatar(args):
     """Handle generate-avatar command."""
     if not FAL_AVATAR_AVAILABLE:
-        print("❌ FAL Avatar module not available.")
-        print("   Ensure fal_avatar package is in path and fal-client is installed.")
-        sys.exit(1)
+        error_exit(ImportError("FAL Avatar module not available. Ensure fal_avatar package is in path and fal-client is installed."))
 
     try:
         generator = FALAvatarGenerator()
@@ -423,11 +411,7 @@ def generate_avatar(args):
                 model=model,
             )
         else:
-            print("❌ No input provided. Use one of:")
-            print("   --image-url    : Portrait image for avatar generation")
-            print("   --video-url    : Video for transformation")
-            print("   --reference-images : Reference images for video generation")
-            sys.exit(1)
+            error_exit(ValueError("No input provided. Use --image-url, --video-url, or --reference-images."))
 
         # Display results
         if result.success:
