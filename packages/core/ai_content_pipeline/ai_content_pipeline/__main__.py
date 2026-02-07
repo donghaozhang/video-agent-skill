@@ -540,7 +540,7 @@ Examples:
   # Generate image only
   python -m ai_content_pipeline generate-image --text "epic space battle" --model flux_dev
 
-  # Quick video creation (text → image → video)
+  # Quick video creation (text -> image -> video)
   python -m ai_content_pipeline create-video --text "serene mountain lake"
 
   # Run custom chain from config
@@ -646,7 +646,7 @@ Examples:
     image_parser.add_argument("--save-json", help="Save result as JSON (deprecated, use --json)")
     
     # Create video command
-    video_parser = subparsers.add_parser("create-video", help="Create video from text (text → image → video)")
+    video_parser = subparsers.add_parser("create-video", help="Create video from text (text -> image -> video)")
     video_parser.add_argument("--text", required=True, help="Text prompt for content creation")
     video_parser.add_argument("--image-model", default="auto", help="Model for text-to-image")
     video_parser.add_argument("--video-model", default="auto", help="Model for image-to-video")
