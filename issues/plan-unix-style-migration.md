@@ -1,4 +1,4 @@
-# Implementation Plan: Unix/Linux Style Framework Migration
+# Implementation Plan: Unix/Linux-Style Framework Migration
 
 **Status**: COMPLETED (Phase 1 — core modules, tests, and foundational wiring)
 **PR**: [#20](https://github.com/donghaozhang/video-agent-skill/pull/20)
@@ -477,7 +477,7 @@ aicp run-chain --config pipeline.yaml --stream 2>&1 >/dev/null | jq -r '.event +
 
 ## Implementation Order & Dependencies
 
-```
+```text
 Subtask 1 (Exit Codes) ──────────┐
                                   ├──→ Subtask 2 (JSON Output) ──→ Subtask 3 (Stdin/Stdout)
 Subtask 4 (Non-Interactive) ─────┘         │
@@ -508,7 +508,7 @@ Subtask 5 (XDG Paths) ───────────────────�
 
 ## File Tree (New/Modified)
 
-```
+```text
 packages/core/ai_content_pipeline/ai_content_pipeline/
 ├── cli/                          # NEW package
 │   ├── __init__.py               # NEW

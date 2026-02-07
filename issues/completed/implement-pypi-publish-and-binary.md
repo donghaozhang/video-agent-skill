@@ -205,7 +205,7 @@ gh api repos/donghaozhang/video-agent-skill/branches/main/protection --method PU
 
 ## CI/CD Pipeline Flow (Final)
 
-```
+```text
 PR opened/updated
   ├── test.yml          → pytest on Python 3.10/3.11/3.12
   ├── publish-check.yml → build + TestPyPI upload + install verify

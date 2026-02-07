@@ -11,7 +11,7 @@
 - XDG env vars take priority, then platform defaults (APPDATA/LOCALAPPDATA on Windows, ~/.config etc on Unix)
 - APP_NAME = `video-ai-studio` (matches PyPI package name)
 - 16 tests in `tests/test_xdg_paths.py` — all passing (3 Unix-only tests skipped on Windows)
-- **Remaining work**: Wire `--config-dir`/`--cache-dir`/`--state-dir` CLI flags, integrate into manager.py and file_manager.py
+- **Remaining work (Phase 2)**: Wire `--config-dir`/`--cache-dir`/`--state-dir` CLI flags (Completed), integrate into manager.py and file_manager.py (Completed)
 
 ---
 

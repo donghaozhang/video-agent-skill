@@ -24,7 +24,7 @@ Current CI/CD flow is **post-merge**: tag push → GitHub Release → PyPI publi
 
 ### New Flow
 
-```
+```text
 PR opened/updated
   ├── test.yml          → run pytest (existing, unchanged)
   ├── publish-check.yml → build sdist+wheel, publish to TestPyPI ← NEW
@@ -170,7 +170,7 @@ exe = EXE(
 
 On GitHub Release, binaries are attached as assets:
 
-```
+```text
 v1.0.20
   ├── video_ai_studio-1.0.20.tar.gz      (sdist)
   ├── video_ai_studio-1.0.20-py3-none-any.whl  (wheel)

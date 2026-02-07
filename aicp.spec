@@ -86,7 +86,6 @@ a = Analysis(
         'scipy',
         'numpy',
         'cv2',
-        'moviepy',
         'tkinter',
     ],
     noarchive=False,

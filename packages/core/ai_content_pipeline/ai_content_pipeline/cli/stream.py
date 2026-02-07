@@ -45,7 +45,7 @@ class StreamEmitter:
         print(json.dumps(event, default=str), file=stream, flush=True)
 
     def pipeline_start(self, name: str, total_steps: int,
-                       config: Optional[str] = None):
+                       config: Optional[str] = None) -> None:
         """Emit when pipeline execution begins."""
         self._emit("pipeline_start", {
             "name": name,
@@ -54,7 +54,7 @@ class StreamEmitter:
         })
 
     def step_start(self, step_index: int, step_type: str,
-                   model: Optional[str] = None):
+                   model: Optional[str] = None) -> None:
         """Emit when a step begins execution."""
         self._emit("step_start", {
             "step": step_index,
@@ -64,7 +64,7 @@ class StreamEmitter:
 
     def step_complete(self, step_index: int, cost: float = 0.0,
                       output_path: Optional[str] = None,
-                      duration: float = 0.0):
+                      duration: float = 0.0) -> None:
         """Emit when a step completes successfully."""
         self._emit("step_complete", {
             "step": step_index,
@@ -74,7 +74,7 @@ class StreamEmitter:
         })
 
     def step_error(self, step_index: int, error: str,
-                   step_type: Optional[str] = None):
+                   step_type: Optional[str] = None) -> None:
         """Emit when a step fails."""
         self._emit("step_error", {
             "step": step_index,
@@ -82,7 +82,7 @@ class StreamEmitter:
             "error": error,
         })
 
-    def pipeline_complete(self, result: Dict[str, Any]):
+    def pipeline_complete(self, result: Dict[str, Any]) -> None:
         """Emit final result to stdout (not stderr).
 
         This is the only event that goes to stdout so it can be piped.
@@ -101,8 +101,8 @@ class StreamEmitter:
 class NullEmitter:
     """No-op emitter for when streaming is disabled."""
 
-    def pipeline_start(self, *args, **kwargs): pass
-    def step_start(self, *args, **kwargs): pass
-    def step_complete(self, *args, **kwargs): pass
-    def step_error(self, *args, **kwargs): pass
-    def pipeline_complete(self, *args, **kwargs): pass
+    def pipeline_start(self, *args, **kwargs) -> None: pass
+    def step_start(self, *args, **kwargs) -> None: pass
+    def step_complete(self, *args, **kwargs) -> None: pass
+    def step_error(self, *args, **kwargs) -> None: pass
+    def pipeline_complete(self, *args, **kwargs) -> None: pass

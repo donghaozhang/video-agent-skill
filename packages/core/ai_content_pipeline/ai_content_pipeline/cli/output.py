@@ -94,7 +94,7 @@ class CLIOutput:
             envelope = {
                 "schema_version": SCHEMA_VERSION,
                 "command": command,
-                **data,
+                "data": data,
             }
             print(json.dumps(envelope, default=str, indent=2))
         elif not self.quiet:
@@ -127,7 +127,9 @@ class CLIOutput:
                 print("  ".join(f"{h:<20}" for h in headers))
                 print("-" * (22 * len(headers)))
             for row in rows:
-                if isinstance(row, dict):
+                if isinstance(row, dict) and headers:
+                    print("  ".join(f"{str(row.get(h, '')):<20}" for h in headers))
+                elif isinstance(row, dict):
                     print("  ".join(f"{str(v):<20}" for v in row.values()))
                 else:
                     print(str(row))

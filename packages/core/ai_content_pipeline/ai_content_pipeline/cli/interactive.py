@@ -5,8 +5,8 @@ Automatically detects CI environments and provides a safe
 wrapper around input() that errors instead of hanging in
 non-interactive contexts.
 
-Detection priority:
-1. --no-confirm flag (explicit)
+Detection priority (handled by CLI layer + this module):
+1. --no-confirm flag (handled in __main__.py, bypasses confirm())
 2. CI environment variables (CI, GITHUB_ACTIONS, JENKINS_URL, etc.)
 3. sys.stdin.isatty() check
 """

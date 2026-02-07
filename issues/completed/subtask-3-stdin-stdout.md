@@ -42,15 +42,12 @@ def read_input(input_arg: Optional[str], fallback: Optional[str] = None) -> Opti
     """
     if input_arg == '-':
         if sys.stdin.isatty():
-            print("error: --input - requires piped input (stdin is a terminal)",
-                  file=sys.stderr)
-            sys.exit(2)
+            raise ValueError("--input - requires piped input (stdin is a terminal)")
         return sys.stdin.read().strip()
     elif input_arg:
         path = Path(input_arg)
         if not path.exists():
-            print(f"error: input file not found: {input_arg}", file=sys.stderr)
-            sys.exit(3)
+            raise FileNotFoundError(f"input file not found: {input_arg}")
         return path.read_text().strip()
     return fallback
 ```
@@ -93,6 +90,7 @@ generate_image_parser.add_argument('--input', '-i', default=None,
 ```python
 # In run_chain()
 config_source = args.config
+temp_config = None
 if config_source == '-':
     import tempfile
     stdin_content = sys.stdin.read()
@@ -100,6 +98,14 @@ if config_source == '-':
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
         f.write(stdin_content)
         config_source = f.name
+        temp_config = f.name
+try:
+    # ... process config_source ...
+    pass
+finally:
+    if temp_config:
+        import os
+        os.unlink(temp_config)
 ```
 
 ### Step 5: Add `--output -` support

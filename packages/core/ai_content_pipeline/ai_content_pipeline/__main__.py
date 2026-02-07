@@ -191,12 +191,12 @@ def create_video(args, output):
         if output.json_mode:
             output.result(result_dict, command="create-video")
         elif result.success:
-            output.info(f"\n✅ Video creation successful!")
+            output.info("\n✅ Video creation successful!")
             output.info(f"📦 Steps completed: {result.steps_completed}/{result.total_steps}")
             output.info(f"💰 Total cost: ${result.total_cost:.3f}")
             output.info(f"⏱️  Total time: {result.total_time:.1f} seconds")
             if result.outputs:
-                output.info(f"\n📁 Outputs:")
+                output.info("\n📁 Outputs:")
                 for step_name, step_out in result.outputs.items():
                     if step_out.get("path"):
                         output.info(f"   {step_name}: {step_out['path']}")
@@ -288,7 +288,7 @@ def run_chain(args, output):
         output.info(f"💰 Estimated cost: ${cost_info['total_cost']:.3f}")
 
         if not args.no_confirm:
-            if not confirm("\nProceed with execution?"):
+            if not confirm("\nProceed with execution?", default=True):
                 output.info("Execution cancelled.")
                 sys.exit(0)
 
@@ -322,7 +322,7 @@ def run_chain(args, output):
         elif output.json_mode:
             output.result(result_dict, command="run-chain")
         elif result.success:
-            output.info(f"\n✅ Chain execution successful!")
+            output.info("\n✅ Chain execution successful!")
             output.info(f"📦 Steps completed: {result.steps_completed}/{result.total_steps}")
             output.info(f"💰 Total cost: ${result.total_cost:.3f}")
             output.info(f"⏱️  Total time: {result.total_time:.1f} seconds")
@@ -376,7 +376,7 @@ def generate_image(args, output):
         if output.json_mode:
             output.result(result_dict, command="generate-image")
         elif result.success:
-            output.info(f"\n✅ Image generation successful!")
+            output.info("\n✅ Image generation successful!")
             output.info(f"📦 Model: {result.model_used}")
             if result.output_path:
                 output.info(f"📁 Output: {result.output_path}")
@@ -490,7 +490,7 @@ def generate_avatar(args, output):
         error_exit(e, debug=getattr(args, 'debug', False))
 
 
-def list_avatar_models(args, output):
+def list_avatar_models(_args, output):
     """Handle list-avatar-models command."""
     if not FAL_AVATAR_AVAILABLE:
         output.error("FAL Avatar module not available. Ensure fal_avatar package is in path and fal-client is installed.")

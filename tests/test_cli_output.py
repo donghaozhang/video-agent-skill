@@ -73,8 +73,8 @@ class TestJsonMode:
         data = json.loads(captured.out)
         assert data["schema_version"] == SCHEMA_VERSION
         assert data["command"] == "test-cmd"
-        assert data["status"] == "ok"
-        assert data["count"] == 5
+        assert data["data"]["status"] == "ok"
+        assert data["data"]["count"] == 5
 
     def test_table_emits_json_array(self, capsys):
         out = CLIOutput(json_mode=True)
@@ -93,7 +93,7 @@ class TestJsonMode:
         captured = capsys.readouterr()
         # Must be valid JSON
         data = json.loads(captured.out)
-        assert "path" in data
+        assert "path" in data["data"]
 
 
 class TestQuietMode:

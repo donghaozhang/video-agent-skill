@@ -6,7 +6,7 @@
 **Depends on**: Subtask 1 (exit codes) - uses stderr pattern
 **Estimated Time**: 30 minutes
 
-### Implementation Summary
+## Implementation Summary
 - Created `cli/interactive.py` with `is_interactive()` (9 CI env vars + TTY check) and `confirm()` helper
 - Fixed `--no-confirm` default from `True` to `False` in `__main__.py` (was silently skipping cost confirmation)
 - Replaced raw `input()` calls in `setup_env()` and `run_chain()` with `confirm()`
@@ -82,11 +82,15 @@ def is_non_interactive(args=None) -> bool:
     Returns True if:
     - --yes flag is set
     - Any CI environment variable is set
-    - stdin is not a terminal (piped input)
+    - stdin is not a TTY (piped input, cron, etc.)
     """
     if args and getattr(args, 'yes', False):
         return True
-    return any(os.environ.get(v) for v in _CI_ENV_VARS)
+    if any(os.environ.get(v) for v in _CI_ENV_VARS):
+        return True
+    if not hasattr(sys.stdin, "isatty") or not sys.stdin.isatty():
+        return True
+    return False
 
 
 def confirm(message: str, args=None, default: bool = False) -> bool:
@@ -250,5 +254,5 @@ python -m pytest tests/test_non_interactive.py -v
 ## Notes
 
 - `--yes` only affects confirmation prompts, not error handling
-- stdin detection (`sys.stdin.isatty()`) is NOT used for non-interactive detection because `--input -` legitimately uses stdin
+- `is_interactive()` checks `sys.stdin.isatty()` as part of its detection: if stdin is not a TTY (piped input, cron, etc.), the session is considered non-interactive. Note that `--input -` reads from stdin separately and does not conflict with this check because `confirm()` simply returns the default value without prompting in non-interactive mode.
 - The `confirm()` helper catches `EOFError` and `KeyboardInterrupt` gracefully

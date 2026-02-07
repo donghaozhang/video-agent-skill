@@ -6,7 +6,7 @@
 **Depends on**: Subtask 1 (exit codes)
 **Estimated Time**: 60 minutes
 
-### Implementation Summary
+## Implementation Summary
 - Created `cli/output.py` with `CLIOutput` class (json_mode, quiet, debug) and `SCHEMA_VERSION = "1"`
 - Methods: `info()`, `error()`, `warning()`, `verbose()`, `result()`, `table()`
 - JSON mode: structured envelope with `schema_version` and `command` fields to stdout
