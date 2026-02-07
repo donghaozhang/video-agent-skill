@@ -35,12 +35,13 @@ jobs:
       - name: Read current version
         id: version
         run: |
-          VERSION=$(python3 -c "
+          VERSION=$(python3 << 'PYEOF'
           import re
           with open('packages/core/ai_content_pipeline/ai_content_pipeline/_version.py') as f:
-              m = re.search(r'__version__\s*=\s*[\"'\''](.*?)[\"'\'']', f.read())
+              m = re.search(r'__version__\s*=\s*"(.*?)"', f.read())
               print(m.group(1))
-          ")
+          PYEOF
+          )
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Generate changelog entry
@@ -224,12 +225,13 @@ jobs:
       - name: Read version
         id: version
         run: |
-          VERSION=$(python3 -c "
+          VERSION=$(python3 << 'PYEOF'
           import re
           with open('packages/core/ai_content_pipeline/ai_content_pipeline/_version.py') as f:
-              m = re.search(r'__version__\s*=\s*[\"'\''](.*?)[\"'\'']', f.read())
+              m = re.search(r'__version__\s*=\s*"(.*?)"', f.read())
               print(m.group(1))
-          ")
+          PYEOF
+          )
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Download all artifacts

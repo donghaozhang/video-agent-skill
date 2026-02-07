@@ -33,12 +33,13 @@ jobs:
       - name: Compute dev version
         id: version
         run: |
-          BASE=$(python -c "
+          BASE=$(python3 << 'PYEOF'
           import re
           with open('packages/core/ai_content_pipeline/ai_content_pipeline/_version.py') as f:
-              match = re.search(r'__version__\s*=\s*[\"'\''](.*?)[\"'\'']', f.read())
+              match = re.search(r'__version__\s*=\s*"(.*?)"', f.read())
               print(match.group(1))
-          ")
+          PYEOF
+          )
           DEV="${BASE}.dev${{ github.event.pull_request.number }}${{ github.run_number }}"
           echo "BASE_VERSION=${BASE}" >> $GITHUB_OUTPUT
           echo "DEV_VERSION=${DEV}" >> $GITHUB_OUTPUT
