@@ -13,8 +13,7 @@ import click
 @click.option("-d", "--directory", default=".", help="Directory to initialize")
 @click.option("--dry-run", is_flag=True, default=False,
               help="Show what would be created without making changes")
-@click.pass_context
-def init_project_cmd(ctx, directory, dry_run):
+def init_project_cmd(directory, dry_run):
     """Initialize project with standard directory structure."""
     from ...project_structure_cli import init_project_command
 
@@ -31,8 +30,7 @@ def init_project_cmd(ctx, directory, dry_run):
               help="Recursively scan subdirectories")
 @click.option("--include-output", is_flag=True, default=False,
               help="Also organize files in output/ folder into subfolders")
-@click.pass_context
-def organize_project_cmd(ctx, directory, source, dry_run, recursive, include_output):
+def organize_project_cmd(directory, source, dry_run, recursive, include_output):
     """Organize files into standard project structure."""
     from ...project_structure_cli import organize_project_command
 
@@ -48,8 +46,7 @@ def organize_project_cmd(ctx, directory, source, dry_run, recursive, include_out
 
 @click.command("structure-info")
 @click.option("-d", "--directory", default=".", help="Project directory")
-@click.pass_context
-def structure_info_cmd(ctx, directory):
+def structure_info_cmd(directory):
     """Show project structure information."""
     from ...project_structure_cli import structure_info_command
 

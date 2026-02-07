@@ -108,12 +108,8 @@ class TestDirOverrideWiring:
             "list-models",  # need a command to trigger the group callback
         ], catch_exceptions=False)
 
-        # The env vars are set inside the Click group callback
-        # After runner exits they may be cleaned up, so we verify
-        # the CLI ran successfully (env vars were set during execution)
-        # We can't assert env vars after the run because CliRunner
-        # may reset them. The test_config_dir_sets_xdg_env tests
-        # above verify the paths module works with the env vars.
+        # Verify the CLI ran successfully (env vars set during execution)
+        assert result.exit_code == 0
 
 
 # ===========================================================================

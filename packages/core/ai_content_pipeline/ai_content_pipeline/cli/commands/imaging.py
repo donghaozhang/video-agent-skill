@@ -18,8 +18,7 @@ import click
 @click.option("--upscale", type=float, default=None, help="Upscale factor after generation (e.g., 2 for 2x)")
 @click.option("-o", "--output", "output_dir", default="output", help="Output directory")
 @click.option("--save-json", default=None, help="Save metadata as JSON file")
-@click.pass_context
-def generate_grid_cmd(ctx, prompt_file, grid, style, model, upscale, output_dir, save_json):
+def generate_grid_cmd(prompt_file, grid, style, model, upscale, output_dir, save_json):
     """Generate 2x2 or 3x3 image grid from prompt file."""
     from ...grid_generator import generate_grid_command
 
@@ -44,8 +43,7 @@ def generate_grid_cmd(ctx, prompt_file, grid, style, model, upscale, output_dir,
               help="Output format")
 @click.option("-o", "--output", "output_dir", default="output", help="Output directory")
 @click.option("--save-json", default=None, help="Save metadata as JSON file")
-@click.pass_context
-def upscale_image_cmd(ctx, input_path, factor, target, output_format, output_dir, save_json):
+def upscale_image_cmd(input_path, factor, target, output_format, output_dir, save_json):
     """Upscale image using SeedVR2."""
     from ...grid_generator import upscale_image_command
 

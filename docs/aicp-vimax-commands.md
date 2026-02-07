@@ -141,7 +141,7 @@ aicp vimax generate-storyboard --script script.json --portraits registry.json --
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
 | `--script` | `-s` | required | Screenplay JSON file (see format below) |
-| `--output` | `-o` | `media/generated/aicp vimax/storyboard` | Output directory for generated images |
+| `--output` | `-o` | `media/generated/storyboard` | Output directory for generated images |
 | `--image-model` | | `nano_banana_pro` | Image generation model |
 | `--style` | | `storyboard panel, cinematic composition, ` | Style prefix prepended to every prompt |
 | `--portraits` | `-p` | none | Portrait registry JSON for character consistency |

@@ -21,8 +21,7 @@ import click
 @click.option("--srt", default=None, help="Generate SRT subtitle file from word timestamps")
 @click.option("--srt-max-words", type=int, default=8, help="Max words per subtitle line")
 @click.option("--srt-max-duration", type=float, default=4.0, help="Max seconds per subtitle")
-@click.pass_context
-def transcribe_cmd(ctx, input_path, output_dir, language, diarize, tag_events,
+def transcribe_cmd(input_path, output_dir, language, diarize, tag_events,
                    keyterms, save_json, raw_json, srt, srt_max_words, srt_max_duration):
     """Transcribe audio using ElevenLabs Scribe v2."""
     from ...speech_to_text import transcribe_command

@@ -20,8 +20,7 @@ import click
               help="Remove audio from output (default: keep sound)")
 @click.option("-p", "--prompt", default=None, help="Optional text description to guide generation")
 @click.option("--save-json", default=None, help="Save result metadata as JSON file")
-@click.pass_context
-def transfer_motion_cmd(ctx, image, video, output_dir, orientation, no_sound, prompt, save_json):
+def transfer_motion_cmd(image, video, output_dir, orientation, no_sound, prompt, save_json):
     """Transfer motion from video to image (Kling v2.6)."""
     from ...motion_transfer import transfer_motion_command
 

@@ -363,14 +363,20 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
     artist = StoryboardArtist(config)
 
     async def run():
-        # Pre-resolve references from registry so CLI can display them before generation
-        if portrait_registry and len(portrait_registry.portraits) > 0:
+        # Check for inline references already present in the script JSON
+        has_inline_refs = any(
+            shot.primary_reference_image
+            for scene in script_obj.scenes
+            for shot in scene.shots
+        )
+        # Pre-resolve references from registry (only if no inline refs already exist)
+        if portrait_registry and len(portrait_registry.portraits) > 0 and not has_inline_refs:
             resolved = await artist.resolve_references(script_obj, portrait_registry)
             return resolved, await artist.process(script_obj, portrait_registry=portrait_registry)
         # Inline refs or no refs — process directly
-        return 0, await artist.process(script_obj)
+        return 0, await artist.process(script_obj, portrait_registry=portrait_registry if portrait_registry else None)
 
-    resolved_count, result = run_async(run())
+    _resolved_count, result = run_async(run())
 
     # Display reference mappings per shot (from registry resolution or inline)
     ref_shots = [
@@ -379,9 +385,12 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
         for shot in scene.shots
         if shot.character_references or shot.primary_reference_image
     ]
-    if ref_shots:
+    if ref_shots or portrait_registry:
         label = "Resolved" if portrait_registry else "Inline"
-        click.echo(f"\n   {label} references for {len(ref_shots)} shots:")
+        if ref_shots:
+            click.echo(f"\n   {label} references for {len(ref_shots)} shots:")
+        else:
+            click.echo(f"\n   No character references matched from portrait registry.")
         for scene in script_obj.scenes:
             for shot in scene.shots:
                 if shot.character_references:

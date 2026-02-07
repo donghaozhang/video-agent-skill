@@ -143,7 +143,8 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
                         desc = portrait.description
                 if desc:
                     parts.append(f"{name}: {desc}.")
-                parts.append(f"Use the input image for {name}.")
+                if shot.primary_reference_image:
+                    parts.append(f"Use the input image for {name}.")
 
         return " ".join(parts)
 
@@ -185,6 +186,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
                     shot.character_references = ref_result.selected_references
                 if ref_result.primary_reference:
                     shot.primary_reference_image = ref_result.primary_reference
+                if ref_result.selected_references or ref_result.primary_reference:
                     resolved_count += 1
                     self.logger.debug(
                         f"Resolved {shot.shot_id}: {ref_result.selection_reason}"
@@ -387,7 +389,8 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
                             desc = portrait.description
                     if desc:
                         prompt += f" {name}: {desc}."
-                    prompt += f" Use the input image for {name}."
+                    if use_refs and shot.primary_reference_image:
+                        prompt += f" Use the input image for {name}."
             output_path = str(output_dir / f"shot_{i+1:03d}.png")
 
             # Use pre-resolved reference from shot
