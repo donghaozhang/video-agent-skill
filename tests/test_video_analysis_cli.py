@@ -93,8 +93,9 @@ class TestListVideoModels:
 class TestAnalyzeVideoCommand:
     """Test analyze_video_command function."""
 
-    def test_missing_input_file(self, capsys):
+    def test_missing_input_file(self, capsys, monkeypatch):
         """Test error handling for missing input."""
+        monkeypatch.setenv("FAL_KEY", "test-key")
         args = MagicMock()
         args.input = "/nonexistent/video.mp4"
         args.model = "gemini-3-pro"

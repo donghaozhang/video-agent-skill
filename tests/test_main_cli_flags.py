@@ -179,7 +179,7 @@ class TestOutputRouting:
         captured = capsys.readouterr()
         data = json.loads(captured.out)
         assert data["command"] == "test-cmd"
-        assert data["success"] is True
+        assert data["data"]["success"] is True
         assert data["schema_version"] == "1"
 
     def test_result_human_mode_emits_text(self, capsys):

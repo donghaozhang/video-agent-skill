@@ -36,22 +36,15 @@ class TestSpecFileStructure:
             pytest.fail(f"aicp.spec has a syntax error: {e}")
 
     def test_entry_point_path_matches(self):
-        """Spec must reference the correct __main__.py entry point."""
+        """Spec must reference the aicp_entry.py wrapper."""
         spec = PROJECT_ROOT / "aicp.spec"
         source = spec.read_text(encoding="utf-8")
-        # The spec should reference the pipeline __main__.py
-        assert "__main__.py" in source, (
-            "aicp.spec must reference __main__.py as the entry point"
+        # The spec should reference the entry wrapper
+        assert "aicp_entry.py" in source, (
+            "aicp.spec must reference aicp_entry.py as the entry point"
         )
         # Verify the actual file exists
-        entry = (
-            PROJECT_ROOT
-            / "packages"
-            / "core"
-            / "ai_content_pipeline"
-            / "ai_content_pipeline"
-            / "__main__.py"
-        )
+        entry = PROJECT_ROOT / "aicp_entry.py"
         assert entry.exists(), f"Entry point {entry} does not exist"
 
     def test_output_name_is_aicp(self):

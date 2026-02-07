@@ -18,7 +18,7 @@ block_cipher = None
 PROJECT_ROOT = Path(SPECPATH)
 
 a = Analysis(
-    [str(PROJECT_ROOT / 'packages' / 'core' / 'ai_content_pipeline' / 'ai_content_pipeline' / '__main__.py')],
+    [str(PROJECT_ROOT / 'aicp_entry.py')],
     pathex=[str(PROJECT_ROOT)],
     binaries=[],
     datas=[
