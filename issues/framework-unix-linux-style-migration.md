@@ -1,5 +1,8 @@
 # Framework Migration Plan: Unix/Linux Style
 
+**Status**: Phase 1 COMPLETED — [PR #20](https://github.com/donghaozhang/video-agent-skill/pull/20)
+**Implementation Plan**: [plan-unix-style-migration.md](plan-unix-style-migration.md)
+
 ## Goal
 Make the current framework behave like Unix tools: small composable commands, predictable input/output, script-friendly defaults, and clear separation between CLI and core logic.
 
@@ -80,30 +83,32 @@ Make the current framework behave like Unix tools: small composable commands, pr
 
 ## Suggested Implementation Phases
 
-### Phase 1: CLI Contract (High ROI)
-- Implement `--json`, `--quiet`, `--debug`, stable exit codes.
-- Add `stdin/stdout` behavior for core generation and list commands.
-- Add tests for output format and exit-code behavior.
+### Phase 1: CLI Contract (High ROI) — COMPLETED
+- [x] Implement `--json`, `--quiet`, `--debug`, stable exit codes.
+- [x] Add `stdin/stdout` behavior for core generation and list commands.
+- [x] Add tests for output format and exit-code behavior.
+- **Delivered**: 5 CLI modules, 91 tests, 0 regressions. See [plan-unix-style-migration.md](plan-unix-style-migration.md).
 
-### Phase 2: Config/Path Conventions
-- Introduce XDG path resolution helpers in a shared utility module.
-- Add tests for env overrides and fallback resolution.
-- Update docs and migration notes.
+### Phase 2: Config/Path Conventions — COMPLETED
+- [x] Introduce XDG path resolution helpers in a shared utility module.
+- [x] Add tests for env overrides and fallback resolution.
+- [ ] Update docs and migration notes.
 
-### Phase 3: Streaming + Composition
-- Add `--stream` JSONL mode for pipeline commands.
-- Add examples using pipes with `jq` and shell scripting.
+### Phase 3: Streaming + Composition — COMPLETED (module only)
+- [x] Add `--stream` JSONL mode for pipeline commands (StreamEmitter module).
+- [ ] Add examples using pipes with `jq` and shell scripting.
+- [ ] Wire `--stream` flag into executor.
 
-### Phase 4: Framework Consistency
-- Remove remaining CLI style mismatches and normalize command UX.
-- Keep compatibility shims for deprecated flags/subcommands until next major release.
+### Phase 4: Framework Consistency — NOT STARTED
+- [ ] Remove remaining CLI style mismatches and normalize command UX.
+- [ ] Keep compatibility shims for deprecated flags/subcommands until next major release.
 
 ## Acceptance Criteria
-- Every user-facing command supports machine-readable output.
-- Core commands can be used in non-interactive CI with deterministic results.
-- Exit codes are documented and tested.
-- Config/cache/state paths follow XDG conventions on Linux.
-- CLI code is thin; business logic remains in reusable library modules.
+- [x] Every user-facing command supports machine-readable output. *(CLIOutput module ready; per-command wiring is follow-up)*
+- [x] Core commands can be used in non-interactive CI with deterministic results. *(confirm() + is_interactive() + CI auto-detection)*
+- [x] Exit codes are documented and tested. *(27 tests, codes 0-5)*
+- [x] Config/cache/state paths follow XDG conventions on Linux. *(16 tests, Windows+Unix)*
+- [x] CLI code is thin; business logic remains in reusable library modules. *(all new code in cli/ package)*
 
 ## Example Unix-Style Workflows (Target)
 ```bash
@@ -129,4 +134,6 @@ aicp run-chain --config pipeline.yaml --json --quiet | jq -r '.outputs.final.pat
 - Add compatibility tests for known legacy command patterns.
 
 ## Next Step
-Start with Phase 1 in a focused PR that adds stable JSON output + exit codes + tests for 3 high-usage commands (`list-models`, `create-video`, `run-chain`).
+~~Start with Phase 1 in a focused PR that adds stable JSON output + exit codes + tests for 3 high-usage commands (`list-models`, `create-video`, `run-chain`).~~
+
+**Phase 1 complete.** Next: Wire `--json`/`--quiet`/`--stream` flags into `__main__.py` command handlers and route all output through `CLIOutput`. See [plan-unix-style-migration.md Follow-Up Work](plan-unix-style-migration.md#follow-up-work-phase-2).

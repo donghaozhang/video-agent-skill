@@ -1,8 +1,16 @@
 # Subtask 1: Exit Codes & Error Model
 
+**Status**: COMPLETED
+**PR**: [#20](https://github.com/donghaozhang/video-agent-skill/pull/20)
 **Parent**: [plan-unix-style-migration.md](plan-unix-style-migration.md)
 **Branch**: `feat/unix-linux-style-framework-migration`
 **Estimated Time**: 40 minutes
+
+### Implementation Summary
+- Created `cli/__init__.py` and `cli/exit_codes.py` with constants (0-5), `register_exception()`, `exit_code_for()`, `error_exit()`
+- Replaced ~12 `print()+sys.exit(1)` patterns in `__main__.py` with `error_exit()`
+- Updated `fal_text_to_video/cli.py` (3 sites) and `fal_image_to_video/cli.py` (3 sites)
+- 27 tests in `tests/test_exit_codes.py` — all passing
 
 ---
 

@@ -1,8 +1,17 @@
 # Subtask 3: Stdin/Stdout First
 
+**Status**: COMPLETED (core helper + tests; wiring into commands is follow-up work)
+**PR**: [#20](https://github.com/donghaozhang/video-agent-skill/pull/20)
 **Parent**: [plan-unix-style-migration.md](plan-unix-style-migration.md)
 **Depends on**: Subtask 2 (JSON output)
 **Estimated Time**: 45 minutes
+
+### Implementation Summary
+- Added `read_input()` to `cli/output.py` — reads from stdin (`-`), file path, or fallback
+- Raises `ValueError` for TTY stdin (maps to exit code 2 via exit_codes module)
+- Raises `FileNotFoundError` for missing files (maps to exit code 3)
+- 8 tests in `tests/test_stdin_input.py` — all passing
+- **Remaining work**: Add `--input` flag to `create-video`, `generate-image`, `run-chain` commands
 
 ---
 

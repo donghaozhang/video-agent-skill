@@ -1,8 +1,17 @@
 # Subtask 4: Non-Interactive Mode
 
+**Status**: COMPLETED
+**PR**: [#20](https://github.com/donghaozhang/video-agent-skill/pull/20)
 **Parent**: [plan-unix-style-migration.md](plan-unix-style-migration.md)
 **Depends on**: Subtask 1 (exit codes) - uses stderr pattern
 **Estimated Time**: 30 minutes
+
+### Implementation Summary
+- Created `cli/interactive.py` with `is_interactive()` (9 CI env vars + TTY check) and `confirm()` helper
+- Fixed `--no-confirm` default from `True` to `False` in `__main__.py` (was silently skipping cost confirmation)
+- Replaced raw `input()` calls in `setup_env()` and `run_chain()` with `confirm()`
+- `confirm()` returns default value in non-interactive mode (CI/piped), handles EOFError gracefully
+- 14 tests in `tests/test_interactive.py` — all passing
 
 ---
 

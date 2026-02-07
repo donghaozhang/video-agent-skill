@@ -1,8 +1,18 @@
 # Subtask 6: Stream-Friendly Pipeline Execution
 
+**Status**: COMPLETED (core module + tests; wiring into executor is follow-up work)
+**PR**: [#20](https://github.com/donghaozhang/video-agent-skill/pull/20)
 **Parent**: [plan-unix-style-migration.md](plan-unix-style-migration.md)
 **Depends on**: Subtask 1 (exit codes), Subtask 2 (JSON output)
 **Estimated Time**: 50 minutes
+
+### Implementation Summary
+- Created `cli/stream.py` with `StreamEmitter` (JSONL events to stderr) and `NullEmitter` (null-object pattern)
+- Events: `pipeline_start`, `step_start`, `step_complete`, `step_error` (stderr), `pipeline_complete` (stdout)
+- Schema version `"1"` in every event, `elapsed_seconds` tracking, `flush=True` for real-time output
+- Fixed default param binding bug: `stream=sys.stderr` bound at definition time, changed to `stream=None` + runtime resolution
+- 9 tests in `tests/test_stream_output.py` — all passing
+- **Remaining work**: Add `--stream` flag to `run-chain`, pass `StreamEmitter` into `executor.execute()`
 
 ---
 

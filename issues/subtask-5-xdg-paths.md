@@ -1,8 +1,17 @@
 # Subtask 5: XDG Config/Cache/State Paths
 
+**Status**: COMPLETED
+**PR**: [#20](https://github.com/donghaozhang/video-agent-skill/pull/20)
 **Parent**: [plan-unix-style-migration.md](plan-unix-style-migration.md)
 **Depends on**: None (can be done in parallel with subtasks 1-4)
 **Estimated Time**: 45 minutes
+
+### Implementation Summary
+- Created `cli/paths.py` with `config_dir()`, `cache_dir()`, `state_dir()`, `default_config_path()`, `ensure_dir()`
+- XDG env vars take priority, then platform defaults (APPDATA/LOCALAPPDATA on Windows, ~/.config etc on Unix)
+- APP_NAME = `video-ai-studio` (matches PyPI package name)
+- 16 tests in `tests/test_xdg_paths.py` — all passing (3 Unix-only tests skipped on Windows)
+- **Remaining work**: Wire `--config-dir`/`--cache-dir`/`--state-dir` CLI flags, integrate into manager.py and file_manager.py
 
 ---
 

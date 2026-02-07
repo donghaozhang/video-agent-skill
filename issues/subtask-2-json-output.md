@@ -1,8 +1,18 @@
 # Subtask 2: JSON Output & --quiet/--debug Flags
 
+**Status**: COMPLETED (core module + tests; wiring into all commands is follow-up work)
+**PR**: [#20](https://github.com/donghaozhang/video-agent-skill/pull/20)
 **Parent**: [plan-unix-style-migration.md](plan-unix-style-migration.md)
 **Depends on**: Subtask 1 (exit codes)
 **Estimated Time**: 60 minutes
+
+### Implementation Summary
+- Created `cli/output.py` with `CLIOutput` class (json_mode, quiet, debug) and `SCHEMA_VERSION = "1"`
+- Methods: `info()`, `error()`, `warning()`, `verbose()`, `result()`, `table()`
+- JSON mode: structured envelope with `schema_version` and `command` fields to stdout
+- Quiet mode: suppresses all non-error output; errors always go to stderr
+- 17 tests in `tests/test_cli_output.py` — all passing
+- **Remaining work**: Wire `--json`/`--quiet` flags into `__main__.py` arg parser and all command handlers
 
 ---
 
