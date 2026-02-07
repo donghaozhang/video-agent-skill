@@ -157,7 +157,7 @@ jobs:
             artifact_name: aicp-linux-x86_64
           - os: macos-latest
             artifact_name: aicp-macos-arm64
-          - os: macos-13
+          - os: macos-15-intel
             artifact_name: aicp-macos-x86_64
           - os: windows-latest
             artifact_name: aicp-windows-x64.exe
