@@ -18,6 +18,7 @@ from .pipeline.manager import AIPipelineManager
 from .config.constants import SUPPORTED_MODELS, MODEL_RECOMMENDATIONS
 from .cli.exit_codes import error_exit, EXIT_INVALID_ARGS, EXIT_MISSING_CONFIG
 from .cli.interactive import confirm, is_interactive
+from .cli.output import CLIOutput, read_input
 
 # Try to import FAL Avatar Generator
 try:
@@ -63,35 +64,51 @@ from .project_structure_cli import (
 )
 
 
-def print_models():
+def _check_save_json_deprecation(args, output):
+    """Emit deprecation warning if --save-json is used."""
+    if getattr(args, 'save_json', None):
+        output.warning(
+            "--save-json is deprecated and will be removed in a future release. "
+            "Use '--json' to emit structured output to stdout, then redirect: "
+            "aicp <command> --json > result.json"
+        )
+
+
+def print_models(output):
     """Print information about all supported models."""
-    print("\n🎨 AI Content Pipeline Supported Models")
-    print("=" * 50)
+    output.info("\n🎨 AI Content Pipeline Supported Models")
+    output.info("=" * 50)
     
-    manager = AIPipelineManager()
+    manager = AIPipelineManager(quiet=True)
     available_models = manager.get_available_models()
-    
+
+    if output.json_mode:
+        output.table(
+            [{"category": k, "models": v} for k, v in available_models.items()],
+            command="list-models",
+        )
+        return
+
     for step_type, models in available_models.items():
-        print(f"\n📦 {step_type.replace('_', '-').title()}")
-        
+        output.info(f"\n📦 {step_type.replace('_', '-').title()}")
+
         if models:
             for model in models:
-                # Get model info if available
                 if step_type == "text_to_image":
                     info = manager.text_to_image.get_model_info(model)
-                    print(f"   • {model}")
+                    output.info(f"   • {model}")
                     if info:
-                        print(f"     Name: {info.get('name', 'N/A')}")
-                        print(f"     Provider: {info.get('provider', 'N/A')}")
-                        print(f"     Best for: {info.get('best_for', 'N/A')}")
-                        print(f"     Cost: {info.get('cost_per_image', 'N/A')}")
+                        output.info(f"     Name: {info.get('name', 'N/A')}")
+                        output.info(f"     Provider: {info.get('provider', 'N/A')}")
+                        output.info(f"     Best for: {info.get('best_for', 'N/A')}")
+                        output.info(f"     Cost: {info.get('cost_per_image', 'N/A')}")
                 else:
-                    print(f"   • {model}")
+                    output.info(f"   • {model}")
         else:
-            print("   No models available (integration pending)")
+            output.info("   No models available (integration pending)")
 
 
-def setup_env(args):
+def setup_env(args, output):
     """Handle setup command to create .env file."""
     env_path = Path(args.output_dir) / ".env" if args.output_dir else Path(".env")
     env_example_path = Path(__file__).parent.parent.parent.parent.parent / ".env.example"
@@ -122,262 +139,287 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
     
     if env_path.exists():
         if not confirm(f".env file already exists at {env_path}. Overwrite?"):
-            print("Setup cancelled.")
+            output.info("Setup cancelled.")
             return
-    
+
     try:
         with open(env_path, 'w') as f:
             f.write(template_content)
-        print(f"✅ Created .env file at {env_path}")
-        print("📝 Please edit the file and add your API keys:")
-        print(f"   nano {env_path}")
-        print("\n🔑 Get your API keys from:")
-        print("   • FAL AI: https://fal.ai/dashboard")
-        print("   • Google Gemini: https://makersuite.google.com/app/apikey")
-        print("   • OpenRouter: https://openrouter.ai/keys")
-        print("   • ElevenLabs: https://elevenlabs.io/app/settings")
+        output.info(f"✅ Created .env file at {env_path}")
+        output.info("📝 Please edit the file and add your API keys:")
+        output.info(f"   nano {env_path}")
+        output.info("\n🔑 Get your API keys from:")
+        output.info("   • FAL AI: https://fal.ai/dashboard")
+        output.info("   • Google Gemini: https://makersuite.google.com/app/apikey")
+        output.info("   • OpenRouter: https://openrouter.ai/keys")
+        output.info("   • ElevenLabs: https://elevenlabs.io/app/settings")
     except Exception as e:
-        print(f"❌ Error creating .env file: {e}")
+        output.error(f"Error creating .env file: {e}")
 
 
-def create_video(args):
+def create_video(args, output):
     """Handle create-video command."""
+    _check_save_json_deprecation(args, output)
+    quiet = getattr(args, 'json', False) or getattr(args, 'quiet', False)
     try:
-        manager = AIPipelineManager(args.base_dir)
-        
+        manager = AIPipelineManager(args.base_dir, quiet=quiet)
+
+        # Resolve input text
+        text = args.text
+        if getattr(args, 'input', None):
+            text = read_input(args.input, fallback=text)
+
         # Create quick video chain
         result = manager.quick_create_video(
-            text=args.text,
+            text=text,
             image_model=args.image_model,
             video_model=args.video_model,
             output_dir=args.output_dir
         )
-        
-        # Display results
-        if result.success:
-            print(f"\n✅ Video creation successful!")
-            print(f"📦 Steps completed: {result.steps_completed}/{result.total_steps}")
-            print(f"💰 Total cost: ${result.total_cost:.3f}")
-            print(f"⏱️  Total time: {result.total_time:.1f} seconds")
-            
+
+        # Build result dict for JSON or save-json
+        result_dict = {
+            "success": result.success,
+            "steps_completed": result.steps_completed,
+            "total_steps": result.total_steps,
+            "total_cost": result.total_cost,
+            "total_time": result.total_time,
+            "outputs": result.outputs,
+            "error": result.error,
+        }
+
+        if output.json_mode:
+            output.result(result_dict, command="create-video")
+        elif result.success:
+            output.info(f"\n✅ Video creation successful!")
+            output.info(f"📦 Steps completed: {result.steps_completed}/{result.total_steps}")
+            output.info(f"💰 Total cost: ${result.total_cost:.3f}")
+            output.info(f"⏱️  Total time: {result.total_time:.1f} seconds")
             if result.outputs:
-                print(f"\n📁 Outputs:")
-                for step_name, output in result.outputs.items():
-                    if output.get("path"):
-                        print(f"   {step_name}: {output['path']}")
+                output.info(f"\n📁 Outputs:")
+                for step_name, step_out in result.outputs.items():
+                    if step_out.get("path"):
+                        output.info(f"   {step_name}: {step_out['path']}")
         else:
-            print(f"\n❌ Video creation failed!")
-            print(f"Error: {result.error}")
-        
-        # Save full result if requested
+            output.error(f"Video creation failed: {result.error}")
+
+        # Save full result if requested (legacy --save-json)
         if args.save_json:
-            result_dict = {
-                "success": result.success,
-                "steps_completed": result.steps_completed,
-                "total_steps": result.total_steps,
-                "total_cost": result.total_cost,
-                "total_time": result.total_time,
-                "outputs": result.outputs,
-                "error": result.error
-            }
-            
-            # Save JSON file in output directory
             json_path = manager.output_dir / args.save_json
             with open(json_path, 'w') as f:
                 json.dump(result_dict, f, indent=2)
-            print(f"\n📄 Full result saved to: {json_path}")
-            
+            output.info(f"\n📄 Full result saved to: {json_path}")
+
     except Exception as e:
         error_exit(e, debug=getattr(args, 'debug', False))
 
 
-def run_chain(args):
+def run_chain(args, output):
     """Handle run-chain command."""
+    _check_save_json_deprecation(args, output)
+    quiet = getattr(args, 'json', False) or getattr(args, 'quiet', False)
     try:
-        manager = AIPipelineManager(args.base_dir)
-        
+        manager = AIPipelineManager(args.base_dir, quiet=quiet)
+
         # Load chain configuration
         chain = manager.create_chain_from_config(args.config)
-        
-        print(f"📋 Loaded chain: {chain.name}")
-        
+
+        output.info(f"📋 Loaded chain: {chain.name}")
+
         # Determine input data based on pipeline input type
-        input_data = args.input_text
+        input_data = getattr(args, 'input_text', None)
         initial_input_type = chain.get_initial_input_type()
-        
-        # Priority: --input-text > --prompt-file > config prompt/input_video/input_image
+
+        # Priority: --input > --input-text > --prompt-file > config
+        if getattr(args, 'input', None):
+            input_data = read_input(args.input, fallback=input_data)
+
         if not input_data and args.prompt_file:
-            # Try to read from prompt file
             try:
                 with open(args.prompt_file, 'r') as f:
                     input_data = f.read().strip()
-                    print(f"📝 Using prompt from file ({args.prompt_file}): {input_data}")
+                    output.info(f"📝 Using prompt from file ({args.prompt_file}): {input_data}")
             except FileNotFoundError:
                 error_exit(FileNotFoundError(f"Prompt file not found: {args.prompt_file}"))
             except Exception as e:
                 error_exit(e, debug=getattr(args, 'debug', False))
-        
+
         if not input_data:
-            # Try to get input from chain config based on input type
             if initial_input_type == "text":
                 config_input = chain.config.get("prompt")
                 if config_input:
                     input_data = config_input
-                    print(f"📝 Using prompt from config: {input_data}")
+                    output.info(f"📝 Using prompt from config: {input_data}")
                 else:
-                    error_exit(ValueError("No input text provided. Use --input-text, --prompt-file, or add 'prompt' field to config."))
+                    error_exit(ValueError("No input text provided. Use --input, --input-text, --prompt-file, or add 'prompt' field to config."))
             elif initial_input_type == "video":
                 config_input = chain.config.get("input_video")
                 if config_input:
                     input_data = config_input
-                    print(f"📹 Using video from config: {input_data}")
+                    output.info(f"📹 Using video from config: {input_data}")
                 else:
                     error_exit(ValueError("No input video provided. Use --input-text or add 'input_video' field to config."))
             elif initial_input_type == "image":
                 config_input = chain.config.get("input_image")
                 if config_input:
                     input_data = config_input
-                    print(f"🖼️ Using image from config: {input_data}")
+                    output.info(f"🖼️ Using image from config: {input_data}")
                 else:
                     error_exit(ValueError("No input image provided. Use --input-text or add 'input_image' field to config."))
             elif initial_input_type == "any":
-                # For parallel groups that accept any input type
                 config_input = chain.config.get("prompt")
                 if config_input:
                     input_data = config_input
-                    print(f"📝 Using prompt from config: {input_data}")
+                    output.info(f"📝 Using prompt from config: {input_data}")
                 else:
                     error_exit(ValueError("No input provided for parallel group. Add 'prompt' field to config or use --input-text."))
             else:
                 error_exit(ValueError(f"Unknown input type: {initial_input_type}"))
-        elif args.input_text:
-            print(f"📝 Using input text: {input_data}")
-        
+        elif getattr(args, 'input_text', None):
+            output.info(f"📝 Using input text: {input_data}")
+
         # Validate chain
         errors = chain.validate()
         if errors:
             error_exit(ValueError(f"Chain validation failed: {'; '.join(errors)}"))
-        
+
         # Show cost estimate
         cost_info = manager.estimate_chain_cost(chain)
-        print(f"💰 Estimated cost: ${cost_info['total_cost']:.3f}")
-        
+        output.info(f"💰 Estimated cost: ${cost_info['total_cost']:.3f}")
+
         if not args.no_confirm:
             if not confirm("\nProceed with execution?"):
-                print("Execution cancelled.")
+                output.info("Execution cancelled.")
                 sys.exit(0)
-        
+
+        # Build emitter for --stream mode
+        from .cli.stream import StreamEmitter, NullEmitter
+        stream_mode = getattr(args, 'stream', False)
+        emitter = StreamEmitter(enabled=True) if stream_mode else NullEmitter()
+
+        emitter.pipeline_start(
+            name=chain.name,
+            total_steps=len(chain.get_enabled_steps()),
+            config=args.config,
+        )
+
         # Execute chain
-        result = manager.execute_chain(chain, input_data)
-        
-        # Display results
-        if result.success:
-            print(f"\n✅ Chain execution successful!")
-            print(f"📦 Steps completed: {result.steps_completed}/{result.total_steps}")
-            print(f"💰 Total cost: ${result.total_cost:.3f}")
-            print(f"⏱️  Total time: {result.total_time:.1f} seconds")
+        result = manager.execute_chain(chain, input_data, stream_emitter=emitter)
+
+        # Build result dict
+        result_dict = {
+            "success": result.success,
+            "steps_completed": result.steps_completed,
+            "total_steps": result.total_steps,
+            "total_cost": result.total_cost,
+            "total_time": result.total_time,
+            "outputs": result.outputs,
+            "error": result.error,
+        }
+
+        if stream_mode:
+            emitter.pipeline_complete(result_dict)
+        elif output.json_mode:
+            output.result(result_dict, command="run-chain")
+        elif result.success:
+            output.info(f"\n✅ Chain execution successful!")
+            output.info(f"📦 Steps completed: {result.steps_completed}/{result.total_steps}")
+            output.info(f"💰 Total cost: ${result.total_cost:.3f}")
+            output.info(f"⏱️  Total time: {result.total_time:.1f} seconds")
         else:
-            print(f"\n❌ Chain execution failed!")
-            print(f"Error: {result.error}")
-        
-        # Save results if requested
+            output.error(f"Chain execution failed: {result.error}")
+
+        # Save results if requested (legacy --save-json)
         if args.save_json:
-            result_dict = {
-                "success": result.success,
-                "steps_completed": result.steps_completed,
-                "total_steps": result.total_steps,
-                "total_cost": result.total_cost,
-                "total_time": result.total_time,
-                "outputs": result.outputs,
-                "error": result.error
-            }
-            
-            # Save JSON file in output directory
             json_path = manager.output_dir / args.save_json
             with open(json_path, 'w') as f:
                 json.dump(result_dict, f, indent=2)
-            print(f"\n📄 Results saved to: {json_path}")
-            
+            output.info(f"\n📄 Results saved to: {json_path}")
+
     except Exception as e:
         error_exit(e, debug=getattr(args, 'debug', False))
 
 
-def generate_image(args):
+def generate_image(args, output):
     """Handle generate-image command."""
+    _check_save_json_deprecation(args, output)
+    quiet = getattr(args, 'json', False) or getattr(args, 'quiet', False)
     try:
-        manager = AIPipelineManager(args.base_dir)
+        manager = AIPipelineManager(args.base_dir, quiet=quiet)
 
         # Build generation parameters
+        text = args.text
+        if getattr(args, 'input', None):
+            text = read_input(args.input, fallback=text)
+
         gen_params = {
-            "prompt": args.text,
+            "prompt": text,
             "model": args.model,
             "aspect_ratio": args.aspect_ratio,
             "output_dir": args.output_dir or "output"
         }
 
-        # Add resolution if specified (for models that support it)
         if hasattr(args, 'resolution') and args.resolution:
             gen_params["resolution"] = args.resolution
 
-        # Generate image
         result = manager.text_to_image.generate(**gen_params)
-        
-        # Display results
-        if result.success:
-            print(f"\n✅ Image generation successful!")
-            print(f"📦 Model: {result.model_used}")
+
+        result_dict = {
+            "success": result.success,
+            "model": result.model_used,
+            "output_path": result.output_path,
+            "cost": result.cost_estimate,
+            "processing_time": result.processing_time,
+            "error": result.error,
+        }
+
+        if output.json_mode:
+            output.result(result_dict, command="generate-image")
+        elif result.success:
+            output.info(f"\n✅ Image generation successful!")
+            output.info(f"📦 Model: {result.model_used}")
             if result.output_path:
-                print(f"📁 Output: {result.output_path}")
-            print(f"💰 Cost: ${result.cost_estimate:.3f}")
-            print(f"⏱️  Processing time: {result.processing_time:.1f} seconds")
+                output.info(f"📁 Output: {result.output_path}")
+            output.info(f"💰 Cost: ${result.cost_estimate:.3f}")
+            output.info(f"⏱️  Processing time: {result.processing_time:.1f} seconds")
         else:
-            print(f"\n❌ Image generation failed!")
-            print(f"Error: {result.error}")
-        
-        # Save result if requested
+            output.error(f"Image generation failed: {result.error}")
+
+        # Save result if requested (legacy --save-json)
         if args.save_json:
-            result_dict = {
-                "success": result.success,
-                "model": result.model_used,
-                "output_path": result.output_path,
-                "cost": result.cost_estimate,
-                "processing_time": result.processing_time,
-                "error": result.error
-            }
-            
-            # Save JSON file in output directory
             json_path = manager.output_dir / args.save_json
             with open(json_path, 'w') as f:
                 json.dump(result_dict, f, indent=2)
-            print(f"\n📄 Result saved to: {json_path}")
-            
+            output.info(f"\n📄 Result saved to: {json_path}")
+
     except Exception as e:
         error_exit(e, debug=getattr(args, 'debug', False))
 
 
-def create_examples(args):
+def create_examples(args, output):
     """Handle create-examples command."""
+    quiet = getattr(args, 'json', False) or getattr(args, 'quiet', False)
     try:
-        manager = AIPipelineManager(args.base_dir)
+        manager = AIPipelineManager(args.base_dir, quiet=quiet)
         manager.create_example_configs(args.output_dir)
-        print("✅ Example configurations created successfully!")
+        output.info("✅ Example configurations created successfully!")
 
     except Exception as e:
         error_exit(e, debug=getattr(args, 'debug', False))
 
 
-def generate_avatar(args):
+def generate_avatar(args, output):
     """Handle generate-avatar command."""
     if not FAL_AVATAR_AVAILABLE:
         error_exit(ImportError("FAL Avatar module not available. Ensure fal_avatar package is in path and fal-client is installed."))
 
+    _check_save_json_deprecation(args, output)
     try:
         generator = FALAvatarGenerator()
 
         # Determine which method to use based on inputs
         if args.video_url:
-            # Video transformation mode
-            print(f"🎬 Transforming video with model: {args.model or 'auto'}")
+            output.info(f"🎬 Transforming video with model: {args.model or 'auto'}")
             mode = "edit" if args.model == "kling_v2v_edit" else "reference"
             result = generator.transform_video(
                 video_url=args.video_url,
@@ -385,8 +427,7 @@ def generate_avatar(args):
                 mode=mode,
             )
         elif args.reference_images:
-            # Reference-to-video mode
-            print(f"🖼️ Generating video from {len(args.reference_images)} reference images")
+            output.info(f"🖼️ Generating video from {len(args.reference_images)} reference images")
             result = generator.generate_reference_video(
                 prompt=args.prompt or "Generate a video with these references",
                 reference_images=args.reference_images,
@@ -394,14 +435,13 @@ def generate_avatar(args):
                 aspect_ratio=args.aspect_ratio,
             )
         elif args.image_url:
-            # Avatar/lipsync mode
             model = args.model
             if args.text and not args.audio_url:
                 model = model or "fabric_1_0_text"
-                print(f"🎤 Generating TTS avatar with model: {model}")
+                output.info(f"🎤 Generating TTS avatar with model: {model}")
             else:
                 model = model or "omnihuman_v1_5"
-                print(f"🎭 Generating lipsync avatar with model: {model}")
+                output.info(f"🎭 Generating lipsync avatar with model: {model}")
 
             result = generator.generate_avatar(
                 image_url=args.image_url,
@@ -412,72 +452,79 @@ def generate_avatar(args):
         else:
             error_exit(ValueError("No input provided. Use --image-url, --video-url, or --reference-images."))
 
-        # Display results
-        if result.success:
-            print("\n✅ Avatar generation successful!")
-            print(f"📦 Model: {result.model_used}")
+        result_dict = {
+            "success": result.success,
+            "model": result.model_used,
+            "video_url": result.video_url,
+            "duration": result.duration,
+            "cost": result.cost,
+            "processing_time": result.processing_time,
+            "error": result.error,
+            "metadata": result.metadata,
+        }
+
+        if output.json_mode:
+            output.result(result_dict, command="generate-avatar")
+        elif result.success:
+            output.info("\n✅ Avatar generation successful!")
+            output.info(f"📦 Model: {result.model_used}")
             if result.video_url:
-                print(f"🎬 Video URL: {result.video_url}")
+                output.info(f"🎬 Video URL: {result.video_url}")
             if result.duration:
-                print(f"⏱️ Duration: {result.duration:.1f} seconds")
+                output.info(f"⏱️ Duration: {result.duration:.1f} seconds")
             if result.cost:
-                print(f"💰 Cost: ${result.cost:.3f}")
+                output.info(f"💰 Cost: ${result.cost:.3f}")
             if result.processing_time:
-                print(f"⏱️ Processing time: {result.processing_time:.1f} seconds")
+                output.info(f"⏱️ Processing time: {result.processing_time:.1f} seconds")
         else:
-            print("\n❌ Avatar generation failed!")
-            print(f"Error: {result.error}")
+            output.error(f"Avatar generation failed: {result.error}")
 
-        # Save result if requested
+        # Save result if requested (legacy --save-json)
         if args.save_json:
-            result_dict = {
-                "success": result.success,
-                "model": result.model_used,
-                "video_url": result.video_url,
-                "duration": result.duration,
-                "cost": result.cost,
-                "processing_time": result.processing_time,
-                "error": result.error,
-                "metadata": result.metadata,
-            }
-
             json_path = Path(args.save_json)
             with open(json_path, 'w') as f:
                 json.dump(result_dict, f, indent=2)
-            print(f"\n📄 Result saved to: {json_path}")
+            output.info(f"\n📄 Result saved to: {json_path}")
 
     except Exception as e:
         error_exit(e, debug=getattr(args, 'debug', False))
 
 
-def list_avatar_models(args):
+def list_avatar_models(args, output):
     """Handle list-avatar-models command."""
     if not FAL_AVATAR_AVAILABLE:
-        print("❌ FAL Avatar module not available.")
-        print("   Ensure fal_avatar package is in path and fal-client is installed.")
+        output.error("FAL Avatar module not available. Ensure fal_avatar package is in path and fal-client is installed.")
         sys.exit(1)
 
     generator = FALAvatarGenerator()
-
-    print("\n🎭 FAL Avatar Generation Models")
-    print("=" * 50)
-
-    # Group by category
     categories = generator.list_models_by_category()
+
+    if output.json_mode:
+        rows = []
+        for category, models in categories.items():
+            for model in models:
+                info = generator.get_model_info(model)
+                rows.append({"category": category, "model": model, **info})
+        output.table(rows, command="list-avatar-models")
+        return
+
+    output.info("\n🎭 FAL Avatar Generation Models")
+    output.info("=" * 50)
+
     for category, models in categories.items():
-        print(f"\n📦 {category.replace('_', ' ').title()}")
+        output.info(f"\n📦 {category.replace('_', ' ').title()}")
         for model in models:
             info = generator.get_model_info(model)
             display_name = generator.get_display_name(model)
-            print(f"   • {model}")
-            print(f"     Name: {display_name}")
-            print(f"     Best for: {', '.join(info.get('best_for', []))}")
+            output.info(f"   • {model}")
+            output.info(f"     Name: {display_name}")
+            output.info(f"     Best for: {', '.join(info.get('best_for', []))}")
             if 'pricing' in info:
                 pricing = info['pricing']
                 if 'per_second' in pricing:
-                    print(f"     Cost: ${pricing['per_second']}/second")
+                    output.info(f"     Cost: ${pricing['per_second']}/second")
                 elif '720p' in pricing:
-                    print(f"     Cost: ${pricing.get('480p', 'N/A')}/s (480p), ${pricing.get('720p', 'N/A')}/s (720p)")
+                    output.info(f"     Cost: ${pricing.get('480p', 'N/A')}/s (480p), ${pricing.get('720p', 'N/A')}/s (720p)")
 
 
 def main():
@@ -563,7 +610,17 @@ Examples:
     
     # Global options
     parser.add_argument("--debug", action="store_true", help="Enable debug output")
+    parser.add_argument("--json", action="store_true", default=False,
+                        help="Emit machine-readable JSON output to stdout")
+    parser.add_argument("--quiet", "-q", action="store_true", default=False,
+                        help="Suppress non-essential output (errors still go to stderr)")
     parser.add_argument("--base-dir", default=".", help="Base directory for operations")
+    parser.add_argument("--config-dir", type=str, default=None,
+                        help="Override config directory (default: XDG_CONFIG_HOME/video-ai-studio)")
+    parser.add_argument("--cache-dir", type=str, default=None,
+                        help="Override cache directory (default: XDG_CACHE_HOME/video-ai-studio)")
+    parser.add_argument("--state-dir", type=str, default=None,
+                        help="Override state directory (default: XDG_STATE_HOME/video-ai-studio)")
     
     # Create subparsers
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -583,24 +640,32 @@ Examples:
                               help="Aspect ratio (default: 16:9). For nano_banana_pro: auto, 21:9, 16:9, 3:2, 4:3, 5:4, 1:1, 4:5, 3:4, 2:3, 9:16")
     image_parser.add_argument("--resolution", default="1K",
                               help="Resolution for supported models (default: 1K). Options: 1K, 2K, 4K. Note: 4K costs double.")
+    image_parser.add_argument("--input", type=str, default=None,
+                              help="Read prompt from file or stdin (use - for stdin)")
     image_parser.add_argument("--output-dir", help="Output directory")
-    image_parser.add_argument("--save-json", help="Save result as JSON")
+    image_parser.add_argument("--save-json", help="Save result as JSON (deprecated, use --json)")
     
     # Create video command
     video_parser = subparsers.add_parser("create-video", help="Create video from text (text → image → video)")
     video_parser.add_argument("--text", required=True, help="Text prompt for content creation")
     video_parser.add_argument("--image-model", default="auto", help="Model for text-to-image")
     video_parser.add_argument("--video-model", default="auto", help="Model for image-to-video")
+    video_parser.add_argument("--input", type=str, default=None,
+                              help="Read prompt from file or stdin (use - for stdin)")
     video_parser.add_argument("--output-dir", help="Output directory")
-    video_parser.add_argument("--save-json", help="Save result as JSON")
+    video_parser.add_argument("--save-json", help="Save result as JSON (deprecated, use --json)")
     
     # Run chain command
     chain_parser = subparsers.add_parser("run-chain", help="Run custom chain from configuration")
     chain_parser.add_argument("--config", required=True, help="Path to chain configuration (YAML/JSON)")
     chain_parser.add_argument("--input-text", help="Input text for the chain (optional if prompt defined in config)")
     chain_parser.add_argument("--prompt-file", help="Path to text file containing the prompt")
+    chain_parser.add_argument("--input", type=str, default=None,
+                              help="Read input data from file or stdin (use - for stdin)")
     chain_parser.add_argument("--no-confirm", action="store_true", default=False, help="Skip confirmation prompt (auto-set in CI)")
-    chain_parser.add_argument("--save-json", help="Save results as JSON")
+    chain_parser.add_argument("--stream", action="store_true", default=False,
+                              help="Emit JSONL progress events to stderr during execution")
+    chain_parser.add_argument("--save-json", help="Save results as JSON (deprecated, use --json)")
     
     # Create examples command
     examples_parser = subparsers.add_parser("create-examples", help="Create example configuration files")
@@ -928,24 +993,31 @@ Examples:
 
     # Parse arguments
     args = parser.parse_args()
-    
+
+    # Create structured output handler
+    output = CLIOutput(
+        json_mode=getattr(args, 'json', False),
+        quiet=getattr(args, 'quiet', False),
+        debug=getattr(args, 'debug', False),
+    )
+
     # Execute command
     if args.command == "list-models":
-        print_models()
+        print_models(output)
     elif args.command == "setup":
-        setup_env(args)
+        setup_env(args, output)
     elif args.command == "generate-image":
-        generate_image(args)
+        generate_image(args, output)
     elif args.command == "create-video":
-        create_video(args)
+        create_video(args, output)
     elif args.command == "run-chain":
-        run_chain(args)
+        run_chain(args, output)
     elif args.command == "create-examples":
-        create_examples(args)
+        create_examples(args, output)
     elif args.command == "generate-avatar":
-        generate_avatar(args)
+        generate_avatar(args, output)
     elif args.command == "list-avatar-models":
-        list_avatar_models(args)
+        list_avatar_models(args, output)
     elif args.command == "analyze-video":
         analyze_video_command(args)
     elif args.command == "list-video-models":

@@ -94,17 +94,17 @@ Make the current framework behave like Unix tools: small composable commands, pr
 - [x] Add tests for env overrides and fallback resolution.
 - [ ] Update docs and migration notes.
 
-### Phase 3: Streaming + Composition — COMPLETED (module only)
+### Phase 3: Streaming + Composition — COMPLETED
 - [x] Add `--stream` JSONL mode for pipeline commands (StreamEmitter module).
 - [ ] Add examples using pipes with `jq` and shell scripting.
-- [ ] Wire `--stream` flag into executor.
+- [x] Wire `--stream` flag into executor. *(Wired in [wire-cli-modules-into-main.md](wire-cli-modules-into-main.md))*
 
 ### Phase 4: Framework Consistency — NOT STARTED
 - [ ] Remove remaining CLI style mismatches and normalize command UX.
 - [ ] Keep compatibility shims for deprecated flags/subcommands until next major release.
 
 ## Acceptance Criteria
-- [x] Every user-facing command supports machine-readable output. *(CLIOutput module ready; per-command wiring is follow-up)*
+- [x] Every user-facing command supports machine-readable output. *(CLIOutput wired into all 8 inline handlers via --json flag)*
 - [x] Core commands can be used in non-interactive CI with deterministic results. *(confirm() + is_interactive() + CI auto-detection)*
 - [x] Exit codes are documented and tested. *(27 tests, codes 0-5)*
 - [x] Config/cache/state paths follow XDG conventions on Linux. *(16 tests, Windows+Unix)*
@@ -136,4 +136,6 @@ aicp run-chain --config pipeline.yaml --json --quiet | jq -r '.outputs.final.pat
 ## Next Step
 ~~Start with Phase 1 in a focused PR that adds stable JSON output + exit codes + tests for 3 high-usage commands (`list-models`, `create-video`, `run-chain`).~~
 
-**Phase 1 complete.** Next: Wire `--json`/`--quiet`/`--stream` flags into `__main__.py` command handlers and route all output through `CLIOutput`. See [plan-unix-style-migration.md Follow-Up Work](plan-unix-style-migration.md#follow-up-work-phase-2).
+**Phase 1 complete.** ~~Next: Wire `--json`/`--quiet`/`--stream` flags into `__main__.py` command handlers and route all output through `CLIOutput`.~~
+
+**Wiring complete.** All 8 inline handlers now use `CLIOutput`. See [wire-cli-modules-into-main.md](wire-cli-modules-into-main.md) (7 subtasks, 35 tests, 754 total passing).

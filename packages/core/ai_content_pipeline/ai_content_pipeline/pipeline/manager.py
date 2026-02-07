@@ -28,32 +28,35 @@ class AIPipelineManager:
     Handles chain creation, execution, cost estimation, and result management.
     """
     
-    def __init__(self, base_dir: str = None):
+    def __init__(self, base_dir: str = None, quiet: bool = False):
         """
         Initialize the pipeline manager.
-        
+
         Args:
             base_dir: Base directory for pipeline operations
+            quiet: Suppress informational output
         """
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
         self.output_dir = self.base_dir / "output"
         self.temp_dir = self.output_dir / "temp"
-        
+        self.quiet = quiet
+
         # Initialize components
         self.file_manager = FileManager(self.base_dir)
-        self.executor = ChainExecutor(self.file_manager)
-        
+        self.executor = ChainExecutor(self.file_manager, quiet=quiet)
+
         # Initialize model generators
         self.text_to_image = UnifiedTextToImageGenerator()
         self.image_understanding = UnifiedImageUnderstandingGenerator()
         self.prompt_generation = UnifiedPromptGenerator()
         self.image_to_image = UnifiedImageToImageGenerator()
-        
+
         # Create directories
         self.output_dir.mkdir(exist_ok=True)
         self.temp_dir.mkdir(exist_ok=True)
-        
-        print(f"✅ AI Pipeline Manager initialized (base: {self.base_dir})")
+
+        if not quiet:
+            print(f"✅ AI Pipeline Manager initialized (base: {self.base_dir})")
     
     def create_chain_from_config(self, config_path: str) -> ContentCreationChain:
         """
@@ -150,8 +153,9 @@ class AIPipelineManager:
                 error=f"Chain validation failed: {'; '.join(errors)}"
             )
         
-        print(f"🚀 Executing chain: {chain.name}")
-        print(f"📝 Input ({chain.get_initial_input_type()}): {input_data[:100]}{'...' if len(input_data) > 100 else ''}")
+        if not self.quiet:
+            print(f"🚀 Executing chain: {chain.name}")
+            print(f"📝 Input ({chain.get_initial_input_type()}): {input_data[:100]}{'...' if len(input_data) > 100 else ''}")
         
         # Execute chain
         try:
@@ -330,7 +334,8 @@ class AIPipelineManager:
         with open(output_path / "full_chain.yaml", 'w') as f:
             yaml.dump(full_config, f, default_flow_style=False, indent=2)
         
-        print(f"📄 Example configurations created in: {output_path}")
+        if not self.quiet:
+            print(f"📄 Example configurations created in: {output_path}")
     
     def cleanup_temp_files(self):
         """Clean up temporary files."""
