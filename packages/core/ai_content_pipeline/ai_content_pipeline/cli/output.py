@@ -12,10 +12,37 @@ can suppress it and emit structured data instead.
 
 import json
 import sys
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 
 SCHEMA_VERSION = "1"
+
+
+def read_input(input_arg: Optional[str], fallback: Optional[str] = None) -> Optional[str]:
+    """Read input from a file path, stdin ('-'), or use fallback.
+
+    Args:
+        input_arg: File path, '-' for stdin, or None.
+        fallback: Value to return if input_arg is None.
+
+    Returns:
+        The input text, or None if no input available.
+
+    Raises:
+        ValueError: If stdin is requested but is a terminal.
+        FileNotFoundError: If the input file doesn't exist.
+    """
+    if input_arg == "-":
+        if sys.stdin.isatty():
+            raise ValueError("--input - requires piped input (stdin is a terminal)")
+        return sys.stdin.read().strip()
+    elif input_arg:
+        path = Path(input_arg)
+        if not path.exists():
+            raise FileNotFoundError(f"Input file not found: {input_arg}")
+        return path.read_text().strip()
+    return fallback
 
 
 class CLIOutput:
