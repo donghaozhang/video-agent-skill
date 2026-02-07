@@ -113,14 +113,14 @@ jobs:
           git add docs/CHANGELOG.md
           git diff --cached --quiet && echo "No changelog changes" && exit 0
           git commit -m "docs: Update CHANGELOG for PR #${{ github.event.pull_request.number }}"
-          git push origin main
+          # Push may fail if main has branch protection; treat as non-fatal
+          git push origin main || echo "::warning::Could not push changelog update (branch protection). Update manually if needed."
 
   # -------------------------------------------------------------------
   # Job 2: Build wheel + sdist
   # -------------------------------------------------------------------
   build-wheel:
     if: github.event.pull_request.merged == true
-    needs: changelog
     runs-on: ubuntu-latest
 
     steps:
@@ -149,7 +149,6 @@ jobs:
   # -------------------------------------------------------------------
   build-binary:
     if: github.event.pull_request.merged == true
-    needs: changelog
     strategy:
       fail-fast: false
       matrix:
