@@ -5,6 +5,11 @@ All notable changes to the AI Content Generation Suite.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.18] - 2026-01-21
 
 ### Added
@@ -19,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Repository URL updates
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.17] - 2026-01-20
 
 ### Added
@@ -27,6 +37,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated repository URLs
+
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
 
 ## [1.0.16] - 2026-01-19
 
@@ -40,6 +55,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded model pricing documentation
 - Improved parallel execution stability
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.15] - 2026-01-15
 
 ### Added
@@ -50,6 +70,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated model pricing
 - Improved error messages
+
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
 
 ## [1.0.14] - 2026-01-10
 
@@ -62,6 +87,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parallel execution race conditions
 - Cost estimation accuracy
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.13] - 2026-01-05
 
 ### Added
@@ -72,6 +102,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Improved image-to-image pipeline
 - Better error handling for API timeouts
+
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
 
 ## [1.0.12] - 2025-12-20
 
@@ -84,6 +119,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 2-3x speedup for multi-step pipelines
 - Thread-based parallel processing
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.11] - 2025-12-15
 
 ### Added
@@ -94,6 +134,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - All models now report accurate costs
 - Better cost breakdown in pipeline results
+
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
 
 ## [1.0.10] - 2025-12-10
 
@@ -106,6 +151,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unified configuration format
 - Improved validation messages
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.9] - 2025-12-05
 
 ### Added
@@ -117,12 +167,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TTS encoding issues
 - Audio file format handling
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.8] - 2025-12-01
 
 ### Added
 - Image understanding with Gemini
 - Multiple analysis types (describe, classify, OCR)
 - Question-answering on images
+
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
 
 ## [1.0.7] - 2025-11-25
 
@@ -135,6 +195,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved video quality options
 - Better video encoding defaults
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.6] - 2025-11-20
 
 ### Added
@@ -145,6 +210,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Unified model interface
 - Consistent parameter naming
+
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
 
 ## [1.0.5] - 2025-11-15
 
@@ -157,12 +227,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved command documentation
 - Better help messages
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.4] - 2025-11-10
 
 ### Added
 - Google Veo 2 integration
 - Vertex AI authentication
 - GCS output support
+
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
 
 ## [1.0.3] - 2025-11-05
 
@@ -171,6 +251,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic text-to-image generation
 - Output directory management
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.2] - 2025-11-01
 
 ### Added
@@ -178,12 +263,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AIPipelineManager class
 - Basic configuration loading
 
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
+
 ## [1.0.1] - 2025-10-25
 
 ### Added
 - Initial package structure
 - Setup.py configuration
 - Requirements definition
+
+## [Unreleased]
+
+### Added
+- feat: Storyboard character refs, vimax docs, Click migration plan (#22) @donghaozhang
 
 ## [1.0.0] - 2025-10-20
 
