@@ -154,7 +154,8 @@ def script2video(script, output, video_model, image_model, portraits, references
 @click.option("--max-scenes", default=10, type=int, help="Maximum scenes to generate")
 @click.option("--video-model", default="kling", help="Video generation model")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
-def novel2movie(novel, title, output, max_scenes, video_model, image_model):
+@click.option("--storyboard-only", is_flag=True, default=False, help="Stop after storyboard (skip video generation)")
+def novel2movie(novel, title, output, max_scenes, video_model, image_model, storyboard_only):
     """
     Convert a novel to a movie.
 
@@ -163,7 +164,8 @@ def novel2movie(novel, title, output, max_scenes, video_model, image_model):
     """
     from ..pipelines import Novel2MoviePipeline, Novel2MovieConfig
 
-    click.echo("Starting Novel2Movie pipeline...")
+    mode = "storyboard only (steps 1-5)" if storyboard_only else "full pipeline"
+    click.echo(f"Starting Novel2Movie pipeline ({mode})...")
     click.echo(f"   Novel: {novel}")
     click.echo(f"   Title: {title}")
 
@@ -178,6 +180,7 @@ def novel2movie(novel, title, output, max_scenes, video_model, image_model):
         max_scenes=max_scenes,
         video_model=video_model,
         image_model=image_model,
+        storyboard_only=storyboard_only,
     )
 
     pipeline = Novel2MoviePipeline(config)

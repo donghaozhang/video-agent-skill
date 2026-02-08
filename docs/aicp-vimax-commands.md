@@ -59,6 +59,9 @@ Convert a full novel into a multi-chapter movie.
 ```bash
 aicp vimax novel2movie --novel story.txt --title "Epic Adventure" --output output/
 aicp vimax novel2movie --novel novel.txt --title "Mystery" --max-scenes 20 --video-model veo3
+
+# Steps 1-5 only (characters, portraits, scenes, scripts, storyboard — no video)
+aicp vimax novel2movie --novel story.txt --title "Epic Adventure" --storyboard-only
 ```
 
 | Flag | Default | Description |
@@ -69,6 +72,7 @@ aicp vimax novel2movie --novel novel.txt --title "Mystery" --max-scenes 20 --vid
 | `--max-scenes` | auto | Maximum scenes per chapter |
 | `--video-model` | `kling` | Video generation model |
 | `--image-model` | `nano_banana_pro` | Image generation model |
+| `--storyboard-only` | disabled | Stop after storyboard generation (skip video) |
 
 ### Individual Pipeline Steps
 

@@ -48,6 +48,9 @@ class Novel2MovieConfig(BaseModel):
     use_character_references: bool = True  # Use portraits for storyboard consistency
     max_characters: int = 5  # Limit portraits to main characters
 
+    # Pipeline control
+    storyboard_only: bool = False  # Stop after storyboard generation (skip video)
+
     # Chunking settings
     chunk_size: int = 10000  # characters per chunk
     overlap: int = 500
@@ -242,6 +245,9 @@ class Novel2MoviePipeline:
                     continue
                 result.total_cost += storyboard_result.metadata.get("cost", 0)
 
+                if self.config.storyboard_only:
+                    continue
+
                 # Generate videos
                 video_result = await self.camera_generator.process(storyboard_result.result)
                 if video_result.success and video_result.result.videos:
@@ -249,7 +255,7 @@ class Novel2MoviePipeline:
                     result.total_cost += video_result.metadata.get("cost", 0)
 
             # Step 4: Concatenate all chapter videos
-            if all_videos:
+            if all_videos and not self.config.storyboard_only:
                 self.logger.info("Step 4: Assembling final video...")
                 final_path = str(output_dir / "final_movie.mp4")
 
