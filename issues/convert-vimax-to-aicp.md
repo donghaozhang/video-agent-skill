@@ -28,7 +28,7 @@ Migrated the entire `aicp` CLI from argparse to Click and integrated the `vimax`
 
 ## Architecture (Implemented)
 
-```
+```text
 cli/
   click_app.py          # Root @click.group(), global options, CLIOutput context, import-time registration
   commands/
@@ -163,7 +163,7 @@ Command registration moved to `click_app.py` at module level (not `__main__.py`)
 
 ## Test Results
 
-```
+```text
 tests/test_click_app.py:        43/43 PASSED
 tests/test_main_cli_flags.py:   33/33 PASSED
 tests/test_pyinstaller_spec.py:  7/7  PASSED
