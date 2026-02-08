@@ -456,7 +456,7 @@ aicp vimax novel2movie --novel my_novel.txt --title "The Great Adventure" --vide
 
 ViMax is built on an agent-based architecture:
 
-```
+```text
 aicp vimax CLI (Click)
   |
   +-- Pipelines (orchestration)
