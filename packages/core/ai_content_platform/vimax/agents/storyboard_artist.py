@@ -21,6 +21,12 @@ from ..adapters.image_adapter import ImageOutput  # Use adapter's ImageOutput
 from ..interfaces import Storyboard, Scene, ShotDescription, CharacterPortraitRegistry
 
 
+def _is_safe_reference_path(path: str) -> bool:
+    """Validate that a reference image path is safe (no traversal or absolute paths)."""
+    p = Path(path)
+    return not p.is_absolute() and ".." not in p.parts
+
+
 class StoryboardResult(Storyboard):
     """Storyboard with generated images."""
 
@@ -184,7 +190,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
                 )
                 if ref_result.selected_references:
                     shot.character_references = ref_result.selected_references
-                if ref_result.primary_reference:
+                if ref_result.primary_reference and _is_safe_reference_path(ref_result.primary_reference):
                     shot.primary_reference_image = ref_result.primary_reference
                 if ref_result.selected_references or ref_result.primary_reference:
                     resolved_count += 1
@@ -268,6 +274,10 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
 
                     # Use pre-resolved reference from shot.primary_reference_image
                     reference_image = shot.primary_reference_image if use_refs else None
+                    # Reason: Validate at consumption point to catch inline refs from JSON
+                    if reference_image and not _is_safe_reference_path(reference_image):
+                        self.logger.warning(f"Skipping unsafe reference path: {reference_image}")
+                        reference_image = None
 
                     # Generate image with or without reference
                     if reference_image:
@@ -371,7 +381,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
                 ref_result = await self._reference_selector.select_for_shot(shot, registry)
                 if ref_result.selected_references:
                     shot.character_references = ref_result.selected_references
-                if ref_result.primary_reference:
+                if ref_result.primary_reference and _is_safe_reference_path(ref_result.primary_reference):
                     shot.primary_reference_image = ref_result.primary_reference
 
         images = []
@@ -395,6 +405,9 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
 
             # Use pre-resolved reference from shot
             reference_image = shot.primary_reference_image if use_refs else None
+            if reference_image and not _is_safe_reference_path(reference_image):
+                self.logger.warning(f"Skipping unsafe reference path: {reference_image}")
+                reference_image = None
 
             # Generate with or without reference
             if reference_image:
