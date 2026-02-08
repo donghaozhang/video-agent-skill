@@ -390,7 +390,7 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
         if ref_shots:
             click.echo(f"\n   {label} references for {len(ref_shots)} shots:")
         else:
-            click.echo(f"\n   No character references matched from portrait registry.")
+            click.echo("\n   No character references matched from portrait registry.")
         for scene in script_obj.scenes:
             for shot in scene.shots:
                 if shot.character_references:
