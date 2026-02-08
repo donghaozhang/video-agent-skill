@@ -163,11 +163,20 @@ fal_subpackages = [
     'fal_avatar',
     'fal_avatar.config',
     'fal_avatar.models',
+    # speech-to-text
+    'fal_speech_to_text',
+    'fal_speech_to_text.config',
+    'fal_speech_to_text.models',
+    # text-to-image
+    'fal_text_to_image',
     # ai_content_pipeline (central registry + pipeline)
     'ai_content_pipeline',
     'ai_content_pipeline.config',
     'ai_content_pipeline.models',
+    'ai_content_pipeline.utils',
     'ai_content_pipeline.pipeline',
+    'ai_content_pipeline.pipeline.step_executors',
+    'ai_content_pipeline.cli',
 ]
 
 # ai_content_platform as top-level importable module (for vimax CLI)
@@ -187,6 +196,8 @@ package_dir = {
     'fal_text_to_video': 'packages/providers/fal/text-to-video/fal_text_to_video',
     'fal_video_to_video': 'packages/providers/fal/video-to-video/fal_video_to_video',
     'fal_avatar': 'packages/providers/fal/avatar-generation/fal_avatar',
+    'fal_speech_to_text': 'packages/providers/fal/speech-to-text/fal_speech_to_text',
+    'fal_text_to_image': 'packages/providers/fal/text-to-image/fal_text_to_image',
     # AI Content Pipeline (central registry)
     'ai_content_pipeline': 'packages/core/ai_content_pipeline/ai_content_pipeline',
 }
