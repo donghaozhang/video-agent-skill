@@ -133,51 +133,9 @@ extras_require["media"] = list(set(
     for req in extras_require[group]
 ))
 
-# Find standard packages
-standard_packages = find_packages(include=['packages', 'packages.*'])
-
-# Add packages from hyphenated directories that find_packages can't discover
-# Python package names cannot contain hyphens, so these must be manually specified
-fal_subpackages = [
-    # image-to-image
-    'fal_image_to_image',
-    'fal_image_to_image.config',
-    'fal_image_to_image.models',
-    'fal_image_to_image.utils',
-    # image-to-video
-    'fal_image_to_video',
-    'fal_image_to_video.config',
-    'fal_image_to_video.models',
-    'fal_image_to_video.utils',
-    # text-to-video
-    'fal_text_to_video',
-    'fal_text_to_video.config',
-    'fal_text_to_video.models',
-    'fal_text_to_video.utils',
-    # video-to-video
-    'fal_video_to_video',
-    'fal_video_to_video.config',
-    'fal_video_to_video.models',
-    'fal_video_to_video.utils',
-    # avatar-generation
-    'fal_avatar',
-    'fal_avatar.config',
-    'fal_avatar.models',
-    # ai_content_pipeline (central registry + pipeline)
-    'ai_content_pipeline',
-    'ai_content_pipeline.config',
-    'ai_content_pipeline.models',
-    'ai_content_pipeline.pipeline',
-]
-
-# ai_content_platform as top-level importable module (for vimax CLI)
-# Use find_packages with where parameter to find packages under packages/core/
-from setuptools import find_packages as fp
-ai_content_platform_packages = fp(where='packages/core', include=['ai_content_platform', 'ai_content_platform.*'])
-
-all_packages = standard_packages + fal_subpackages + ai_content_platform_packages
-
 # Package directory mappings for hyphenated directories and nested packages
+# Reason: find_packages() can't discover packages inside hyphenated directories,
+# so we define the mapping first, then auto-discover subpackages from each path.
 package_dir = {
     # Map ai_content_platform packages to their location
     'ai_content_platform': 'packages/core/ai_content_platform',
@@ -187,9 +145,30 @@ package_dir = {
     'fal_text_to_video': 'packages/providers/fal/text-to-video/fal_text_to_video',
     'fal_video_to_video': 'packages/providers/fal/video-to-video/fal_video_to_video',
     'fal_avatar': 'packages/providers/fal/avatar-generation/fal_avatar',
+    'fal_speech_to_text': 'packages/providers/fal/speech-to-text/fal_speech_to_text',
+    'fal_text_to_image': 'packages/providers/fal/text-to-image/fal_text_to_image',
     # AI Content Pipeline (central registry)
     'ai_content_pipeline': 'packages/core/ai_content_pipeline/ai_content_pipeline',
 }
+
+# Auto-discover all packages instead of maintaining a manual list.
+# 1) Standard packages under packages/ tree
+all_packages = find_packages(include=['packages', 'packages.*'])
+
+# 2) Packages from hyphenated directories (mapped via package_dir)
+for pkg_name, pkg_path in package_dir.items():
+    if Path(pkg_path).is_dir():
+        all_packages.append(pkg_name)
+        sub_pkgs = find_packages(where=pkg_path)
+        all_packages.extend(f"{pkg_name}.{sub}" for sub in sub_pkgs)
+
+# 3) ai_content_platform (vimax CLI) from packages/core/
+all_packages.extend(
+    find_packages(where='packages/core', include=['ai_content_platform', 'ai_content_platform.*'])
+)
+
+# Deduplicate
+all_packages = sorted(set(all_packages))
 
 setup(
     name=PACKAGE_NAME,
