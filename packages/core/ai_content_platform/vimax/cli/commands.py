@@ -386,7 +386,7 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
         if shot.character_references or shot.primary_reference_image
     ]
     if ref_shots or portrait_registry:
-        label = "Resolved" if portrait_registry else "Inline"
+        label = "Inline" if has_inline_refs else "Resolved"
         if ref_shots:
             click.echo(f"\n   {label} references for {len(ref_shots)} shots:")
         else:
