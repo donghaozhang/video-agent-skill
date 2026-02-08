@@ -482,9 +482,9 @@ Source: `packages/core/ai_content_platform/aicp vimax/`
 
 ## Relationship to aicp
 
-`aicp vimax` is a **separate CLI entry point**, not a subcommand of `aicp`:
+`aicp vimax` is a **subcommand group** of `aicp`:
 
 - `aicp` — single-step content generation (images, videos, audio, pipelines)
-- `aicp vimax` — multi-step narrative pipelines (idea → screenplay → storyboard → video)
+- `aicp vimax` — multi-step narrative pipelines (idea → screenplay → storyboard → video) accessed via the vimax subgroup
 
 Both are installed from the same package and share the same model registry.
