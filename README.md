@@ -7,103 +7,97 @@ A comprehensive AI content generation package with multiple providers and servic
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI](https://img.shields.io/pypi/v/video-ai-studio)](https://pypi.org/project/video-ai-studio/)
 
-> **⚡ Production-ready Python package with comprehensive CLI, parallel execution, and enterprise-grade architecture**
+> **Production-ready Python package with comprehensive CLI, parallel execution, and enterprise-grade architecture**
 
-## 🎬 **Demo Video**
+## Demo Video
 
 [![AI Content Generation Suite Demo](https://img.youtube.com/vi/xzvPrlKnXqk/maxresdefault.jpg)](https://www.youtube.com/watch?v=xzvPrlKnXqk)
 
 *Click to watch the complete demo of AI Content Generation Suite in action*
 
-## 🎨 Available AI Models
+## Available AI Models
 
-**40+ AI models across 8 categories** - showing top picks below. See [full models reference](docs/reference/models.md) for complete list.
+**73 AI models across 12 categories** - showing top picks below. See [full models reference](docs/reference/models.md) for complete list.
 
 ### Text-to-Image (Top Picks)
 | Model | Cost | Best For |
 |-------|------|----------|
 | `nano_banana_pro` | $0.002 | Fast & high-quality |
 | `gpt_image_1_5` | $0.003 | GPT-powered generation |
-
-### Image-to-Video (Top Picks)
-| Model | Cost | Best For |
-|-------|------|----------|
-| `sora_2` | $0.40-1.20 | OpenAI quality |
-| `kling_2_6_pro` | $0.50-1.00 | Professional quality |
+| `flux_dev` | $0.004 | Highest quality (12B params) |
 
 ### Text-to-Video (Top Picks)
 | Model | Cost | Best For |
 |-------|------|----------|
+| `veo3` | $2.50-6.00 | Google's latest with audio |
 | `sora_2` | $0.40-1.20 | OpenAI quality |
-| `kling_2_6_pro` | $0.35-1.40 | Quality + audio |
+| `kling_2_6_pro` | $0.35-1.40 | Professional quality |
 
-> **💡 Cost-Saving Tip:** Use `--mock` flag for FREE validation: `ai-content-pipeline generate-image --text "test" --mock`
+### Image-to-Video (Top Picks)
+| Model | Cost | Best For |
+|-------|------|----------|
+| `veo_3_1_fast` | $2.50-6.00 | Google's latest i2v |
+| `sora_2` | $0.40-1.20 | OpenAI quality |
+| `kling_3_pro` | $0.50-1.00 | Latest Kling generation |
 
-📚 **[View all 40+ models →](docs/reference/models.md)**
+> **Cost-Saving Tip:** Use `--mock` flag for FREE validation: `aicp generate-image --text "test" --mock`
 
-## 🏷️ Latest Release
+See [full models reference](docs/reference/models.md) for all 73 models with pricing.
+
+## Latest Release
 
 [![PyPI Version](https://img.shields.io/pypi/v/video-ai-studio)](https://pypi.org/project/video-ai-studio/)
 [![GitHub Release](https://img.shields.io/github/v/release/donghaozhang/video-agent-skill)](https://github.com/donghaozhang/video-agent-skill/releases)
 
-### What's New in v1.0.18
-- ✅ Automated PyPI publishing via GitHub Actions
-- 🔧 Consolidated setup files for cleaner package structure
-- 🎯 All 40+ AI models with comprehensive parallel processing support
-- 📦 Improved CI/CD workflow with skip-existing option
+### What's New in v1.0.21
+- Unix-style CLI: `--json`, `--quiet`, `--stream`, `--input` flags for scripting and CI
+- Cross-platform binary builds (Linux, macOS ARM64/x86_64, Windows)
+- Central model registry with 73 models across 12 categories
+- Automated releases via GitHub Actions on every merge to main
 
-## 🚀 **FLAGSHIP: AI Content Pipeline**
+## Installation
 
-The unified AI content generation pipeline with parallel execution support, multi-model integration, and YAML-based configuration.
-
-### Core Capabilities
-- **🔄 Unified Pipeline Architecture** - YAML/JSON-based configuration for complex multi-step workflows
-- **⚡ Parallel Execution Engine** - 2-3x performance improvement with thread-based parallel processing
-- **🎯 Type-Safe Configuration** - Pydantic models with comprehensive validation
-- **💰 Cost Management** - Real-time cost estimation and tracking across all services
-- **📊 Rich Logging** - Beautiful console output with progress tracking and performance metrics
-
-### AI Service Integrations
-- **🖼️ FAL AI** - Text-to-image, image-to-image, text-to-video, video generation, avatar creation
-- **🗣️ ElevenLabs** - Professional text-to-speech with 20+ voice options
-- **🎥 Google Vertex AI** - Veo video generation and Gemini text generation  
-- **🔗 OpenRouter** - Alternative TTS and chat completion services
-
-### Developer Experience
-- **🛠️ Professional CLI** - Comprehensive command-line interface with Click
-- **📦 Modular Architecture** - Clean separation of concerns with extensible design
-- **🧪 Comprehensive Testing** - Unit and integration tests with pytest
-- **📚 Type Hints** - Full type coverage for excellent IDE support
-
-## 📦 Installation
-
-### Quick Start
+### From PyPI
 ```bash
-# Install from PyPI
 pip install video-ai-studio
+```
 
-# Or install in development mode
+### Binary (no Python required)
+Download standalone binaries from [GitHub Releases](https://github.com/donghaozhang/video-agent-skill/releases):
+```bash
+# Linux
+curl -L https://github.com/donghaozhang/video-agent-skill/releases/download/latest/aicp-linux-x86_64 -o aicp
+chmod +x aicp
+
+# macOS (Apple Silicon)
+curl -L https://github.com/donghaozhang/video-agent-skill/releases/download/latest/aicp-macos-arm64 -o aicp
+chmod +x aicp
+
+# Windows
+curl -L https://github.com/donghaozhang/video-agent-skill/releases/download/latest/aicp-windows-x64.exe -o aicp.exe
+```
+
+### Development Mode
+```bash
+git clone https://github.com/donghaozhang/video-agent-skill.git
+cd video-agent-skill
 pip install -e .
 ```
 
-### 🔑 API Keys Setup
+### API Keys Setup
 
-After installation, you need to configure your API keys:
+After installation, configure your API keys:
 
-1. **Download the example configuration:**
+1. **Create a `.env` file:**
    ```bash
-   # Option 1: Download from GitHub
    curl -o .env https://raw.githubusercontent.com/donghaozhang/video-agent-skill/main/.env.example
-   
-   # Option 2: Create manually
-   touch .env
    ```
 
-2. **Add your API keys to `.env`:**
+2. **Add your API keys:**
    ```env
    # Required for most functionality
    FAL_KEY=your_fal_api_key_here
-   
+
    # Optional - add as needed
    GEMINI_API_KEY=your_gemini_api_key_here
    OPENROUTER_API_KEY=your_openrouter_api_key_here
@@ -116,35 +110,60 @@ After installation, you need to configure your API keys:
    - **OpenRouter**: https://openrouter.ai/keys
    - **ElevenLabs**: https://elevenlabs.io/app/settings
 
-### 📋 Dependencies
-The package installs core dependencies automatically. See [requirements.txt](requirements.txt) for the complete list.
+## Quick Start
 
-## 🛠️ Quick Start
-
-### Console Commands
+### CLI Commands
 ```bash
 # List all available AI models
-ai-content-pipeline list-models
+aicp list-models
 
 # Generate image from text
-ai-content-pipeline generate-image --text "epic space battle" --model flux_dev
+aicp generate-image --text "epic space battle" --model flux_dev
 
-# Create video (text → image → video)
-ai-content-pipeline create-video --text "serene mountain lake"
+# Create video (text -> image -> video)
+aicp create-video --text "serene mountain lake"
 
 # Run custom pipeline from YAML config
-ai-content-pipeline run-chain --config config.yaml --input "cyberpunk city"
+aicp run-chain --config config.yaml --input "cyberpunk city"
+
+# Analyze video with AI
+aicp analyze-video -i video.mp4
+
+# Generate avatar with lipsync
+aicp generate-avatar --audio speech.mp3 --image portrait.jpg
+
+# Transcribe audio
+aicp transcribe --input audio.mp3
+
+# Generate image grid
+aicp generate-grid --text "mountain landscape" --layout 2x2
 
 # Create example configurations
-ai-content-pipeline create-examples
+aicp create-examples
+```
 
-# Shortened command alias
-aicp --help
+### Unix-Style Flags
+All commands support machine-readable output for scripting and CI:
+```bash
+# JSON output for piping to jq
+aicp list-models --json | jq '.text_to_video[]'
+
+# Quiet mode (suppress non-essential output)
+aicp create-video --text "sunset" --quiet
+
+# Read prompt from stdin
+echo "cinematic drone shot" | aicp create-video --input -
+
+# Stream progress as JSONL events
+aicp run-chain --config pipeline.yaml --stream
+
+# Combine for CI usage
+aicp run-chain --config pipeline.yaml --json --quiet | jq -r '.outputs.final.path'
 ```
 
 ### Python API
 ```python
-from packages.core.ai_content_pipeline.pipeline.manager import AIPipelineManager
+from ai_content_pipeline.pipeline.manager import AIPipelineManager
 
 # Initialize manager
 manager = AIPipelineManager()
@@ -161,50 +180,63 @@ chain = manager.create_chain_from_config("config.yaml")
 result = manager.execute_chain(chain, "input text")
 ```
 
-## 📚 Package Structure
+## Available Commands
+
+### Content Generation
+| Command | Description |
+|---------|-------------|
+| `generate-image` | Generate image from text |
+| `create-video` | Create video from text (text -> image -> video) |
+| `run-chain` | Run custom YAML pipeline |
+| `generate-avatar` | Generate avatar/lipsync video |
+| `generate-grid` | Generate 2x2/3x3 image grid |
+| `upscale-image` | Upscale image using SeedVR2 |
+| `transfer-motion` | Transfer motion from video to image |
+| `transcribe` | Transcribe audio using ElevenLabs |
+
+### Discovery & Setup
+| Command | Description |
+|---------|-------------|
+| `list-models` | List all available models |
+| `list-avatar-models` | List avatar generation models |
+| `list-video-models` | List video analysis models |
+| `list-motion-models` | List motion transfer models |
+| `list-speech-models` | List speech-to-text models |
+| `analyze-video` | Analyze video with AI (Gemini) |
+| `setup` | Create .env file with API key templates |
+| `create-examples` | Create example configuration files |
+
+### Project Management
+| Command | Description |
+|---------|-------------|
+| `init-project` | Initialize project structure |
+| `organize-project` | Organize files into project structure |
+| `structure-info` | Show project structure info |
+
+## Package Structure
 
 ### Core Packages
-- **[ai_content_pipeline](packages/core/ai_content_pipeline/)** - Main unified pipeline with parallel execution
+- **[ai_content_pipeline](packages/core/ai_content_pipeline/)** - Main unified pipeline with central model registry and parallel execution
 
 ### Provider Packages
 
+#### FAL AI Services
+- **[fal-text-to-video](packages/providers/fal/text-to-video/)** - Text-to-video (Veo 3, Kling v3, Sora 2, Hailuo Pro)
+- **[fal-image-to-video](packages/providers/fal/image-to-video/)** - Image-to-video (Veo 3.1, Kling, Sora 2, Wan v2.6)
+- **[fal-text-to-image](packages/providers/fal/text-to-image/)** - Text-to-image (FLUX.1, Imagen 4, Seedream v3)
+- **[fal-image-to-image](packages/providers/fal/image-to-image/)** - Image transformation (Photon, FLUX Kontext, Clarity)
+- **[fal-video-to-video](packages/providers/fal/video-to-video/)** - Video editing (Kling O3 Edit/V2V)
+- **[fal-avatar](packages/providers/fal/avatar-generation/)** - Avatar creation (OmniHuman, VEED Fabric, Kling O1)
+- **[fal-speech-to-text](packages/providers/fal/speech-to-text/)** - Speech transcription (ElevenLabs Scribe v2)
+
 #### Google Services
 - **[google-veo](packages/providers/google/veo/)** - Google Veo video generation (Vertex AI)
-
-#### FAL AI Services
-- **[fal-video](packages/providers/fal/video/)** - Video generation (MiniMax Hailuo-02, Kling Video 2.1)
-- **[fal-text-to-video](packages/providers/fal/text-to-video/)** - Text-to-video (Hailuo Pro, Veo 3, Kling v2.6 Pro, Sora 2/Pro)
-- **[fal-image-to-video](packages/providers/fal/image-to-video/)** - Image-to-video (Veo 3, Hailuo, Kling, Wan v2.6)
-- **[fal-avatar](packages/providers/fal/avatar/)** - Avatar generation with TTS integration
-- **[fal-text-to-image](packages/providers/fal/text-to-image/)** - Text-to-image (Imagen 4, Seedream v3, FLUX.1)
-- **[fal-image-to-image](packages/providers/fal/image-to-image/)** - Image transformation (Luma Photon Flash)
-- **[fal-video-to-video](packages/providers/fal/video-to-video/)** - Video processing (ThinksSound + Topaz)
 
 ### Service Packages
 - **[text-to-speech](packages/services/text-to-speech/)** - ElevenLabs TTS integration (20+ voices)
 - **[video-tools](packages/services/video-tools/)** - Video processing utilities with AI analysis
 
-## 🔧 Configuration
-
-### Environment Setup
-Create a `.env` file in the project root:
-```env
-# FAL AI API Configuration
-FAL_KEY=your_fal_api_key
-
-# Google Cloud Configuration (for Veo)
-PROJECT_ID=your-project-id
-OUTPUT_BUCKET_PATH=gs://your-bucket/veo_output/
-
-# ElevenLabs Configuration
-ELEVENLABS_API_KEY=your_elevenlabs_api_key
-
-# Optional: Gemini for AI analysis
-GEMINI_API_KEY=your_gemini_api_key
-
-# Optional: OpenRouter for additional models
-OPENROUTER_API_KEY=your_openrouter_api_key
-```
+## Configuration
 
 ### YAML Pipeline Configuration
 ```yaml
@@ -215,7 +247,7 @@ steps:
     type: "text_to_image"
     model: "flux_dev"
     aspect_ratio: "16:9"
-    
+
   - name: "create_video"
     type: "image_to_video"
     model: "kling_video"
@@ -226,81 +258,43 @@ steps:
 ### Parallel Execution
 Enable parallel processing for 2-3x speedup:
 ```bash
-# Enable parallel execution
-PIPELINE_PARALLEL_ENABLED=true ai-content-pipeline run-chain --config config.yaml
+PIPELINE_PARALLEL_ENABLED=true aicp run-chain --config config.yaml
 ```
 
-Example parallel pipeline configuration:
-```yaml
-name: "Parallel Processing Example"
-steps:
-  - type: "parallel_group"
-    steps:
-      - type: "text_to_image"
-        model: "flux_schnell"
-        params:
-          prompt: "A cat"
-      - type: "text_to_image"
-        model: "flux_schnell"
-        params:
-          prompt: "A dog"
-      - type: "text_to_image"
-        model: "flux_schnell"
-        params:
-          prompt: "A bird"
-```
-
-## 💰 Cost Management
-
-### Cost Estimation
-Always estimate costs before running pipelines:
-```bash
-# Estimate cost for a pipeline
-ai-content-pipeline estimate-cost --config config.yaml
-```
+## Cost Management
 
 ### Typical Costs
 - **Text-to-Image**: $0.001-0.004 per image
-- **Image-to-Image**: $0.01-0.05 per modification  
+- **Image-to-Image**: $0.01-0.05 per modification
 - **Text-to-Video**: $0.08-6.00 per video (model dependent)
-- **Avatar Generation**: $0.02-0.05 per video
+- **Image-to-Video**: $0.08-6.00 per video (model dependent)
+- **Avatar Generation**: $0.08-0.25 per video
 - **Text-to-Speech**: Varies by usage (ElevenLabs pricing)
 - **Video Processing**: $0.05-2.50 per video (model dependent)
 
-### Cost-Conscious Usage
+### Tips
 - Use cheaper models for prototyping (`flux_schnell`, `hailuo`)
+- Use `--mock` flag for free validation before real API calls
 - Test with small batches before large-scale generation
 - Monitor costs with built-in tracking
 
-## 🧪 Testing
+## Testing
 
 ```bash
-# Quick tests
-python tests/run_all_tests.py --quick
+# Full test suite (~762 tests)
+python -m pytest tests/ -v
+
+# Quick smoke tests
+python tests/test_core.py
+
+# Registry validation
+python scripts/validate_registry.py
 ```
 
-📋 See [tests/README.md](tests/README.md) for complete testing guide.
-
-## 💰 Cost Management
-
-### Estimation
-- **FAL AI Video**: ~$0.05-0.10 per video
-- **FAL AI Text-to-Video**: ~$0.08 (MiniMax) to $2.50-6.00 (Google Veo 3)
-- **FAL AI Avatar**: ~$0.02-0.05 per video
-- **FAL AI Images**: ~$0.001-0.01 per image
-- **Text-to-Speech**: Varies by usage (ElevenLabs pricing)
-
-### Best Practices
-1. Always run `test_setup.py` first (FREE)
-2. Use cost estimation in pipeline manager
-3. Start with cheaper models for testing
-4. Monitor usage through provider dashboards
-
-## 🔄 Development Workflow
+## Development Workflow
 
 ### Making Changes
 ```bash
-# Make your changes to the codebase
 git add .
 git commit -m "Your changes"
 git push origin main
@@ -308,81 +302,47 @@ git push origin main
 
 ### Testing Installation
 ```bash
-# Create test environment
 python3 -m venv test_env
-source test_env/bin/activate
+source test_env/bin/activate  # Linux/Mac
+# or: test_env\Scripts\activate  # Windows
 
-# Install and test
 pip install -e .
-ai-content-pipeline --help
+aicp --help
 ```
 
-## 📋 Available Commands
+## Documentation
 
-### AI Content Pipeline Commands
-- `ai-content-pipeline list-models` - List all available models
-- `ai-content-pipeline generate-image` - Generate image from text
-- `ai-content-pipeline create-video` - Create video from text
-- `ai-content-pipeline run-chain` - Run custom YAML pipeline
-- `ai-content-pipeline create-examples` - Create example configs
-- `aicp` - Shortened alias for all commands
-
-### Individual Package Commands
-See [CLAUDE.md](CLAUDE.md) for detailed commands for each package.
-
-## 📚 Documentation
-
-- **[Quick Start Guide](docs/guides/getting-started/quick-start.md)** - Get running in 5 minutes
+- **[Setup Guide](docs/guides/getting-started/setup.md)** - Installation and configuration
 - **[Full Documentation](docs/index.md)** - Complete documentation index
-- **[Models Reference](docs/reference/models.md)** - All 40+ AI models with pricing
+- **[Models Reference](docs/reference/models.md)** - All 73 AI models with pricing
 - **[YAML Pipeline Guide](docs/guides/pipelines/yaml-pipelines.md)** - Create custom workflows
+- **[Cost Management](docs/guides/optimization/cost-management.md)** - Optimize spending
 - **[Project Instructions](CLAUDE.md)** - Development guide
 
-## 🏗️ Architecture
+## Architecture
 
-- **Unified Package Structure** - Single `setup.py` with consolidated dependencies
-- **Consolidated Configuration** - Single `.env` file for all services
+- **Central Model Registry** - Single source of truth for all 73 model definitions (`registry.py` + `registry_data.py`)
+- **Auto-Discovery** - Generator classes use `MODEL_KEY` attributes for automatic registration
+- **Unix-Style CLI** - `--json`, `--quiet`, `--stream` flags; stable exit codes; stdin/stdout piping
+- **Parallel Execution** - Thread-based processing with `PIPELINE_PARALLEL_ENABLED=true`
 - **Modular Design** - Each service can be used independently or through the unified pipeline
-- **Parallel Execution** - Optional parallel processing for improved performance
-- **Cost-Conscious Design** - Built-in cost estimation and management
+- **Cross-Platform Binaries** - Standalone `aicp` binaries via PyInstaller (no Python required)
 
-## 📚 Resources
+## Resources
 
-### 🚀 AI Content Pipeline Resources
+### AI Content Pipeline
 - [Pipeline Documentation](packages/core/ai_content_pipeline/docs/README.md)
 - [Getting Started Guide](packages/core/ai_content_pipeline/docs/GETTING_STARTED.md)
 - [YAML Configuration Reference](packages/core/ai_content_pipeline/docs/YAML_CONFIGURATION.md)
 - [Parallel Execution Design](packages/core/ai_content_pipeline/docs/parallel_pipeline_design.md)
 
-### Google Veo Resources
-- [Veo API Documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/veo-video-generation)
-- [Google GenAI SDK](https://github.com/google/generative-ai-python)
-- [Vertex AI Console](https://console.cloud.google.com/vertex-ai)
-
-### FAL AI Resources
+### Provider Documentation
 - [FAL AI Platform](https://fal.ai/)
-- [MiniMax Hailuo Documentation](https://fal.ai/models/fal-ai/minimax-video-01)
-- [Kling Video 2.1 Documentation](https://fal.ai/models/fal-ai/kling-video/v2.1/standard/image-to-video/api)
-- [Kling v2.6 Pro Documentation](https://fal.ai/models/fal-ai/kling-video/v2.6/pro/text-to-video/api)
-- [Wan v2.6 Documentation](https://fal.ai/models/wan/v2.6/image-to-video)
-- [Sora 2 Documentation](https://fal.ai/models/openai/sora/v2/text-to-video)
-- [FAL AI Avatar Documentation](https://fal.ai/models/fal-ai/avatar-video)
-- [ThinksSound API Documentation](https://fal.ai/models/fal-ai/thinksound/api)
-- [Topaz Video Upscale Documentation](https://fal.ai/models/fal-ai/topaz/upscale/video/api)
-
-### Text-to-Speech Resources
-- [ElevenLabs API Documentation](https://elevenlabs.io/docs/capabilities/text-to-speech)
+- [Google Vertex AI / Veo](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/veo-video-generation)
+- [ElevenLabs API](https://elevenlabs.io/docs/capabilities/text-to-speech)
 - [OpenRouter Platform](https://openrouter.ai/)
-- [ElevenLabs Voice Library](https://elevenlabs.io/app/speech-synthesis/text-to-speech)
-- [Text-to-Dialogue Documentation](https://elevenlabs.io/docs/cookbooks/text-to-dialogue)
-- [Package Migration Guide](packages/services/text-to-speech/docs/MIGRATION_GUIDE.md)
 
-### Additional Documentation
-- [Project Instructions](CLAUDE.md) - Comprehensive development guide
-- [Documentation](docs/) - Additional documentation and guides
-- [Package Organization](docs/repository_organization_guide.md) - Package structure guide
-
-## 🤝 Contributing
+## Contributing
 
 1. Follow the development patterns in [CLAUDE.md](CLAUDE.md)
 2. Add tests for new features

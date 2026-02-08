@@ -1,7 +1,8 @@
 """
 CLI Commands for ViMax Pipelines
 
-Adds vimax-* commands to the ai-content-pipeline CLI.
+Provides the ``vimax`` Click subgroup, registered under the main
+``aicp`` CLI.  Usage: ``aicp vimax <command>``.
 """
 
 import click
@@ -17,7 +18,10 @@ def run_async(coro):
 
 @click.group()
 def vimax():
-    """ViMax pipeline commands for novel-to-video generation."""
+    """ViMax pipeline commands for novel-to-video generation.
+
+    Access via: aicp vimax <command>
+    """
     pass
 
 
@@ -332,20 +336,72 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
         click.echo(f"   Reference model: {reference_model}")
         click.echo(f"   Reference strength: {reference_strength}")
 
+    # Detect inline references already in the script JSON
+    has_inline_refs = any(
+        shot.primary_reference_image or shot.character_references
+        for scene in script_obj.scenes
+        for shot in scene.shots
+    )
+    if has_inline_refs and not portrait_registry:
+        inline_count = sum(
+            1 for scene in script_obj.scenes
+            for shot in scene.shots
+            if shot.primary_reference_image or shot.character_references
+        )
+        click.echo(f"   Inline references: {inline_count} shots have reference images in script")
+        click.echo(f"   Reference model: {reference_model}")
+        click.echo(f"   Reference strength: {reference_strength}")
+
     config = StoryboardArtistConfig(
         image_model=image_model,
         style_prefix=style,
         output_dir=output,
-        use_character_references=portrait_registry is not None,
+        use_character_references=portrait_registry is not None or has_inline_refs,
         reference_model=reference_model,
         reference_strength=reference_strength,
     )
     artist = StoryboardArtist(config)
 
     async def run():
-        return await artist.process(script_obj, portrait_registry=portrait_registry)
+        # Check for inline references already present in the script JSON
+        has_inline_refs = any(
+            shot.primary_reference_image or shot.character_references
+            for scene in script_obj.scenes
+            for shot in scene.shots
+        )
+        # Pre-resolve references from registry (only if no inline refs already exist)
+        if portrait_registry and len(portrait_registry.portraits) > 0 and not has_inline_refs:
+            resolved = await artist.resolve_references(script_obj, portrait_registry)
+            return resolved, await artist.process(script_obj, portrait_registry=portrait_registry)
+        # Inline refs or no refs — process directly
+        return 0, await artist.process(script_obj, portrait_registry=portrait_registry if portrait_registry else None)
 
-    result = run_async(run())
+    _resolved_count, result = run_async(run())
+
+    # Display reference mappings per shot (from registry resolution or inline)
+    ref_shots = [
+        shot
+        for scene in script_obj.scenes
+        for shot in scene.shots
+        if shot.character_references or shot.primary_reference_image
+    ]
+    if ref_shots or portrait_registry:
+        label = "Inline" if has_inline_refs else "Resolved"
+        if ref_shots:
+            click.echo(f"\n   {label} references for {len(ref_shots)} shots:")
+        else:
+            click.echo("\n   No character references matched from portrait registry.")
+        for scene in script_obj.scenes:
+            for shot in scene.shots:
+                if shot.character_references:
+                    refs = ", ".join(
+                        f"{name} -> {path}" for name, path in shot.character_references.items()
+                    )
+                    click.echo(f"     {shot.shot_id}: {refs}")
+                elif shot.primary_reference_image:
+                    click.echo(f"     {shot.shot_id}: {shot.primary_reference_image}")
+                elif shot.characters:
+                    click.echo(f"     {shot.shot_id}: (no matching portraits for {shot.characters})")
 
     if result.success:
         click.echo("\nStoryboard generated successfully!")
@@ -535,8 +591,11 @@ def show_registry(registry):
 
 @vimax.command("list-models")
 def list_models():
-    """List available models for ViMax pipelines."""
-    click.echo("Available Models for ViMax Pipelines\n")
+    """List available models for ViMax pipelines.
+
+    Usage: aicp vimax list-models
+    """
+    click.echo("Available Models for ViMax Pipelines (aicp vimax)\n")
 
     click.echo("Image Generation:")
     models = [

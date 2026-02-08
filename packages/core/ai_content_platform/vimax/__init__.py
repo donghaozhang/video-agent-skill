@@ -11,7 +11,12 @@ This module provides:
 - Video generation from storyboards
 - End-to-end pipelines (Idea2Video, Script2Video, Novel2Movie)
 
-Usage:
+CLI usage (via aicp):
+    aicp vimax idea2video --idea "A samurai's journey at sunrise"
+    aicp vimax script2video --script my_script.json
+    aicp vimax novel2movie --novel my_novel.txt
+
+Python usage:
     from ai_content_platform.vimax import Idea2VideoPipeline
 
     pipeline = Idea2VideoPipeline()

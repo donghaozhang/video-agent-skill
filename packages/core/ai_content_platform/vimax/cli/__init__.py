@@ -1,7 +1,8 @@
 """
 ViMax CLI Commands
 
-Command-line interface for ViMax pipelines.
+Click subgroup registered under the main ``aicp`` CLI.
+Usage: ``aicp vimax <command>``.
 """
 
 from .commands import vimax, register_commands

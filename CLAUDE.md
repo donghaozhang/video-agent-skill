@@ -107,7 +107,7 @@ ai-content-pipeline/
 │   │   ├── ai_content_pipeline/     # Main unified pipeline + central registry
 │   │   │   ├── registry.py          # ModelDefinition + ModelRegistry (source of truth)
 │   │   │   └── registry_data.py     # All 73 model registrations
-│   │   └── ai_content_platform/     # Platform framework + vimax CLI
+│   │   └── ai_content_platform/     # Platform framework + vimax subgroup (aicp vimax)
 │   ├── providers/
 │   │   ├── google/veo/              # Google Veo integration
 │   │   └── fal/                     # FAL AI services
@@ -130,7 +130,7 @@ ai-content-pipeline/
 ```
 
 ### AI Content Pipeline Architecture
-- **Unified Package**: Single installable package with console commands (`ai-content-pipeline`, `aicp`, `vimax`)
+- **Unified Package**: Single installable package with console commands (`ai-content-pipeline`, `aicp`); vimax available as `aicp vimax` subgroup
 - **Central Model Registry**: `registry.py` + `registry_data.py` — single source of truth for all model metadata
 - **Auto-Discovery**: Generator classes use `MODEL_KEY` class attributes for automatic model registration
 - **Provider CLIs**: Provider-level CLIs use Click framework (`fal-text-to-video`, `fal-image-to-video`)
@@ -295,7 +295,7 @@ python tests/test_core.py
 
 ### 🎯 **Unified Interface**
 - Single package installation with `pip install -e .`
-- Console commands: `ai-content-pipeline`, `aicp`, and `vimax`
+- Console commands: `ai-content-pipeline`, `aicp` (vimax available as `aicp vimax` subgroup)
 - Provider CLIs: `fal-text-to-video`, `fal-image-to-video` (Click-based)
 - Consistent API across all AI models
 

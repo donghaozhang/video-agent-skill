@@ -54,6 +54,10 @@ class CharacterPortrait(BaseModel):
     """Generated character portrait with multiple angles."""
 
     character_name: str
+    description: str = Field(
+        default="",
+        description="Character appearance: dress, face, and look (no background/surroundings)",
+    )
     front_view: Optional[str] = Field(default=None, description="Path to front view image")
     side_view: Optional[str] = Field(default=None, description="Path to side view image")
     back_view: Optional[str] = Field(default=None, description="Path to back view image")
