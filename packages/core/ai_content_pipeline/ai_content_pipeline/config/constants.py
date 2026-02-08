@@ -116,7 +116,7 @@ DEFAULT_CHAIN_CONFIG = {
     "steps": [
         {
             "type": "text_to_image",
-            "model": "flux_dev",
+            "model": "nano_banana_pro",
             "params": {
                 "aspect_ratio": "16:9",
                 "style": "cinematic"

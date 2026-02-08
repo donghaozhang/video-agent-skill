@@ -22,7 +22,7 @@ Generate a complete video from a text idea. Runs the full pipeline: idea → scr
 ```bash
 aicp vimax idea2video --idea "A samurai's journey through feudal Japan" --output output/
 aicp vimax idea2video --idea "A detective solves a mystery" --duration 30 --video-model veo3
-aicp vimax idea2video --idea "Space exploration" --no-portraits --image-model flux_dev
+aicp vimax idea2video --idea "Space exploration" --no-portraits --image-model nano_banana_pro
 ```
 
 | Flag | Default | Description |
@@ -109,7 +109,7 @@ Generate multi-view portraits from character descriptions for visual consistency
 
 ```bash
 aicp vimax generate-portraits --characters characters.json --save-registry registry.json
-aicp vimax generate-portraits --characters characters.json --image-model flux_dev --views front side
+aicp vimax generate-portraits --characters characters.json --image-model nano_banana_pro --views front side
 ```
 
 | Flag | Default | Description |
@@ -135,7 +135,7 @@ aicp vimax generate-storyboard --script script.json --portraits registry.json --
 aicp vimax generate-storyboard --script script.json --portraits registry.json --style "photorealistic, cinematic lighting, " --output storyboard/
 
 # High-quality with strong reference matching
-aicp vimax generate-storyboard --script script.json --portraits registry.json --reference-strength 0.8 --image-model flux_dev --output storyboard/
+aicp vimax generate-storyboard --script script.json --portraits registry.json --reference-strength 0.8 --image-model nano_banana_pro --output storyboard/
 ```
 
 | Flag | Short | Default | Description |
@@ -438,7 +438,7 @@ aicp vimax generate-script --idea "A noir detective story" --model claude-3.5-so
 
 # Step 2: Extract and generate character portraits
 aicp vimax extract-characters --text script.json --output characters.json
-aicp vimax generate-portraits --characters characters.json --image-model flux_dev --save-registry registry.json
+aicp vimax generate-portraits --characters characters.json --image-model nano_banana_pro --save-registry registry.json
 
 # Step 3: Generate storyboard with character consistency
 aicp vimax generate-storyboard --script script.json --portraits registry.json --style cinematic --output storyboard/
