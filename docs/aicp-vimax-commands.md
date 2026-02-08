@@ -78,7 +78,7 @@ Generate a screenplay JSON from a text idea.
 
 ```bash
 aicp vimax generate-script --idea "A detective mystery in Tokyo" --output script.json
-aicp vimax generate-script --idea "Space opera" --duration 60 --model claude-3.5-sonnet
+aicp vimax generate-script --idea "Space opera" --duration 60 --model kimi-k2.5
 ```
 
 | Flag | Default | Description |
@@ -434,7 +434,7 @@ aicp vimax idea2video --idea "A cat exploring a magical forest" --video-model kl
 ### High-quality production
 ```bash
 # Step 1: Generate screenplay
-aicp vimax generate-script --idea "A noir detective story" --model claude-3.5-sonnet --output script.json
+aicp vimax generate-script --idea "A noir detective story" --model kimi-k2.5 --output script.json
 
 # Step 2: Extract and generate character portraits
 aicp vimax extract-characters --text script.json --output characters.json
