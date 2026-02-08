@@ -338,7 +338,7 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
 
     # Detect inline references already in the script JSON
     has_inline_refs = any(
-        shot.primary_reference_image
+        shot.primary_reference_image or shot.character_references
         for scene in script_obj.scenes
         for shot in scene.shots
     )
@@ -346,7 +346,7 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
         inline_count = sum(
             1 for scene in script_obj.scenes
             for shot in scene.shots
-            if shot.primary_reference_image
+            if shot.primary_reference_image or shot.character_references
         )
         click.echo(f"   Inline references: {inline_count} shots have reference images in script")
         click.echo(f"   Reference model: {reference_model}")
@@ -365,7 +365,7 @@ def generate_storyboard(script, output, image_model, style, portraits, reference
     async def run():
         # Check for inline references already present in the script JSON
         has_inline_refs = any(
-            shot.primary_reference_image
+            shot.primary_reference_image or shot.character_references
             for scene in script_obj.scenes
             for shot in scene.shots
         )
