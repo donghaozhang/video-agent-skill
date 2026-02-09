@@ -93,7 +93,17 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
         )
 
         response = await self._llm.chat([Message(role="user", content=prompt)])
-        return response.content.strip()
+        result = response.content.strip()
+
+        # Guard against empty LLM responses — build a fallback prompt
+        if len(result) < 3:
+            self.logger.warning(f"LLM returned empty/short prompt for {character.name} {view} view, using fallback")
+            result = (
+                f"{self.config.style}, {view} view portrait of {character.name}, "
+                f"{character.description}, {character.appearance}"
+            )
+
+        return result
 
     async def process(self, character: CharacterInNovel) -> AgentResult[CharacterPortrait]:
         """
