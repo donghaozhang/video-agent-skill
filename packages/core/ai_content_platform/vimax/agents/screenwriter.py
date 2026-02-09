@@ -12,7 +12,7 @@ import re
 
 from pydantic import BaseModel, Field
 
-from .base import BaseAgent, AgentConfig, AgentResult
+from .base import BaseAgent, AgentConfig, AgentResult, parse_llm_json
 from ..adapters import LLMAdapter, LLMAdapterConfig, Message
 from ..interfaces import Scene, ShotDescription, ShotType, CameraMovement
 
@@ -195,26 +195,8 @@ class Screenwriter(BaseAgent[str, Script]):
                 temperature=0.7,
             )
 
-            # Parse response
-            content = response.content
-            # Extract JSON from response - first try code fence, then raw JSON
-            json_text = None
-            fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
-            if fence_match:
-                json_text = fence_match.group(1)
-            else:
-                # Fall back to finding JSON object directly (greedy for nested objects)
-                match = re.search(r'\{.*\}', content, re.DOTALL)
-                if match:
-                    json_text = match.group()
-
-            if json_text:
-                try:
-                    data = json.loads(json_text)
-                except json.JSONDecodeError as e:
-                    raise ValueError(f"Invalid JSON in screenplay response: {e}") from e
-            else:
-                raise ValueError("Could not find JSON in screenplay response")
+            # Parse response — handles code fences, trailing commas, extra text
+            data = parse_llm_json(response.content, expect="object")
 
             # Build Script object
             scenes = []

@@ -10,7 +10,7 @@ import logging
 import json
 import re
 
-from .base import BaseAgent, AgentConfig, AgentResult
+from .base import BaseAgent, AgentConfig, AgentResult, parse_llm_json
 from ..adapters import LLMAdapter, LLMAdapterConfig, Message
 from ..interfaces import CharacterInNovel
 
@@ -93,19 +93,8 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
             # Call LLM with structured output
             response = await self._llm.chat(messages, temperature=0.3)
 
-            # Parse response
-            try:
-                data = json.loads(response.content)
-            except json.JSONDecodeError as e:
-                # Try to extract JSON from response
-                match = re.search(r'\[.*?\]', response.content, re.DOTALL)
-                if match:
-                    try:
-                        data = json.loads(match.group())
-                    except json.JSONDecodeError as match_error:
-                        raise ValueError("Could not parse character data from response") from match_error
-                else:
-                    raise ValueError("Could not parse character data from response") from e
+            # Parse response — handles code fences, trailing commas, extra text
+            data = parse_llm_json(response.content, expect="array")
 
             if not isinstance(data, list):
                 raise ValueError("Expected a JSON array of characters")
