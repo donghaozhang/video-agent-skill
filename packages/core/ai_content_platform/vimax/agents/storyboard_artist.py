@@ -39,7 +39,7 @@ class StoryboardArtistConfig(AgentConfig):
 
     name: str = "StoryboardArtist"
     image_model: str = "nano_banana_pro"
-    style_prefix: str = "storyboard panel, cinematic composition, "
+    style_prefix: str = "photorealistic, cinematic lighting, film still, "
     aspect_ratio: str = "16:9"
     output_dir: str = "media/generated/vimax/storyboard"
 

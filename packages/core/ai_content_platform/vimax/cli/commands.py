@@ -298,7 +298,7 @@ def generate_script(idea, output, duration, model):
 @click.option("--script", "-s", required=True, type=click.Path(exists=True), help="Script JSON file")
 @click.option("--output", "-o", default="media/generated/vimax/storyboard", help="Output directory")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
-@click.option("--style", default="storyboard panel, cinematic composition, ", help="Style prefix for prompts")
+@click.option("--style", default="photorealistic, cinematic lighting, film still, ", help="Style prefix for prompts")
 @click.option("--portraits", "-p", type=click.Path(exists=True), help="Portrait registry JSON file for character consistency")
 @click.option("--reference-model", default="nano_banana_pro", help="Model for reference-based generation")
 @click.option("--reference-strength", default=0.6, type=float, help="Reference image strength (0.0-1.0)")

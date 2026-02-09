@@ -147,17 +147,17 @@ aicp vimax generate-storyboard --script script.json --portraits registry.json --
 | `--script` | `-s` | required | Screenplay JSON file (see format below) |
 | `--output` | `-o` | `media/generated/storyboard` | Output directory for generated images |
 | `--image-model` | | `nano_banana_pro` | Image generation model |
-| `--style` | | `"storyboard panel, cinematic composition, "` | Style prefix prepended to every prompt |
+| `--style` | | `"photorealistic, cinematic lighting, film still, "` | Style prefix prepended to every prompt |
 | `--portraits` | `-p` | none | Portrait registry JSON for character consistency |
 | `--reference-model` | | `nano_banana_pro` | Model used for reference-based generation (image-to-image) |
 | `--reference-strength` | | `0.6` | How strongly to match reference images (0.0-1.0) |
 
-**How `--style` works:** The style string is prepended to every shot's `image_prompt`. The default `"storyboard panel, cinematic composition, "` produces illustrated storyboard panels. To get photorealistic output, change it:
+**How `--style` works:** The style string is prepended to every shot's `image_prompt`. The default `"photorealistic, cinematic lighting, film still, "` produces realistic film stills. To change the visual style:
 
 | Style Value | Result |
 |-------------|--------|
-| `"storyboard panel, cinematic composition, "` (default) | Illustrated storyboard panels |
-| `"photorealistic, cinematic lighting, "` | Photorealistic film stills |
+| `"photorealistic, cinematic lighting, film still, "` (default) | Photorealistic film stills |
+| `"storyboard panel, cinematic composition, "` | Illustrated storyboard panels |
 | `"anime, cel shaded, "` | Anime-style frames |
 | `"cinematic, "` | General cinematic look |
 | `""` (empty string) | No style prefix, uses raw image_prompt |

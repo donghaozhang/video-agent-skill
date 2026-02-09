@@ -50,6 +50,7 @@ class Novel2MovieConfig(BaseModel):
 
     # Pipeline control
     storyboard_only: bool = False  # Stop after storyboard generation (skip video)
+    save_intermediate: bool = True  # Save characters, scripts, chapters to disk
 
     # Chunking settings
     chunk_size: int = 10000  # characters per chunk
@@ -192,6 +193,8 @@ class Novel2MoviePipeline:
             if char_result.success:
                 result.characters = char_result.result
                 result.total_cost += char_result.metadata.get("cost", 0)
+                if self.config.save_intermediate:
+                    self._save_characters(result.characters, output_dir / "characters.json")
 
             # Step 1b: Generate character portraits for consistency
             if self.config.generate_portraits and result.characters:
@@ -212,15 +215,22 @@ class Novel2MoviePipeline:
                     self.logger.info(
                         f"Created portrait registry with {len(result.portraits)} characters"
                     )
+                    if self.config.save_intermediate:
+                        self._save_registry(result.portrait_registry, output_dir / "portrait_registry.json")
 
             # Step 2: Compress novel into key scenes
             self.logger.info("Step 2: Compressing novel into scenes...")
             chapters = await self._compress_novel(novel_text)
             result.chapters = chapters
+            if self.config.save_intermediate:
+                self._save_chapters(chapters, output_dir / "chapters.json")
 
             # Step 3: Generate scripts for each chapter
             self.logger.info("Step 3: Generating scripts...")
             all_videos = []
+            scripts_dir = output_dir / "scripts"
+            if self.config.save_intermediate:
+                scripts_dir.mkdir(parents=True, exist_ok=True)
 
             for i, chapter in enumerate(chapters[:self.config.max_scenes]):
                 self.logger.info(f"Processing chapter {i+1}/{len(chapters)}: {chapter.title}")
@@ -235,6 +245,8 @@ class Novel2MoviePipeline:
 
                 result.scripts.append(script_result.result)
                 result.total_cost += script_result.metadata.get("cost", 0)
+                if self.config.save_intermediate:
+                    self._save_script(script_result.result, scripts_dir / f"chapter_{i+1:03d}.json")
 
                 # Generate storyboard with character references
                 storyboard_result = await self.storyboard_artist.process(
@@ -273,6 +285,9 @@ class Novel2MoviePipeline:
 
             result.success = len(result.scripts) > 0
             result.completed_at = datetime.now()
+
+            if self.config.save_intermediate:
+                self._save_summary(result, output_dir / "summary.json")
 
             self.logger.info(
                 f"Pipeline completed! "
@@ -361,3 +376,52 @@ class Novel2MoviePipeline:
             parts.append(f"Characters: {', '.join(unique_chars[:5])}")
 
         return "\n".join(parts)
+
+    def _save_characters(self, characters: List[CharacterInNovel], path: Path):
+        """Save extracted characters to JSON file."""
+        data = [c.model_dump() if hasattr(c, "model_dump") else vars(c) for c in characters]
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2, default=str)
+        self.logger.info(f"Saved {len(characters)} characters to {path}")
+
+    def _save_chapters(self, chapters: List[ChapterSummary], path: Path):
+        """Save chapter summaries to JSON file."""
+        data = [c.model_dump() for c in chapters]
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2, default=str)
+        self.logger.info(f"Saved {len(chapters)} chapters to {path}")
+
+    def _save_script(self, script: Script, path: Path):
+        """Save script to JSON file."""
+        with open(path, "w") as f:
+            json.dump(script.model_dump(), f, indent=2, default=str)
+        self.logger.info(f"Saved script to {path}")
+
+    def _save_registry(self, registry: CharacterPortraitRegistry, path: Path):
+        """Save portrait registry to JSON file."""
+        data = registry.model_dump() if hasattr(registry, "model_dump") else vars(registry)
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2, default=str)
+        self.logger.info(f"Saved portrait registry to {path}")
+
+    def _save_summary(self, result: Novel2MovieResult, path: Path):
+        """Save pipeline summary to JSON file."""
+        summary = {
+            "success": result.success,
+            "novel_title": result.novel_title,
+            "chapter_count": len(result.chapters),
+            "script_count": len(result.scripts),
+            "character_count": len(result.characters),
+            "portrait_count": len(result.portraits),
+            "used_character_references": result.portrait_registry is not None,
+            "storyboard_only": self.config.storyboard_only,
+            "video_count": len(result.output.videos) if result.output else 0,
+            "final_video": result.output.final_video.video_path if result.output and result.output.final_video else None,
+            "total_cost": result.total_cost,
+            "started_at": str(result.started_at),
+            "completed_at": str(result.completed_at),
+            "errors": result.errors,
+        }
+        with open(path, "w") as f:
+            json.dump(summary, f, indent=2)
+        self.logger.info(f"Saved summary to {path}")
