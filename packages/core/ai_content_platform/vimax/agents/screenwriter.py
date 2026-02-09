@@ -190,13 +190,30 @@ class Screenwriter(BaseAgent[str, Script]):
                 shots_per_scene=self.config.shots_per_scene,
             )
 
-            response = await self._llm.chat(
-                [Message(role="user", content=prompt)],
-                temperature=0.7,
-            )
-
-            # Parse response — handles code fences, trailing commas, extra text
-            data = parse_llm_json(response.content, expect="object")
+            # Retry up to 2 times if JSON parsing fails
+            data = None
+            last_error = None
+            for attempt in range(2):
+                response = await self._llm.chat(
+                    [Message(role="user", content=prompt)],
+                    temperature=0.7,
+                )
+                try:
+                    data = parse_llm_json(response.content, expect="object")
+                    break
+                except ValueError as e:
+                    last_error = e
+                    self.logger.warning(
+                        "Screenplay JSON parse failed (attempt %d/2), retrying...",
+                        attempt + 1,
+                    )
+            if data is None:
+                self.logger.error(
+                    "Failed to parse screenplay JSON after 2 attempts. "
+                    "Raw response (first 2000 chars):\n%s",
+                    response.content[:2000],
+                )
+                raise last_error
 
             # Build Script object
             scenes = []

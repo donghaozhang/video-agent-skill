@@ -147,4 +147,25 @@ def parse_llm_json(text: str, expect: str = "object") -> Any:
         except json.JSONDecodeError:
             pass
 
+        # Step 5: Fix unescaped newlines inside strings
+        fixed2 = re.sub(r'(?<=": ")(.*?)(?="[,}\]])', _escape_newlines, fixed)
+        try:
+            return json.loads(fixed2)
+        except json.JSONDecodeError:
+            pass
+
+        # Step 6: Try line-by-line repair — remove lines that break JSON
+        lines = fixed.split('\n')
+        for i in range(len(lines) - 1, -1, -1):
+            attempt = '\n'.join(lines[:i] + lines[i+1:])
+            try:
+                return json.loads(attempt)
+            except json.JSONDecodeError:
+                continue
+
     raise ValueError(f"Could not parse JSON {expect} from LLM response")
+
+
+def _escape_newlines(match: re.Match) -> str:
+    """Escape literal newlines inside JSON string values."""
+    return match.group(0).replace('\n', '\\n')
