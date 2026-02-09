@@ -33,7 +33,7 @@ class LLMAdapterConfig(AdapterConfig):
 
     model: str = "openrouter/moonshotai/kimi-k2.5"  # Default: Kimi K2.5
     temperature: float = 0.7
-    max_tokens: int = 4096
+    max_tokens: int = 8192
     timeout: float = 60.0
 
 
