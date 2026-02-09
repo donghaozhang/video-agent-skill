@@ -2,7 +2,7 @@
 
 ## Summary
 
-Full end-to-end testing and fixing of `aicp vimax novel2movie --storyboard-only` pipeline on the `VMAX-test` branch. Multiple bugs discovered and fixed across 7 commits.
+Full end-to-end testing and fixing of `aicp vimax novel2movie --storyboard-only` pipeline on the `VMAX-test` branch. Multiple bugs discovered and fixed across 8 commits.
 
 ---
 
@@ -48,6 +48,12 @@ Full end-to-end testing and fixing of `aicp vimax novel2movie --storyboard-only`
 - Screenwriter retries LLM call up to 2 times on JSON parse failure
 - Increased `max_tokens` from 4096 to 8192 — screenplay JSON with detailed image/video prompts was being truncated
 
+### 8. `fix: Add fallback prompt when LLM returns empty portrait prompt`
+- **Files**: `character_portraits.py`
+- **Root cause**: LLM occasionally returns empty content (`content=''`) for portrait generation prompts
+- **Symptom**: FAL API 422 error (`String should have at least 3 characters`) causing portrait generation to fail for that character
+- **Fix**: Check if LLM response is < 3 chars, build fallback prompt from character description + style config
+
 ---
 
 ## Bugs Found
@@ -60,6 +66,7 @@ Full end-to-end testing and fixing of `aicp vimax novel2movie --storyboard-only`
 | Screenplay truncated mid-JSON | `max_tokens: 4096` too small for detailed prompts | Increased to 8192 |
 | Intermediate results lost | Pipeline only saved images to disk, not JSON data | Added `save_intermediate=True` with 5 save methods |
 | Docs show wrong defaults | Examples used `flux_dev` and `claude-3.5-sonnet` | Updated to `nano_banana_pro` and `kimi-k2.5` |
+| Portrait generation fails for some characters | LLM returns empty content for portrait prompts | Fallback prompt built from character description |
 
 ---
 
@@ -82,6 +89,8 @@ Full end-to-end testing and fixing of `aicp vimax novel2movie --storyboard-only`
 
 6. **Save intermediate results by default** — users expect to see what the pipeline produced at each step. Without saves, a pipeline failure means all prior work is lost and must be regenerated.
 
+7. **Guard against empty LLM responses** — LLMs can return empty content silently (no error, just `content=''`). Always validate LLM output length before passing to downstream APIs.
+
 ---
 
 ## Test Results
@@ -89,3 +98,35 @@ Full end-to-end testing and fixing of `aicp vimax novel2movie --storyboard-only`
 - **Unit tests**: 719 passed, 1 pre-existing failure (Windows cp1252 encoding)
 - **Integration**: Full novel2movie pipeline runs steps 1-5 successfully with `--storyboard-only`
 - **Output**: 16:9 photorealistic storyboard images + all intermediate JSON files saved
+
+## Successful Pipeline Run (final)
+
+```
+Pipeline completed successfully!
+   Chapters processed: 1
+   Scripts generated: 1
+   Characters found: 3
+   Total cost: $0.050
+   Duration: ~20 minutes
+```
+
+**Output structure:**
+```
+media/generated/vimax/novel2movie/
+├── First_Contact/
+│   ├── characters.json          (3 characters: Elena Vasquez, James Park, Sage)
+│   ├── chapters.json            (1 chapter)
+│   ├── portrait_registry.json   (8 portraits: James Park + Sage, 4 views each)
+│   ├── scripts/
+│   │   └── chapter_001.json     (2 scenes, 6 shots, 30s total)
+│   └── summary.json
+├── portraits/                   (23 portrait images from all runs)
+└── storyboard/
+    └── The_Arrival/
+        ├── shot_001.png         (16:9 photorealistic, Elena silhouette + twin suns)
+        ├── shot_002.png         (boots on crystal soil, violet spires)
+        ├── shot_003.png         (two astronauts descending)
+        ├── shot_004.png         (obsidian walls with bioluminescent symbols)
+        ├── shot_005.png         (Sage the Tessari emerging, six-fingered hand)
+        └── shot_006.png         (underground Tessari crystal city)
+```
