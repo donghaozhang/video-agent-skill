@@ -85,6 +85,9 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
     # Models that use image_urls array instead of image_url
     ARRAY_IMAGE_MODELS = {"nano_banana_pro"}
 
+    # Models that use aspect_ratio param directly (not image_size)
+    ASPECT_RATIO_MODELS = {"nano_banana_pro", "gpt_image_1_5", "seedream_v3", "imagen4"}
+
     # Cost estimates per image
     COST_MAP = {
         "flux_dev": 0.003,
@@ -185,13 +188,17 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
             requested_steps = kwargs.get("num_inference_steps", self.config.num_inference_steps)
             num_steps = min(requested_steps, max_steps)
 
-            # Build arguments
+            # Build arguments — some models use aspect_ratio directly,
+            # others use image_size with converted size strings
             arguments = {
                 "prompt": prompt,
-                "image_size": self._aspect_to_size(aspect_ratio),
                 "num_inference_steps": num_steps,
                 "guidance_scale": kwargs.get("guidance_scale", self.config.guidance_scale),
             }
+            if model in self.ASPECT_RATIO_MODELS:
+                arguments["aspect_ratio"] = aspect_ratio
+            else:
+                arguments["image_size"] = self._aspect_to_size(aspect_ratio)
 
             # Call FAL (run in thread to avoid blocking the event loop)
             result = await asyncio.to_thread(
