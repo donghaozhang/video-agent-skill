@@ -5,6 +5,11 @@ All notable changes to the AI Content Generation Suite.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- feat: VIMAX pipeline improvements and robustness fixes (#24) @donghaozhang
+
 ## [1.0.23] - 2026-02-06
 
 ### Added
@@ -15,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Package build for ai_content_platform
 - Reference image path validation to prevent arbitrary file reads
+
+## [Unreleased]
+
+### Added
+- feat: VIMAX pipeline improvements and robustness fixes (#24) @donghaozhang
 
 ## [1.0.21] - 2026-01-30
 
@@ -35,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PyInstaller entry point and hidden imports
 - CI workflow runner (macos-13 retired, switched to macos-15-intel)
 - Script injection prevention in on-merge.yml release notes
+
+## [Unreleased]
+
+### Added
+- feat: VIMAX pipeline improvements and robustness fixes (#24) @donghaozhang
 
 ## [1.0.19] - 2026-01-25
 
@@ -57,6 +72,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Various code review findings (docstrings, type hints, error handling)
 
+## [Unreleased]
+
+### Added
+- feat: VIMAX pipeline improvements and robustness fixes (#24) @donghaozhang
+
 ## [1.0.18] - 2026-01-21
 
 ### Added
@@ -71,6 +91,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Repository URL updates
 
+## [Unreleased]
+
+### Added
+- feat: VIMAX pipeline improvements and robustness fixes (#24) @donghaozhang
+
 ## [1.0.17] - 2026-01-20
 
 ### Added
@@ -79,6 +104,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated repository URLs
+
+## [Unreleased]
+
+### Added
+- feat: VIMAX pipeline improvements and robustness fixes (#24) @donghaozhang
 
 ## [1.0.16] - 2026-01-19
 
