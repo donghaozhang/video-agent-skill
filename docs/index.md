@@ -1,6 +1,6 @@
 # AI Content Generation Suite Documentation
 
-Welcome to the AI Content Generation Suite documentation. This comprehensive guide covers everything you need to know to generate AI content using 40+ models across 8 categories.
+Welcome to the AI Content Generation Suite documentation. This comprehensive guide covers everything you need to know to generate AI content using 73 models across 12 categories.
 
 ## Quick Navigation
 
@@ -23,7 +23,7 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 - [Best Practices](guides/optimization/best-practices.md) - Recommended patterns
 
 ### Reference
-- [Models Reference](reference/models.md) - Complete list of all 40+ AI models
+- [Models Reference](reference/models.md) - Complete list of all 73 AI models
 - [CLI Commands](reference/cli-commands.md) - Command-line interface reference
 - [API Reference](api/python-api.md) - Python API documentation
 - [API Quick Reference](reference/api-quick-ref.md) - Condensed API reference
@@ -54,11 +54,13 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 ## Feature Highlights
 
 ### Multi-Model Support
-Access 40+ AI models from leading providers:
-- **FAL AI** - Text-to-image, image-to-video, video processing
-- **Google** - Veo video generation, Gemini image understanding
-- **ElevenLabs** - Professional text-to-speech
-- **OpenRouter** - Alternative AI services
+Access 73 AI models from leading providers:
+- **FAL AI** - Text-to-image, image-to-video, video-to-video, avatar generation
+- **Google** - Veo 3/3.1 video generation, Imagen 4, Gemini image understanding
+- **OpenAI** - Sora 2/Pro video, GPT Image 1.5
+- **xAI** - Grok Imagine Video, Grok Video Edit
+- **ElevenLabs** - Professional text-to-speech, Scribe v2 transcription
+- **OpenRouter** - Prompt generation and optimization
 
 ### Unified Pipeline
 Create complex workflows with simple YAML configuration:
@@ -68,19 +70,20 @@ steps:
   - type: "text_to_image"
     model: "flux_dev"
   - type: "image_to_video"
-    model: "kling_2_6_pro"
+    model: "kling_3_pro"
 ```
 
 ### Parallel Execution
 Speed up your pipelines with parallel processing:
 ```bash
-PIPELINE_PARALLEL_ENABLED=true ai-content-pipeline run-chain --config config.yaml
+PIPELINE_PARALLEL_ENABLED=true aicp run-chain --config config.yaml
 ```
 
-### Cost Management
-Built-in cost estimation before execution:
+### Unix-Style CLI
+Machine-readable output for scripting and CI:
 ```bash
-ai-content-pipeline estimate-cost --config config.yaml
+aicp list-models --json | jq '.text_to_video[]'
+aicp run-chain --config pipeline.yaml --json --quiet
 ```
 
 ## Quick Example
@@ -90,15 +93,15 @@ ai-content-pipeline estimate-cost --config config.yaml
 pip install video-ai-studio
 
 # Generate an image
-ai-content-pipeline generate-image --text "epic space battle" --model flux_dev
+aicp generate-image --text "epic space battle" --model flux_dev
 
 # Create a video
-ai-content-pipeline create-video --text "serene mountain lake"
+aicp create-video --text "serene mountain lake"
 ```
 
 ## Version Information
 
-- **Current Version**: 1.0.18
+- **Current Version**: 1.0.23
 - **Python**: 3.10+
 - **License**: MIT
 
@@ -110,8 +113,8 @@ ai-content-pipeline create-video --text "serene mountain lake"
 
 ## Documentation Map
 
-Looking for something specific? See the complete [Documentation Sitemap](SITEMAP.md) for a full listing of all 33 documentation files organized by category and user type.
+Looking for something specific? See the complete [Documentation Sitemap](SITEMAP.md) for a full listing of all documentation files organized by category and user type.
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** February 2026

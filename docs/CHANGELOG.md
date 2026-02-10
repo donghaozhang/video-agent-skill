@@ -5,6 +5,58 @@ All notable changes to the AI Content Generation Suite.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.23] - 2026-02-06
+
+### Added
+- Click-based CLI migration: all commands now use Click framework
+- ViMax integration as `aicp vimax` subgroup (novel-to-video pipelines)
+- Auto-discovery of subpackages in setup.py for correct PyPI distribution
+
+### Fixed
+- Package build for ai_content_platform
+- Reference image path validation to prevent arbitrary file reads
+
+## [1.0.21] - 2026-01-30
+
+### Added
+- Unix-style CLI flags: `--json`, `--quiet`, `--stream`, `--input` for scripting and CI
+- CLI exit codes module with stable, documented exit codes
+- XDG paths module for cross-platform config/cache/state directories
+- CLI output, interactive, and streaming modules
+- Cross-platform binary builds via PyInstaller (Linux, macOS ARM64/x86_64, Windows)
+- Pre-merge PyPI publishing and on-merge changelog/wheel/binary workflows
+
+### Changed
+- Migrated provider CLIs from argparse to Click
+- Central model registry now single source of truth for all 73 models
+
+### Fixed
+- StreamEmitter default param binding for pytest capture
+- PyInstaller entry point and hidden imports
+- CI workflow runner (macos-13 retired, switched to macos-15-intel)
+- Script injection prevention in on-merge.yml release notes
+
+## [1.0.19] - 2026-01-25
+
+### Added
+- ViMax integration package for novel-to-video pipeline
+- Kling Video v3 Standard and Pro models (text-to-video)
+- Kling O3 (Omni 3) models with element-based character/object consistency
+- xAI Grok Imagine Video model (text-to-video and image-to-video with audio)
+- xAI Grok Video Edit model for avatar-generation
+- Central model registry (`registry.py` + `registry_data.py`) replacing scattered constants
+- MODEL_KEY class attributes for auto-discovery across all generators
+- Project structure CLI commands (`init-project`, `organize-project`, `structure-info`)
+- Output folder organization with categorized subfolders
+- Automated release workflow with bump2version
+
+### Changed
+- Model registration reduced from 60+ file edits to 2 files
+- Expanded Kling v3 duration range to 3-15 seconds
+
+### Fixed
+- Various code review findings (docstrings, type hints, error handling)
+
 ## [1.0.18] - 2026-01-21
 
 ### Added
@@ -38,172 +90,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Expanded model pricing documentation
-- Improved parallel execution stability
-
-## [1.0.15] - 2026-01-15
-
-### Added
-- Veo 3.1 Fast model with audio generation
-- Video analysis with Gemini 3 Pro
-- Timeline analysis feature
-
-### Changed
-- Updated model pricing
-- Improved error messages
-
-## [1.0.14] - 2026-01-10
-
-### Added
-- Nano Banana Pro model for fast image generation
-- GPT Image 1.5 and edit models
-- Seedream v3 bilingual support
-
-### Fixed
-- Parallel execution race conditions
-- Cost estimation accuracy
-
-## [1.0.13] - 2026-01-05
-
-### Added
-- FLUX Kontext models for contextual editing
-- SeedEdit v3 for precise editing
-- Clarity upscaler integration
-
-### Changed
-- Improved image-to-image pipeline
-- Better error handling for API timeouts
-
-## [1.0.12] - 2025-12-20
-
-### Added
-- Parallel execution engine
-- `parallel_group` step type
-- Performance metrics logging
-
-### Changed
-- 2-3x speedup for multi-step pipelines
-- Thread-based parallel processing
-
-## [1.0.11] - 2025-12-15
-
-### Added
-- Cost management system
-- `estimate-cost` CLI command
-- Cost tracking in Python API
-
-### Changed
-- All models now report accurate costs
-- Better cost breakdown in pipeline results
-
-## [1.0.10] - 2025-12-10
-
-### Added
-- YAML pipeline configuration
-- Variable interpolation (`{{input}}`)
-- Step dependencies with `input_from`
-
-### Changed
-- Unified configuration format
-- Improved validation messages
-
-## [1.0.9] - 2025-12-05
-
-### Added
-- ElevenLabs v3 model
-- 20+ voice options
-- Voice parameter controls
-
-### Fixed
-- TTS encoding issues
-- Audio file format handling
-
-## [1.0.8] - 2025-12-01
-
-### Added
-- Image understanding with Gemini
-- Multiple analysis types (describe, classify, OCR)
-- Question-answering on images
-
-## [1.0.7] - 2025-11-25
-
-### Added
-- Kling Video v2.1 model
-- Hailuo video generation
-- Image-to-video duration control
-
-### Changed
-- Improved video quality options
-- Better video encoding defaults
-
-## [1.0.6] - 2025-11-20
-
-### Added
-- FLUX.1 Dev and Schnell models
-- Imagen 4 integration
-- Aspect ratio support
-
-### Changed
-- Unified model interface
-- Consistent parameter naming
-
-## [1.0.5] - 2025-11-15
-
-### Added
-- CLI interface with Click
-- `ai-content-pipeline` command
-- `aicp` alias
-
-### Changed
-- Improved command documentation
-- Better help messages
-
-## [1.0.4] - 2025-11-10
-
-### Added
-- Google Veo 2 integration
-- Vertex AI authentication
-- GCS output support
-
-## [1.0.3] - 2025-11-05
-
-### Added
-- FAL AI provider integration
-- Basic text-to-image generation
-- Output directory management
-
-## [1.0.2] - 2025-11-01
-
-### Added
-- Python API structure
-- AIPipelineManager class
-- Basic configuration loading
-
-## [1.0.1] - 2025-10-25
-
-### Added
-- Initial package structure
-- Setup.py configuration
-- Requirements definition
-
-## [1.0.0] - 2025-10-20
-
-### Added
-- Initial release
-- Project scaffolding
-- Basic documentation
-
----
-
-## Version Naming
-
-- **Major (X.0.0)** - Breaking changes
-- **Minor (0.X.0)** - New features, backwards compatible
-- **Patch (0.0.X)** - Bug fixes, backwards compatible
-
-## Upgrading
-
-See the [Migration Guide](guides/migration.md) for upgrade instructions between major versions.
-
----
-
-[Back to Documentation Index](index.md)

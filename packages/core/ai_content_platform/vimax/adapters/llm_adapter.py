@@ -14,7 +14,7 @@ import json
 from typing import Optional, Dict, Any, List, Union
 import logging
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from .base import BaseAdapter, AdapterConfig
 
@@ -33,8 +33,9 @@ class LLMAdapterConfig(AdapterConfig):
 
     model: str = "openrouter/moonshotai/kimi-k2.5"  # Default: Kimi K2.5
     temperature: float = 0.7
-    max_tokens: int = 4096
+    max_tokens: int = 8192
     timeout: float = 60.0
+    use_native_structured_output: bool = True  # Use OpenRouter response_format API
 
 
 class Message(BaseModel):
@@ -271,13 +272,18 @@ class LLMAdapter(BaseAdapter[List[Message], LLMResponse]):
         self,
         messages: List[Message],
         output_schema: type,
+        schema_name: Optional[str] = None,
         **kwargs,
     ) -> Any:
         """Chat with structured JSON output.
 
+        Uses native OpenRouter response_format when available (default),
+        falling back to prompt-injection for models without support.
+
         Args:
             messages: Chat messages.
             output_schema: Pydantic model class for output parsing.
+            schema_name: Name for the JSON schema (defaults to class name).
             **kwargs: Additional parameters passed to chat().
 
         Returns:
@@ -289,15 +295,91 @@ class LLMAdapter(BaseAdapter[List[Message], LLMResponse]):
         Cost:
             One LLM API call (delegates to chat()).
         """
-        # Add schema instruction to system message
+        if self.config.use_native_structured_output:
+            return await self._structured_output_native(
+                messages, output_schema, schema_name, **kwargs
+            )
+        return await self._structured_output_legacy(
+            messages, output_schema, **kwargs
+        )
+
+    async def _structured_output_native(
+        self,
+        messages: List[Message],
+        output_schema: type,
+        schema_name: Optional[str] = None,
+        **kwargs,
+    ) -> Any:
+        """Native structured output via OpenRouter response_format API.
+
+        Passes a JSON schema via extra_body so the provider constrains
+        token generation to valid JSON matching the schema.
+
+        Args:
+            messages: Chat messages.
+            output_schema: Pydantic model class for output parsing.
+            schema_name: Name for the JSON schema (defaults to class name).
+            **kwargs: Additional parameters passed to chat().
+
+        Returns:
+            Parsed instance of output_schema.
+        """
+        name = schema_name or output_schema.__name__
+
+        # Build extra_body with response_format for OpenRouter
+        # Reason: litellm may strip response_format for OpenRouter, so we
+        # pass it via extra_body which is forwarded verbatim to the provider.
+        extra_body = {
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": name,
+                    "strict": True,
+                    "schema": output_schema.model_json_schema(),
+                },
+            },
+            "provider": {
+                "require_parameters": True,
+            },
+        }
+
+        response = await self.chat(messages, extra_body=extra_body, **kwargs)
+
+        try:
+            data = json.loads(response.content)
+            return output_schema(**data)
+        except (json.JSONDecodeError, ValueError) as e:
+            self.logger.warning(
+                "Native structured output parse failed, trying legacy: %s", e
+            )
+            # Fallback: try legacy parsing on the same response
+            return self._parse_json_response(response.content, output_schema)
+
+    async def _structured_output_legacy(
+        self,
+        messages: List[Message],
+        output_schema: type,
+        **kwargs,
+    ) -> Any:
+        """Legacy structured output via prompt injection.
+
+        Appends the JSON schema to the system message and parses the
+        response with regex extraction.
+
+        Args:
+            messages: Chat messages.
+            output_schema: Pydantic model class for output parsing.
+            **kwargs: Additional parameters passed to chat().
+
+        Returns:
+            Parsed instance of output_schema.
+        """
         schema_instruction = f"""
 You must respond with valid JSON matching this schema:
 {json.dumps(output_schema.model_json_schema(), indent=2)}
 
 Respond ONLY with the JSON, no other text.
 """
-
-        # Prepend or append schema instruction
         messages_copy = list(messages)
         if messages_copy and messages_copy[0].role == "system":
             messages_copy[0] = Message(
@@ -308,29 +390,61 @@ Respond ONLY with the JSON, no other text.
             messages_copy.insert(0, Message(role="system", content=schema_instruction))
 
         response = await self.chat(messages_copy, **kwargs)
+        return self._parse_json_response(response.content, output_schema)
 
-        # Parse JSON response
-        try:
-            # Try to extract JSON from response that might be in a markdown block
-            content = response.content.strip()
+    def _parse_json_response(self, content: str, output_schema: type) -> Any:
+        """Parse JSON from LLM response text, handling common quirks.
 
-            # First try to extract from code fence
-            fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
-            if fence_match:
-                json_str = fence_match.group(1)
-            else:
-                # Fall back to finding JSON object directly
-                match = re.search(r'\{.*\}', content, re.DOTALL)
-                if match:
-                    json_str = match.group(0)
-                else:
-                    json_str = content
+        Tries multiple extraction strategies in order:
+        1. Direct json.loads
+        2. Markdown code fence extraction
+        3. Outermost {…} extraction with trailing-comma fix
 
-            data = json.loads(json_str)
-            return output_schema(**data)
-        except (json.JSONDecodeError, ValueError) as e:
-            self.logger.error(f"Failed to parse structured output: {e}")
-            raise ValueError(f"LLM response was not valid JSON: {response.content[:200]}") from e
+        Args:
+            content: Raw LLM response text.
+            output_schema: Pydantic model class for validation.
+
+        Returns:
+            Parsed instance of output_schema.
+
+        Raises:
+            ValueError: If response cannot be parsed as valid JSON.
+        """
+        content = content.strip()
+
+        def _try_parse(json_str: str, label: str) -> Any:
+            """Try to parse JSON and validate against schema."""
+            # Fix trailing commas before parsing
+            fixed = re.sub(r',\s*([}\]])', r'\1', json_str)
+            try:
+                data = json.loads(fixed)
+                return output_schema(**data)
+            except json.JSONDecodeError as e:
+                self.logger.debug("JSON parse failed (%s): %s", label, e)
+            except ValidationError as e:
+                self.logger.debug("Schema validation failed (%s): %s", label, e)
+            return None
+
+        # Step 1: Try direct parse
+        result = _try_parse(content, "direct")
+        if result is not None:
+            return result
+
+        # Step 2: Try extracting from markdown code fence
+        fence_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', content)
+        if fence_match:
+            result = _try_parse(fence_match.group(1), "code_fence")
+            if result is not None:
+                return result
+
+        # Step 3: Try extracting outermost JSON object
+        match = re.search(r'\{[\s\S]*\}', content)
+        if match:
+            result = _try_parse(match.group(0), "outermost_braces")
+            if result is not None:
+                return result
+
+        raise ValueError(f"LLM response was not valid JSON: {content[:200]}")
 
     async def generate_text(
         self,

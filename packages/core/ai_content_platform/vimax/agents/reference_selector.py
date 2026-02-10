@@ -5,7 +5,7 @@ Intelligently selects the best character reference image for each shot
 based on camera angle, shot type, and visible characters.
 """
 
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 import logging
 
 from pydantic import BaseModel, Field
@@ -137,11 +137,15 @@ class ReferenceImageSelector(BaseAgent[ShotDescription, ReferenceSelectionResult
         )
 
         for char_name in shot.characters:
-            portrait = registry.get_portrait(char_name)
+            portrait, matched_name = self._find_portrait(char_name, registry)
             if not portrait:
                 reasons.append(f"No portrait found for '{char_name}'")
                 self.logger.warning(f"No portrait found for character: {char_name}")
                 continue
+            if matched_name != char_name:
+                self.logger.info(
+                    f"Fuzzy matched '{char_name}' -> '{matched_name}'"
+                )
 
             if not portrait.has_views:
                 reasons.append(f"No views available for '{char_name}'")
@@ -200,6 +204,59 @@ class ReferenceImageSelector(BaseAgent[ShotDescription, ReferenceSelectionResult
             result = await self.select_for_shot(shot, registry)
             results.append(result)
         return results
+
+    @staticmethod
+    def _find_portrait(
+        char_name: str,
+        registry: CharacterPortraitRegistry,
+    ) -> Tuple[Optional[CharacterPortrait], str]:
+        """
+        Find a portrait by name with fuzzy fallback.
+
+        Tries exact match first, then checks if any registry key is
+        contained in the LLM-provided name (or vice-versa), handling
+        titles/ranks like "Captain Elena Vasquez" matching "Elena Vasquez".
+
+        Args:
+            char_name: Character name from the screenplay (may include title).
+            registry: Portrait registry to search.
+
+        Returns:
+            Tuple of (CharacterPortrait or None, matched registry key or char_name).
+        """
+        # 1. Exact match
+        portrait = registry.get_portrait(char_name)
+        if portrait:
+            return portrait, char_name
+
+        # 2. Case-insensitive exact match
+        char_lower = char_name.lower()
+        for reg_name in registry.list_characters():
+            if reg_name.lower() == char_lower:
+                return registry.get_portrait(reg_name), reg_name
+
+        # 3. Substring / contains match (handles titles, ranks, parenthetical notes)
+        #    e.g. "Captain Elena Vasquez" contains "Elena Vasquez"
+        #    e.g. "The Tessari (Sage)" contains "Tessari"
+        for reg_name in registry.list_characters():
+            reg_lower = reg_name.lower()
+            if reg_lower in char_lower or char_lower in reg_lower:
+                return registry.get_portrait(reg_name), reg_name
+
+        # 4. Word overlap — pick the registry name sharing the most words
+        char_words = set(char_lower.replace("(", "").replace(")", "").split())
+        best_match = None
+        best_overlap = 0
+        for reg_name in registry.list_characters():
+            reg_words = set(reg_name.lower().split())
+            overlap = len(char_words & reg_words)
+            if overlap > best_overlap:
+                best_overlap = overlap
+                best_match = reg_name
+        if best_match and best_overlap >= 1:
+            return registry.get_portrait(best_match), best_match
+
+        return None, char_name
 
     def _select_best_view(
         self,

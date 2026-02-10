@@ -22,7 +22,7 @@ Generate a complete video from a text idea. Runs the full pipeline: idea → scr
 ```bash
 aicp vimax idea2video --idea "A samurai's journey through feudal Japan" --output output/
 aicp vimax idea2video --idea "A detective solves a mystery" --duration 30 --video-model veo3
-aicp vimax idea2video --idea "Space exploration" --no-portraits --image-model flux_dev
+aicp vimax idea2video --idea "Space exploration" --no-portraits --image-model nano_banana_pro
 ```
 
 | Flag | Default | Description |
@@ -59,6 +59,9 @@ Convert a full novel into a multi-chapter movie.
 ```bash
 aicp vimax novel2movie --novel story.txt --title "Epic Adventure" --output output/
 aicp vimax novel2movie --novel novel.txt --title "Mystery" --max-scenes 20 --video-model veo3
+
+# Steps 1-5 only (characters, portraits, scenes, scripts, storyboard — no video)
+aicp vimax novel2movie --novel story.txt --title "Epic Adventure" --storyboard-only
 ```
 
 | Flag | Default | Description |
@@ -69,6 +72,7 @@ aicp vimax novel2movie --novel novel.txt --title "Mystery" --max-scenes 20 --vid
 | `--max-scenes` | auto | Maximum scenes per chapter |
 | `--video-model` | `kling` | Video generation model |
 | `--image-model` | `nano_banana_pro` | Image generation model |
+| `--storyboard-only` | disabled | Stop after storyboard generation (skip video) |
 
 ### Individual Pipeline Steps
 
@@ -78,7 +82,7 @@ Generate a screenplay JSON from a text idea.
 
 ```bash
 aicp vimax generate-script --idea "A detective mystery in Tokyo" --output script.json
-aicp vimax generate-script --idea "Space opera" --duration 60 --model claude-3.5-sonnet
+aicp vimax generate-script --idea "Space opera" --duration 60 --model kimi-k2.5
 ```
 
 | Flag | Default | Description |
@@ -109,7 +113,7 @@ Generate multi-view portraits from character descriptions for visual consistency
 
 ```bash
 aicp vimax generate-portraits --characters characters.json --save-registry registry.json
-aicp vimax generate-portraits --characters characters.json --image-model flux_dev --views front side
+aicp vimax generate-portraits --characters characters.json --image-model nano_banana_pro --views front side
 ```
 
 | Flag | Default | Description |
@@ -135,7 +139,7 @@ aicp vimax generate-storyboard --script script.json --portraits registry.json --
 aicp vimax generate-storyboard --script script.json --portraits registry.json --style "photorealistic, cinematic lighting, " --output storyboard/
 
 # High-quality with strong reference matching
-aicp vimax generate-storyboard --script script.json --portraits registry.json --reference-strength 0.8 --image-model flux_dev --output storyboard/
+aicp vimax generate-storyboard --script script.json --portraits registry.json --reference-strength 0.8 --image-model nano_banana_pro --output storyboard/
 ```
 
 | Flag | Short | Default | Description |
@@ -143,17 +147,17 @@ aicp vimax generate-storyboard --script script.json --portraits registry.json --
 | `--script` | `-s` | required | Screenplay JSON file (see format below) |
 | `--output` | `-o` | `media/generated/storyboard` | Output directory for generated images |
 | `--image-model` | | `nano_banana_pro` | Image generation model |
-| `--style` | | `"storyboard panel, cinematic composition, "` | Style prefix prepended to every prompt |
+| `--style` | | `"photorealistic, cinematic lighting, film still, "` | Style prefix prepended to every prompt |
 | `--portraits` | `-p` | none | Portrait registry JSON for character consistency |
 | `--reference-model` | | `nano_banana_pro` | Model used for reference-based generation (image-to-image) |
 | `--reference-strength` | | `0.6` | How strongly to match reference images (0.0-1.0) |
 
-**How `--style` works:** The style string is prepended to every shot's `image_prompt`. The default `"storyboard panel, cinematic composition, "` produces illustrated storyboard panels. To get photorealistic output, change it:
+**How `--style` works:** The style string is prepended to every shot's `image_prompt`. The default `"photorealistic, cinematic lighting, film still, "` produces realistic film stills. To change the visual style:
 
 | Style Value | Result |
 |-------------|--------|
-| `"storyboard panel, cinematic composition, "` (default) | Illustrated storyboard panels |
-| `"photorealistic, cinematic lighting, "` | Photorealistic film stills |
+| `"photorealistic, cinematic lighting, film still, "` (default) | Photorealistic film stills |
+| `"storyboard panel, cinematic composition, "` | Illustrated storyboard panels |
 | `"anime, cel shaded, "` | Anime-style frames |
 | `"cinematic, "` | General cinematic look |
 | `""` (empty string) | No style prefix, uses raw image_prompt |
@@ -434,11 +438,11 @@ aicp vimax idea2video --idea "A cat exploring a magical forest" --video-model kl
 ### High-quality production
 ```bash
 # Step 1: Generate screenplay
-aicp vimax generate-script --idea "A noir detective story" --model claude-3.5-sonnet --output script.json
+aicp vimax generate-script --idea "A noir detective story" --model kimi-k2.5 --output script.json
 
 # Step 2: Extract and generate character portraits
 aicp vimax extract-characters --text script.json --output characters.json
-aicp vimax generate-portraits --characters characters.json --image-model flux_dev --save-registry registry.json
+aicp vimax generate-portraits --characters characters.json --image-model nano_banana_pro --save-registry registry.json
 
 # Step 3: Generate storyboard with character consistency
 aicp vimax generate-storyboard --script script.json --portraits registry.json --style cinematic --output storyboard/

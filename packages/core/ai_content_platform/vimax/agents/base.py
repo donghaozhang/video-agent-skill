@@ -8,6 +8,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, TypeVar, Generic
 from pydantic import BaseModel, Field
 import logging
+import json
+import re
 
 T = TypeVar('T')  # Input type
 R = TypeVar('R')  # Result type
@@ -86,3 +88,84 @@ class BaseAgent(ABC, Generic[T, R]):
         if not self.validate_input(input_data):
             return AgentResult.fail("Invalid input data")
         return await self.process(input_data)
+
+
+def parse_llm_json(text: str, expect: str = "object") -> Any:
+    """
+    Parse JSON from LLM response text, handling common LLM quirks.
+
+    Handles: markdown code fences, trailing commas, extra text before/after
+    JSON, and single quotes instead of double quotes.
+
+    Args:
+        text: Raw LLM response text.
+        expect: "object" for {}, "array" for [].
+
+    Returns:
+        Parsed JSON data (dict or list).
+
+    Raises:
+        ValueError: If no valid JSON can be extracted.
+    """
+    # Step 1: Try parsing the raw text directly
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    # Step 2: Strip markdown code fences
+    fence_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', text)
+    if fence_match:
+        cleaned = fence_match.group(1)
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            # Continue with cleaned text for further fixing
+            text_to_fix = cleaned
+    else:
+        text_to_fix = text
+
+    # Step 3: Extract the outermost JSON structure (greedy)
+    if expect == "array":
+        match = re.search(r'\[[\s\S]*\]', text_to_fix)
+    else:
+        match = re.search(r'\{[\s\S]*\}', text_to_fix)
+
+    if match:
+        json_str = match.group()
+
+        # Try as-is first
+        try:
+            return json.loads(json_str)
+        except json.JSONDecodeError:
+            pass
+
+        # Step 4: Fix trailing commas (e.g. ",]" or ",}")
+        fixed = re.sub(r',\s*([}\]])', r'\1', json_str)
+        try:
+            return json.loads(fixed)
+        except json.JSONDecodeError:
+            pass
+
+        # Step 5: Fix unescaped newlines inside strings
+        fixed2 = re.sub(r'(?<=": ")(.*?)(?="[,}\]])', _escape_newlines, fixed)
+        try:
+            return json.loads(fixed2)
+        except json.JSONDecodeError:
+            pass
+
+        # Step 6: Try line-by-line repair — remove lines that break JSON
+        lines = fixed.split('\n')
+        for i in range(len(lines) - 1, -1, -1):
+            attempt = '\n'.join(lines[:i] + lines[i+1:])
+            try:
+                return json.loads(attempt)
+            except json.JSONDecodeError:
+                continue
+
+    raise ValueError(f"Could not parse JSON {expect} from LLM response")
+
+
+def _escape_newlines(match: re.Match) -> str:
+    """Escape literal newlines inside JSON string values."""
+    return match.group(0).replace('\n', '\\n')

@@ -7,10 +7,9 @@ using LLM analysis.
 
 from typing import List, Optional
 import logging
-import json
-import re
 
 from .base import BaseAgent, AgentConfig, AgentResult
+from .schemas import CharacterListResponse
 from ..adapters import LLMAdapter, LLMAdapterConfig, Message
 from ..interfaces import CharacterInNovel
 
@@ -35,13 +34,13 @@ For each character, provide:
 - role: Role in the story (protagonist, antagonist, supporting, minor)
 - relationships: List of relationships with other characters
 
-Return a JSON array of characters. Only include characters that appear in the text.
+Only include characters that appear in the text.
 If a field cannot be determined, use an empty string or empty list.
 
 TEXT:
 {text}
 
-Respond ONLY with a JSON array, no other text."""
+Return a JSON object with a "characters" key containing an array of characters."""
 
 
 class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
@@ -90,41 +89,26 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
                 Message(role="user", content=prompt)
             ]
 
-            # Call LLM with structured output
-            response = await self._llm.chat(messages, temperature=0.3)
+            # Use native structured output — API guarantees valid JSON
+            result = await self._llm.chat_with_structured_output(
+                messages,
+                output_schema=CharacterListResponse,
+                schema_name="character_list",
+                temperature=0.3,
+            )
 
-            # Parse response
-            try:
-                data = json.loads(response.content)
-            except json.JSONDecodeError as e:
-                # Try to extract JSON from response
-                match = re.search(r'\[.*?\]', response.content, re.DOTALL)
-                if match:
-                    try:
-                        data = json.loads(match.group())
-                    except json.JSONDecodeError as match_error:
-                        raise ValueError("Could not parse character data from response") from match_error
-                else:
-                    raise ValueError("Could not parse character data from response") from e
-
-            if not isinstance(data, list):
-                raise ValueError("Expected a JSON array of characters")
-
-            # Convert to CharacterInNovel objects
+            # Convert schema objects to CharacterInNovel models
             characters = []
-            for item in data[:self.config.max_characters]:
-                if not isinstance(item, dict):
-                    self.logger.warning(f"Skipping non-dict character entry: {item!r}")
-                    continue
+            for item in result.characters[:self.config.max_characters]:
                 char = CharacterInNovel(
-                    name=item.get("name", "Unknown"),
-                    description=item.get("description", ""),
-                    age=item.get("age"),
-                    gender=item.get("gender"),
-                    appearance=item.get("appearance", ""),
-                    personality=item.get("personality", ""),
-                    role=item.get("role", ""),
-                    relationships=item.get("relationships", []),
+                    name=item.name,
+                    description=item.description,
+                    age=item.age or None,
+                    gender=item.gender or None,
+                    appearance=item.appearance,
+                    personality=item.personality,
+                    role=item.role,
+                    relationships=item.relationships,
                 )
                 characters.append(char)
 
@@ -133,7 +117,7 @@ class CharacterExtractor(BaseAgent[str, List[CharacterInNovel]]):
             return AgentResult.ok(
                 characters,
                 character_count=len(characters),
-                cost=response.cost,
+                cost=0.0,
             )
 
         except Exception as e:

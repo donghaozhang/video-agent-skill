@@ -154,16 +154,25 @@ def script2video(script, output, video_model, image_model, portraits, references
 @click.option("--max-scenes", default=10, type=int, help="Maximum scenes to generate")
 @click.option("--video-model", default="kling", help="Video generation model")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
-def novel2movie(novel, title, output, max_scenes, video_model, image_model):
+@click.option("--storyboard-only", is_flag=True, default=False, help="Stop after storyboard (skip video generation)")
+@click.option("--scripts-only", is_flag=True, default=False, help="LLM-only mode: generate scripts without images or video (saves cost)")
+def novel2movie(novel, title, output, max_scenes, video_model, image_model, storyboard_only, scripts_only):
     """
     Convert a novel to a movie.
 
     Example:
         aicp vimax novel2movie --novel my_novel.txt --title "Epic Adventure"
+        aicp vimax novel2movie --novel story.txt --scripts-only  # LLM-only, no images
     """
     from ..pipelines import Novel2MoviePipeline, Novel2MovieConfig
 
-    click.echo("Starting Novel2Movie pipeline...")
+    if scripts_only:
+        mode = "scripts only (LLM-only, no images)"
+    elif storyboard_only:
+        mode = "storyboard only (steps 1-5)"
+    else:
+        mode = "full pipeline"
+    click.echo(f"Starting Novel2Movie pipeline ({mode})...")
     click.echo(f"   Novel: {novel}")
     click.echo(f"   Title: {title}")
 
@@ -178,6 +187,8 @@ def novel2movie(novel, title, output, max_scenes, video_model, image_model):
         max_scenes=max_scenes,
         video_model=video_model,
         image_model=image_model,
+        storyboard_only=storyboard_only,
+        scripts_only=scripts_only,
     )
 
     pipeline = Novel2MoviePipeline(config)
@@ -295,7 +306,7 @@ def generate_script(idea, output, duration, model):
 @click.option("--script", "-s", required=True, type=click.Path(exists=True), help="Script JSON file")
 @click.option("--output", "-o", default="media/generated/vimax/storyboard", help="Output directory")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
-@click.option("--style", default="storyboard panel, cinematic composition, ", help="Style prefix for prompts")
+@click.option("--style", default="photorealistic, cinematic lighting, film still, ", help="Style prefix for prompts")
 @click.option("--portraits", "-p", type=click.Path(exists=True), help="Portrait registry JSON file for character consistency")
 @click.option("--reference-model", default="nano_banana_pro", help="Model for reference-based generation")
 @click.option("--reference-strength", default=0.6, type=float, help="Reference image strength (0.0-1.0)")

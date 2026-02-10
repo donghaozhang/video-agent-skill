@@ -7,12 +7,11 @@ Produces structured scripts with scenes, dialogue, and action descriptions.
 
 from typing import Optional, List
 import logging
-import json
-import re
 
 from pydantic import BaseModel, Field
 
 from .base import BaseAgent, AgentConfig, AgentResult
+from .schemas import ScreenplayResponse
 from ..adapters import LLMAdapter, LLMAdapterConfig, Message
 from ..interfaces import Scene, ShotDescription, ShotType, CameraMovement
 
@@ -81,6 +80,7 @@ Format your response as JSON with this structure:
                     "shot_type": "wide",
                     "description": "Visual description",
                     "camera_movement": "static",
+                    "characters": ["Character Name"],
                     "duration_seconds": 5,
                     "image_prompt": "Detailed prompt for image generation",
                     "video_prompt": "Motion/animation description"
@@ -190,31 +190,16 @@ class Screenwriter(BaseAgent[str, Script]):
                 shots_per_scene=self.config.shots_per_scene,
             )
 
-            response = await self._llm.chat(
+            # Use native structured output — API guarantees valid JSON
+            screenplay = await self._llm.chat_with_structured_output(
                 [Message(role="user", content=prompt)],
+                output_schema=ScreenplayResponse,
+                schema_name="screenplay",
                 temperature=0.7,
             )
 
-            # Parse response
-            content = response.content
-            # Extract JSON from response - first try code fence, then raw JSON
-            json_text = None
-            fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
-            if fence_match:
-                json_text = fence_match.group(1)
-            else:
-                # Fall back to finding JSON object directly (greedy for nested objects)
-                match = re.search(r'\{.*\}', content, re.DOTALL)
-                if match:
-                    json_text = match.group()
-
-            if json_text:
-                try:
-                    data = json.loads(json_text)
-                except json.JSONDecodeError as e:
-                    raise ValueError(f"Invalid JSON in screenplay response: {e}") from e
-            else:
-                raise ValueError("Could not find JSON in screenplay response")
+            # Convert ScreenplayResponse to internal Script model
+            data = screenplay.model_dump()
 
             # Build Script object
             scenes = []
@@ -261,6 +246,7 @@ class Screenwriter(BaseAgent[str, Script]):
                         shot_type=shot_type,
                         description=shot_data.get("description", ""),
                         camera_movement=camera_movement,
+                        characters=shot_data.get("characters", []),
                         duration_seconds=shot_data.get("duration_seconds", 5.0),
                         image_prompt=shot_data.get("image_prompt"),
                         video_prompt=shot_data.get("video_prompt"),
@@ -296,7 +282,7 @@ class Screenwriter(BaseAgent[str, Script]):
                 scene_count=script.scene_count,
                 shot_count=sum(s.shot_count for s in script.scenes),
                 duration=total_duration,
-                cost=response.cost,
+                cost=0.0,
             )
 
         except Exception as e:
