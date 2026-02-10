@@ -14,7 +14,7 @@ import json
 from typing import Optional, Dict, Any, List, Union
 import logging
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from .base import BaseAdapter, AdapterConfig
 
@@ -421,7 +421,7 @@ Respond ONLY with the JSON, no other text.
                 return output_schema(**data)
             except json.JSONDecodeError as e:
                 self.logger.debug("JSON parse failed (%s): %s", label, e)
-            except (ValueError, Exception) as e:
+            except ValidationError as e:
                 self.logger.debug("Schema validation failed (%s): %s", label, e)
             return None
 

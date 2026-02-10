@@ -34,7 +34,7 @@ Full end-to-end testing and fixing of `aicp vimax novel2movie --storyboard-only`
 
 ### 6. `fix: Robust JSON parsing for LLM responses in character extractor and screenwriter`
 - **Files**: `base.py`, `character_extractor.py`, `screenwriter.py`
-- **Root cause**: kimi-k2.5 LLM returns JSON with trailing commas, markdown code fences, and extra commentary text
+- **Root cause**: kimi-k2.5 LLM returns JSON with trailing commas, Markdown code fences, and extra commentary text
 - **Old parser**: Used non-greedy regex `\[.*?\]` which truncated at first `]` inside nested arrays like `relationships: []`
 - **Fix**: New shared `parse_llm_json()` helper in `base.py` that handles:
   - Markdown code fences

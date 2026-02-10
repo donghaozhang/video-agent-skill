@@ -194,7 +194,8 @@ class TestSchemaValidation:
 
     def test_character_list_rejects_missing_characters_key(self):
         """Schema rejects data without the required 'characters' key."""
-        with pytest.raises(Exception):
+        from pydantic import ValidationError
+        with pytest.raises(ValidationError):
             CharacterListResponse(**{"people": []})
 
     def test_character_defaults_to_minor_role(self):

@@ -260,3 +260,5 @@ If we ever need Claude-specific structured output, we can add a tool-calling cod
 | Retry LLM calls needed | 1-2 per run | 0 |
 | Lines of parsing/repair code in hot path | ~80 | ~10 |
 | Cost per run | Same | Same (same model, same tokens) |
+
+> **Note:** Success rates above reflect *JSON schema compliance* only. Transient failures (network timeouts, rate limits, provider outages) still require standard retry/error handling.

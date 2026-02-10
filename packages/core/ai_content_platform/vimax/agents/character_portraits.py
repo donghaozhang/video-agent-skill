@@ -100,7 +100,7 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
         )
 
         response = await self._llm.chat([Message(role="user", content=prompt)])
-        result = response.content.strip()
+        result = (response.content or "").strip()
 
         # Guard against empty LLM responses — build a fallback prompt
         if len(result) < 3:

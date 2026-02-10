@@ -355,7 +355,7 @@ class Novel2MoviePipeline:
                     characters=[c for s in result.scenes for c in s.characters],
                 )
                 chapters.append(chapter)
-            except (ValueError, Exception) as e:
+            except ValueError as e:
                 self.logger.warning(f"Failed to parse chapter {i+1}: {e}")
 
         return chapters
@@ -403,7 +403,7 @@ class Novel2MoviePipeline:
 
     def _save_characters(self, characters: List[CharacterInNovel], path: Path):
         """Save extracted characters to JSON file."""
-        data = [c.model_dump() if hasattr(c, "model_dump") else vars(c) for c in characters]
+        data = [c.model_dump() for c in characters]
         with open(path, "w") as f:
             json.dump(data, f, indent=2, default=str)
         self.logger.info(f"Saved {len(characters)} characters to {path}")
@@ -423,7 +423,7 @@ class Novel2MoviePipeline:
 
     def _save_registry(self, registry: CharacterPortraitRegistry, path: Path):
         """Save portrait registry to JSON file."""
-        data = registry.model_dump() if hasattr(registry, "model_dump") else vars(registry)
+        data = registry.model_dump()
         with open(path, "w") as f:
             json.dump(data, f, indent=2, default=str)
         self.logger.info(f"Saved portrait registry to {path}")
