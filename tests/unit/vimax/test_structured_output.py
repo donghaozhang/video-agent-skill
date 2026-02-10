@@ -15,6 +15,17 @@ import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from pydantic import BaseModel
 
+# Check if vimax (ai_content_platform) is available — requires 'rich'
+try:
+    import ai_content_platform  # noqa: F401
+    HAS_VIMAX = True
+except ImportError:
+    HAS_VIMAX = False
+
+_skip_no_vimax = pytest.mark.skipif(
+    not HAS_VIMAX, reason="ai_content_platform not installed (requires rich)"
+)
+
 # =============================================================================
 # Replicated schemas for isolated testing (mirrors agents/schemas.py)
 # =============================================================================
@@ -476,6 +487,7 @@ class TestOutputOrganization:
 
         assert dir_name == "First_Contact"
 
+    @_skip_no_vimax
     def test_novel2movie_config_scripts_only(self):
         """Novel2MovieConfig supports scripts_only flag."""
         from packages.core.ai_content_platform.vimax.pipelines.novel2movie import Novel2MovieConfig
@@ -486,6 +498,7 @@ class TestOutputOrganization:
         config_default = Novel2MovieConfig()
         assert config_default.scripts_only is False
 
+    @_skip_no_vimax
     def test_novel2movie_config_storyboard_only(self):
         """Novel2MovieConfig supports storyboard_only flag."""
         from packages.core.ai_content_platform.vimax.pipelines.novel2movie import Novel2MovieConfig
@@ -493,6 +506,7 @@ class TestOutputOrganization:
         config = Novel2MovieConfig(storyboard_only=True)
         assert config.storyboard_only is True
 
+    @_skip_no_vimax
     def test_scripts_only_and_storyboard_only_independent(self):
         """scripts_only and storyboard_only are independent flags."""
         from packages.core.ai_content_platform.vimax.pipelines.novel2movie import Novel2MovieConfig
@@ -572,6 +586,7 @@ class TestCharacterReferenceFlow:
         dumped = result.model_dump()
         assert dumped["scenes"][0]["shots"][0]["characters"] == ["Elena Vasquez"]
 
+    @_skip_no_vimax
     def test_screenplay_prompt_includes_characters(self):
         """The screenplay prompt JSON template includes characters field."""
         from packages.core.ai_content_platform.vimax.agents.screenwriter import SCREENPLAY_PROMPT
@@ -582,6 +597,7 @@ class TestCharacterReferenceFlow:
 # Fuzzy name matching tests
 # =============================================================================
 
+@_skip_no_vimax
 class TestFuzzyNameMatching:
     """Verify _find_portrait resolves LLM character names to registry keys."""
 
