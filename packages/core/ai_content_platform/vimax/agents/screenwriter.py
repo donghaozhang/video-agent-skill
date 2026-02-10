@@ -80,6 +80,7 @@ Format your response as JSON with this structure:
                     "shot_type": "wide",
                     "description": "Visual description",
                     "camera_movement": "static",
+                    "characters": ["Character Name"],
                     "duration_seconds": 5,
                     "image_prompt": "Detailed prompt for image generation",
                     "video_prompt": "Motion/animation description"
@@ -245,6 +246,7 @@ class Screenwriter(BaseAgent[str, Script]):
                         shot_type=shot_type,
                         description=shot_data.get("description", ""),
                         camera_movement=camera_movement,
+                        characters=shot_data.get("characters", []),
                         duration_seconds=shot_data.get("duration_seconds", 5.0),
                         image_prompt=shot_data.get("image_prompt"),
                         video_prompt=shot_data.get("video_prompt"),

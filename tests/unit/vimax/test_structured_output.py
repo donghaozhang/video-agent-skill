@@ -28,6 +28,7 @@ class ShotResponse(BaseModel):
     shot_type: str = "medium"
     description: str
     camera_movement: str = "static"
+    characters: List[str] = Field(default_factory=list)
     duration_seconds: float = 5.0
     image_prompt: str = ""
     video_prompt: str = ""
@@ -518,3 +519,59 @@ class TestOutputOrganization:
 
         assert len(scene_slug) <= 30
         assert filename.startswith("scene_001_wide_")
+
+
+# =============================================================================
+# Character reference flow tests
+# =============================================================================
+
+class TestCharacterReferenceFlow:
+    """Verify characters field flows from schema through to ShotDescription."""
+
+    def test_shot_response_has_characters_field(self):
+        """ShotResponse schema includes characters list."""
+        shot = ShotResponse(
+            shot_id="shot_001",
+            description="Elena stands on cliff",
+            characters=["Elena Vasquez", "James Park"],
+        )
+        assert shot.characters == ["Elena Vasquez", "James Park"]
+
+    def test_shot_response_characters_default_empty(self):
+        """Characters defaults to empty list when not provided."""
+        shot = ShotResponse(shot_id="shot_001", description="Empty landscape")
+        assert shot.characters == []
+
+    def test_shot_response_characters_in_schema(self):
+        """Characters field appears in JSON schema for structured output."""
+        schema = ShotResponse.model_json_schema()
+        assert "characters" in schema["properties"]
+
+    def test_screenplay_characters_survive_roundtrip(self):
+        """Characters in shots survive full ScreenplayResponse parse + dump."""
+        data = {
+            "title": "Test",
+            "logline": "Test",
+            "scenes": [{
+                "scene_id": "s1",
+                "title": "Scene",
+                "shots": [{
+                    "shot_id": "sh1",
+                    "description": "Elena at cliff",
+                    "characters": ["Elena Vasquez"],
+                    "shot_type": "wide",
+                    "camera_movement": "static",
+                    "duration_seconds": 5.0,
+                    "image_prompt": "prompt",
+                    "video_prompt": "prompt",
+                }],
+            }],
+        }
+        result = ScreenplayResponse(**data)
+        dumped = result.model_dump()
+        assert dumped["scenes"][0]["shots"][0]["characters"] == ["Elena Vasquez"]
+
+    def test_screenplay_prompt_includes_characters(self):
+        """The screenplay prompt JSON template includes characters field."""
+        from packages.core.ai_content_platform.vimax.agents.screenwriter import SCREENPLAY_PROMPT
+        assert '"characters"' in SCREENPLAY_PROMPT

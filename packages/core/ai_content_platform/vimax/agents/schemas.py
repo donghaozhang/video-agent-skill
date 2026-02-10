@@ -30,6 +30,7 @@ class ShotResponse(BaseModel):
     shot_type: str = "medium"  # Expected: wide, medium, close_up, etc.
     description: str
     camera_movement: str = "static"  # Expected: static, pan, tilt, dolly, etc.
+    characters: List[str] = Field(default_factory=list)  # Character names in this shot
     duration_seconds: float = 5.0
     image_prompt: str = ""
     video_prompt: str = ""
