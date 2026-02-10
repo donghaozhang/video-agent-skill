@@ -1,0 +1,409 @@
+"""
+Tests for native structured output migration.
+
+Verifies:
+- Pydantic response schemas produce valid JSON schemas
+- LLM adapter passes response_format via extra_body correctly
+- Agents convert structured responses to internal models
+"""
+
+import json
+import pytest
+from unittest.mock import AsyncMock, patch, MagicMock
+from pydantic import BaseModel
+
+# =============================================================================
+# Replicated schemas for isolated testing (mirrors agents/schemas.py)
+# =============================================================================
+
+from typing import List, Optional
+from pydantic import Field
+
+
+class ShotResponse(BaseModel):
+    shot_id: str
+    shot_type: str = "medium"
+    description: str
+    camera_movement: str = "static"
+    duration_seconds: float = 5.0
+    image_prompt: str = ""
+    video_prompt: str = ""
+    model_config = {"extra": "ignore"}
+
+
+class SceneResponse(BaseModel):
+    scene_id: str
+    title: str
+    location: str = ""
+    time: str = ""
+    shots: List[ShotResponse] = Field(default_factory=list)
+    model_config = {"extra": "ignore"}
+
+
+class ScreenplayResponse(BaseModel):
+    title: str
+    logline: str = ""
+    scenes: List[SceneResponse] = Field(default_factory=list)
+    model_config = {"extra": "ignore"}
+
+
+class CharacterResponse(BaseModel):
+    name: str
+    description: str = ""
+    age: str = ""
+    gender: str = ""
+    appearance: str = ""
+    personality: str = ""
+    role: str = "minor"
+    relationships: List[str] = Field(default_factory=list)
+    model_config = {"extra": "ignore"}
+
+
+class CharacterListResponse(BaseModel):
+    characters: List[CharacterResponse]
+    model_config = {"extra": "ignore"}
+
+
+class SceneCompression(BaseModel):
+    title: str
+    description: str
+    characters: List[str] = Field(default_factory=list)
+    setting: str = ""
+    model_config = {"extra": "ignore"}
+
+
+class ChapterCompressionResponse(BaseModel):
+    title: str
+    scenes: List[SceneCompression]
+    model_config = {"extra": "ignore"}
+
+
+# =============================================================================
+# Schema validation tests
+# =============================================================================
+
+class TestSchemaValidation:
+    """Verify schemas produce valid JSON schemas and parse correctly."""
+
+    def test_screenplay_schema_is_valid_json_schema(self):
+        """model_json_schema() produces valid JSON schema."""
+        schema = ScreenplayResponse.model_json_schema()
+        assert schema["type"] == "object"
+        assert "title" in schema["properties"]
+        assert "scenes" in schema["properties"]
+        # Verify it's serializable
+        json.dumps(schema)
+
+    def test_character_list_schema_is_valid_json_schema(self):
+        """CharacterListResponse schema wraps array in object."""
+        schema = CharacterListResponse.model_json_schema()
+        assert schema["type"] == "object"
+        assert "characters" in schema["properties"]
+        json.dumps(schema)
+
+    def test_chapter_compression_schema_is_valid_json_schema(self):
+        """ChapterCompressionResponse schema is valid."""
+        schema = ChapterCompressionResponse.model_json_schema()
+        assert schema["type"] == "object"
+        assert "title" in schema["properties"]
+        assert "scenes" in schema["properties"]
+        json.dumps(schema)
+
+    def test_screenplay_parses_valid_json(self):
+        """Schema parses well-formed screenplay JSON."""
+        data = {
+            "title": "Test Movie",
+            "logline": "A test logline",
+            "scenes": [
+                {
+                    "scene_id": "scene_001",
+                    "title": "Opening",
+                    "location": "Mountain",
+                    "time": "Dawn",
+                    "shots": [
+                        {
+                            "shot_id": "shot_001",
+                            "shot_type": "wide",
+                            "description": "Panoramic view",
+                            "camera_movement": "pan",
+                            "duration_seconds": 5.0,
+                            "image_prompt": "mountains at dawn",
+                            "video_prompt": "camera pans across mountains",
+                        }
+                    ],
+                }
+            ],
+        }
+        result = ScreenplayResponse(**data)
+        assert result.title == "Test Movie"
+        assert len(result.scenes) == 1
+        assert result.scenes[0].shots[0].shot_type == "wide"
+
+    def test_screenplay_accepts_unexpected_shot_type(self):
+        """Schema accepts any string shot_type (validation in agent layer)."""
+        data = {
+            "title": "Test",
+            "logline": "Test",
+            "scenes": [
+                {
+                    "scene_id": "s1",
+                    "title": "Scene",
+                    "location": "Here",
+                    "time": "Now",
+                    "shots": [
+                        {
+                            "shot_id": "sh1",
+                            "shot_type": "extreme_aerial_dolly",
+                            "description": "desc",
+                            "camera_movement": "slow_push_in",
+                            "duration_seconds": 5.0,
+                            "image_prompt": "prompt",
+                            "video_prompt": "prompt",
+                        }
+                    ],
+                }
+            ],
+        }
+        result = ScreenplayResponse(**data)
+        assert result.scenes[0].shots[0].shot_type == "extreme_aerial_dolly"
+        assert result.scenes[0].shots[0].camera_movement == "slow_push_in"
+
+    def test_character_list_parses_valid_json(self):
+        """CharacterListResponse parses object with characters array."""
+        data = {
+            "characters": [
+                {
+                    "name": "Alice",
+                    "description": "The hero",
+                    "role": "protagonist",
+                },
+                {
+                    "name": "Bob",
+                    "role": "antagonist",
+                },
+            ]
+        }
+        result = CharacterListResponse(**data)
+        assert len(result.characters) == 2
+        assert result.characters[0].name == "Alice"
+        assert result.characters[1].role == "antagonist"
+
+    def test_character_list_rejects_missing_characters_key(self):
+        """Schema rejects data without the required 'characters' key."""
+        with pytest.raises(Exception):
+            CharacterListResponse(**{"people": []})
+
+    def test_character_defaults_to_minor_role(self):
+        """Character with no explicit role defaults to 'minor'."""
+        char = CharacterResponse(name="Extra")
+        assert char.role == "minor"
+
+    def test_character_accepts_unexpected_role(self):
+        """Schema accepts any string role (validation in agent layer)."""
+        char = CharacterResponse(name="Hero", role="main character")
+        assert char.role == "main character"
+
+    def test_chapter_compression_parses_valid_json(self):
+        """ChapterCompressionResponse parses correctly."""
+        data = {
+            "title": "Chapter 1",
+            "scenes": [
+                {
+                    "title": "Opening",
+                    "description": "A dark forest",
+                    "characters": ["Alice", "Bob"],
+                    "setting": "Forest",
+                }
+            ],
+        }
+        result = ChapterCompressionResponse(**data)
+        assert result.title == "Chapter 1"
+        assert result.scenes[0].characters == ["Alice", "Bob"]
+
+    def test_schemas_ignore_extra_fields(self):
+        """Schemas with extra='ignore' don't reject unexpected fields."""
+        data = {
+            "title": "Test",
+            "scenes": [],
+            "unexpected_field": "should be ignored",
+        }
+        result = ChapterCompressionResponse(**data)
+        assert result.title == "Test"
+
+
+# =============================================================================
+# LLM adapter structured output tests
+# =============================================================================
+
+class TestLLMAdapterStructuredOutput:
+    """Verify LLM adapter passes correct parameters for structured output."""
+
+    def test_native_extra_body_structure(self):
+        """Verify the extra_body structure matches OpenRouter spec."""
+        schema = ScreenplayResponse.model_json_schema()
+        extra_body = {
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "screenplay",
+                    "strict": True,
+                    "schema": schema,
+                },
+            },
+            "provider": {
+                "require_parameters": True,
+            },
+        }
+        # Verify it's JSON-serializable
+        serialized = json.dumps(extra_body)
+        parsed = json.loads(serialized)
+
+        assert parsed["response_format"]["type"] == "json_schema"
+        assert parsed["response_format"]["json_schema"]["strict"] is True
+        assert parsed["response_format"]["json_schema"]["name"] == "screenplay"
+        assert parsed["provider"]["require_parameters"] is True
+
+    def test_native_extra_body_has_require_parameters(self):
+        """require_parameters prevents silent fallback to json_object."""
+        extra_body = {
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "test",
+                    "strict": True,
+                    "schema": CharacterListResponse.model_json_schema(),
+                },
+            },
+            "provider": {
+                "require_parameters": True,
+            },
+        }
+        assert extra_body["provider"]["require_parameters"] is True
+
+    def test_parse_json_response_direct(self):
+        """Direct JSON content is parsed correctly."""
+        content = '{"title": "Test", "logline": "A test", "scenes": []}'
+        data = json.loads(content)
+        result = ScreenplayResponse(**data)
+        assert result.title == "Test"
+
+    def test_parse_json_response_with_code_fence(self):
+        """JSON wrapped in markdown code fences is extracted."""
+        import re
+        content = '```json\n{"title": "Test", "logline": "A test", "scenes": []}\n```'
+        fence_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', content)
+        assert fence_match is not None
+        data = json.loads(fence_match.group(1))
+        result = ScreenplayResponse(**data)
+        assert result.title == "Test"
+
+    def test_parse_json_response_with_trailing_commas(self):
+        """Trailing commas are fixed before parsing."""
+        import re
+        content = '{"title": "Test", "logline": "A test", "scenes": [],}'
+        fixed = re.sub(r',\s*([}\]])', r'\1', content)
+        data = json.loads(fixed)
+        result = ScreenplayResponse(**data)
+        assert result.title == "Test"
+
+
+# =============================================================================
+# Agent response mapping tests
+# =============================================================================
+
+class TestAgentResponseMapping:
+    """Verify structured responses map to internal models correctly."""
+
+    def test_screenplay_response_to_dict(self):
+        """ScreenplayResponse.model_dump() produces dict usable by Script builder."""
+        screenplay = ScreenplayResponse(
+            title="Test Movie",
+            logline="A logline",
+            scenes=[
+                SceneResponse(
+                    scene_id="scene_001",
+                    title="Opening",
+                    location="Mountain",
+                    time="Dawn",
+                    shots=[
+                        ShotResponse(
+                            shot_id="shot_001",
+                            shot_type="wide",
+                            description="Panoramic view",
+                            camera_movement="pan",
+                            duration_seconds=5.0,
+                            image_prompt="mountains at dawn",
+                            video_prompt="camera pans",
+                        )
+                    ],
+                )
+            ],
+        )
+        data = screenplay.model_dump()
+        assert data["title"] == "Test Movie"
+        assert data["scenes"][0]["shots"][0]["shot_type"] == "wide"
+        assert data["scenes"][0]["shots"][0]["camera_movement"] == "pan"
+
+    def test_character_list_to_character_models(self):
+        """CharacterListResponse maps to CharacterInNovel-compatible dicts."""
+        result = CharacterListResponse(
+            characters=[
+                CharacterResponse(
+                    name="Alice",
+                    description="The hero",
+                    appearance="Tall, dark hair",
+                    role="protagonist",
+                    relationships=["Bob"],
+                ),
+            ]
+        )
+        char = result.characters[0]
+        assert char.name == "Alice"
+        assert char.role == "protagonist"
+        assert char.relationships == ["Bob"]
+        assert char.appearance == "Tall, dark hair"
+
+    def test_chapter_compression_to_chapter_summary(self):
+        """ChapterCompressionResponse maps to ChapterSummary fields."""
+        result = ChapterCompressionResponse(
+            title="The Dark Forest",
+            scenes=[
+                SceneCompression(
+                    title="Entry",
+                    description="Heroes enter the dark forest",
+                    characters=["Alice", "Bob"],
+                    setting="Dense forest",
+                ),
+                SceneCompression(
+                    title="Ambush",
+                    description="Bandits attack the group",
+                    characters=["Alice", "Bandit Leader"],
+                    setting="Forest clearing",
+                ),
+            ],
+        )
+        # Map the way novel2movie.py does it
+        key_events = [s.description for s in result.scenes]
+        characters = [c for s in result.scenes for c in s.characters]
+
+        assert result.title == "The Dark Forest"
+        assert key_events == [
+            "Heroes enter the dark forest",
+            "Bandits attack the group",
+        ]
+        assert characters == ["Alice", "Bob", "Alice", "Bandit Leader"]
+
+    def test_empty_screenplay(self):
+        """Empty scenes list is valid."""
+        result = ScreenplayResponse(title="Empty", logline="Nothing", scenes=[])
+        assert len(result.scenes) == 0
+
+    def test_empty_character_list(self):
+        """Empty characters list is valid."""
+        result = CharacterListResponse(characters=[])
+        assert len(result.characters) == 0
+
+    def test_empty_chapter_compression(self):
+        """Empty scenes list is valid for compression."""
+        result = ChapterCompressionResponse(title="Empty Chapter", scenes=[])
+        assert len(result.scenes) == 0

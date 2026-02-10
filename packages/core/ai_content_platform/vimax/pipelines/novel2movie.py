@@ -24,6 +24,7 @@ from ..agents import (
     StoryboardArtist, StoryboardArtistConfig,
     CameraImageGenerator, CameraGeneratorConfig,
 )
+from ..agents.schemas import ChapterCompressionResponse
 from ..adapters import LLMAdapter, LLMAdapterConfig, Message, VideoGeneratorAdapter, VideoAdapterConfig
 from ..interfaces import (
     PipelineOutput,
@@ -315,23 +316,22 @@ class Novel2MoviePipeline:
                 max_scenes=3,
             )
 
-            response = await self._llm.chat([Message(role="user", content=prompt)])
-
             try:
-                match = re.search(r'\{.*\}', response.content, re.DOTALL)
-                if match:
-                    data = json.loads(match.group())
-                    chapter = ChapterSummary(
-                        chapter_id=f"chapter_{i+1}",
-                        title=data.get("title", f"Chapter {i+1}"),
-                        summary="",
-                        key_events=[s.get("description", "") for s in data.get("scenes", [])],
-                        characters=[c for s in data.get("scenes", []) for c in s.get("characters", [])],
-                    )
-                    chapters.append(chapter)
-                else:
-                    self.logger.warning(f"No JSON found in response for chunk {i+1}")
-            except json.JSONDecodeError as e:
+                # Use native structured output — API guarantees valid JSON
+                result = await self._llm.chat_with_structured_output(
+                    [Message(role="user", content=prompt)],
+                    output_schema=ChapterCompressionResponse,
+                    schema_name="chapter_compression",
+                )
+                chapter = ChapterSummary(
+                    chapter_id=f"chapter_{i+1}",
+                    title=result.title,
+                    summary="",
+                    key_events=[s.description for s in result.scenes],
+                    characters=[c for s in result.scenes for c in s.characters],
+                )
+                chapters.append(chapter)
+            except (ValueError, Exception) as e:
                 self.logger.warning(f"Failed to parse chapter {i+1}: {e}")
 
         return chapters

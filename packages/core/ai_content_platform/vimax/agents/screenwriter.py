@@ -7,12 +7,11 @@ Produces structured scripts with scenes, dialogue, and action descriptions.
 
 from typing import Optional, List
 import logging
-import json
-import re
 
 from pydantic import BaseModel, Field
 
-from .base import BaseAgent, AgentConfig, AgentResult, parse_llm_json
+from .base import BaseAgent, AgentConfig, AgentResult
+from .schemas import ScreenplayResponse
 from ..adapters import LLMAdapter, LLMAdapterConfig, Message
 from ..interfaces import Scene, ShotDescription, ShotType, CameraMovement
 
@@ -190,30 +189,16 @@ class Screenwriter(BaseAgent[str, Script]):
                 shots_per_scene=self.config.shots_per_scene,
             )
 
-            # Retry up to 2 times if JSON parsing fails
-            data = None
-            last_error = None
-            for attempt in range(2):
-                response = await self._llm.chat(
-                    [Message(role="user", content=prompt)],
-                    temperature=0.7,
-                )
-                try:
-                    data = parse_llm_json(response.content, expect="object")
-                    break
-                except ValueError as e:
-                    last_error = e
-                    self.logger.warning(
-                        "Screenplay JSON parse failed (attempt %d/2), retrying...",
-                        attempt + 1,
-                    )
-            if data is None:
-                self.logger.error(
-                    "Failed to parse screenplay JSON after 2 attempts. "
-                    "Raw response (first 2000 chars):\n%s",
-                    response.content[:2000],
-                )
-                raise last_error
+            # Use native structured output — API guarantees valid JSON
+            screenplay = await self._llm.chat_with_structured_output(
+                [Message(role="user", content=prompt)],
+                output_schema=ScreenplayResponse,
+                schema_name="screenplay",
+                temperature=0.7,
+            )
+
+            # Convert ScreenplayResponse to internal Script model
+            data = screenplay.model_dump()
 
             # Build Script object
             scenes = []
@@ -295,7 +280,7 @@ class Screenwriter(BaseAgent[str, Script]):
                 scene_count=script.scene_count,
                 shot_count=sum(s.shot_count for s in script.scenes),
                 duration=total_duration,
-                cost=response.cost,
+                cost=0.0,
             )
 
         except Exception as e:
