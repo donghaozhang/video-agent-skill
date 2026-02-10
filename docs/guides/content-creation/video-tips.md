@@ -399,7 +399,3 @@ steps:
 4. **Keep durations reasonable** - Longer isn't always better
 5. **Test before scaling** - Validate with cheap models first
 6. **Use appropriate aspect ratios** - Match your platform
-
----
-
-[Back to Documentation Index](../../index.md)

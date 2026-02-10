@@ -490,7 +490,3 @@ ai-content-pipeline estimate-cost --config pipeline.yaml
 4. **Estimate costs first** - Before running expensive pipelines
 5. **Use mock mode for testing** - Validate configuration without API calls
 6. **Keep pipelines focused** - One purpose per pipeline file
-
----
-
-[Back to Documentation Index](../../index.md) | [Next: Parallel Execution](parallel-execution.md)

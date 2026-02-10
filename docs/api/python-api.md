@@ -478,7 +478,3 @@ for result in results:
 ```
 
 > **Note:** For built-in parallel execution, use YAML pipelines with `parallel_group` or enable `PIPELINE_PARALLEL_ENABLED=true`.
-
----
-
-[Back to Documentation Index](../index.md)

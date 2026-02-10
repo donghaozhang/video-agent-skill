@@ -524,7 +524,3 @@ PIPELINE_PARALLEL_ENABLED=true ai-content-pipeline run-chain --config advanced.y
 # Dry run to validate
 ai-content-pipeline run-chain --config advanced.yaml --dry-run
 ```
-
----
-
-[Back to Documentation Index](../index.md) | [Next: Use Cases](use-cases.md)

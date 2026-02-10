@@ -247,7 +247,3 @@ Professional-grade video upscaling.
 | Minimal | `flux_schnell` ($0.001) | `hailuo_pro` ($0.08) | `hailuo` ($0.08) |
 | Standard | `nano_banana_pro` ($0.002) | `kling_2_6_pro` ($0.35) | `kling_2_1` ($0.50) |
 | Premium | `imagen4` ($0.004) | `veo3` ($4.00) | `veo_3_1_fast` ($1.20) |
-
----
-
-[Back to Documentation Index](../index.md)

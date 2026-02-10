@@ -11,7 +11,7 @@ TASK_FILE=${4:-""}
 
 if [ -z "$REPO" ] || [ -z "$PR" ] || [ -z "$COMMENT_ID" ]; then
     echo "Usage: ./resolve-thread.sh owner/repo pr_number comment_id [task_file]"
-    echo "Example: ./resolve-thread.sh donghaozhang/qcut 102 2742327370 docs/pr-comments/pr-102-tasks/comment.md"
+    echo "Example: ./resolve-thread.sh donghaozhang/qcut 102 2742327370 .github/pr-history/pr-102-tasks/comment.md"
     exit 1
 fi
 

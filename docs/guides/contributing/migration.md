@@ -317,7 +317,3 @@ If you encounter migration issues:
    - New version
    - Error message
    - Steps to reproduce
-
----
-
-[Back to Documentation Index](../../index.md) | [Changelog](../../CHANGELOG.md)

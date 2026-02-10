@@ -464,7 +464,3 @@ When reporting issues, include:
 | 20 | Authentication error | Check API key |
 | 30 | Rate limit | Wait and retry |
 | 40 | Quota exceeded | Add credits |
-
----
-
-[Back to Documentation Index](../../index.md)

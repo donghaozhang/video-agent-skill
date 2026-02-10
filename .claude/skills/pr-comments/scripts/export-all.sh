@@ -6,12 +6,18 @@ set -e
 
 REPO=${1:-""}
 PR=${2:-""}
-OUTPUT_DIR=${3:-"docs/pr-comments/pr-${PR}-all"}
+OUTPUT_DIR=${3:-".github/pr-history/pr-${PR}-all"}
 
 # Validate arguments
 if [ -z "$REPO" ] || [ -z "$PR" ]; then
     echo "Usage: ./export-all.sh owner/repo pr_number [output_dir]"
     echo "Example: ./export-all.sh donghaozhang/qcut 102"
+    exit 1
+fi
+
+# Validate PR is numeric to prevent path traversal
+if ! [[ "$PR" =~ ^[0-9]+$ ]]; then
+    echo "Error: PR number must be numeric, got: $PR"
     exit 1
 fi
 

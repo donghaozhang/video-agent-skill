@@ -491,7 +491,3 @@ After completing your chosen track:
 2. **Explore advanced features** - Try parallel groups, video analysis
 3. **Optimize for production** - Cost management, error handling
 4. **Contribute** - Help improve the project
-
----
-
-[Back to Documentation Index](../../index.md)

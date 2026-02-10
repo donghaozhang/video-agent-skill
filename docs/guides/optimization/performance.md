@@ -406,7 +406,3 @@ compare_models("a beautiful sunset", ["flux_schnell", "flux_dev", "imagen4"])
 - [ ] Monitor API response times
 - [ ] Set up alerts for slow operations
 - [ ] Review costs regularly
-
----
-
-[Back to Documentation Index](../../index.md)

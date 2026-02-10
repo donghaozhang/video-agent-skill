@@ -26,7 +26,6 @@ Welcome to the AI Content Generation Suite documentation. This comprehensive gui
 - [Models Reference](reference/models.md) - Complete list of all 73 AI models
 - [CLI Commands](reference/cli-commands.md) - Command-line interface reference
 - [API Reference](api/python-api.md) - Python API documentation
-- [API Quick Reference](reference/api-quick-ref.md) - Condensed API reference
 - [Provider Comparison](reference/provider-comparison.md) - Compare AI providers
 - [Error Codes](reference/error-codes.md) - Error codes and troubleshooting
 
@@ -110,10 +109,6 @@ aicp create-video --text "serene mountain lake"
 - [GitHub Repository](https://github.com/donghaozhang/video-agent-skill)
 - [PyPI Package](https://pypi.org/project/video-ai-studio/)
 - [Demo Video](https://www.youtube.com/watch?v=xzvPrlKnXqk)
-
-## Documentation Map
-
-Looking for something specific? See the complete [Documentation Sitemap](SITEMAP.md) for a full listing of all documentation files organized by category and user type.
 
 ---
 

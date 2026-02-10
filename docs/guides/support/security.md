@@ -373,7 +373,3 @@ If you discover a security vulnerability:
 2. Email security concerns to the maintainers
 3. Provide detailed description of the vulnerability
 4. Allow time for a fix before public disclosure
-
----
-
-[Back to Documentation Index](../../index.md)

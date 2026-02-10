@@ -399,7 +399,3 @@ generation_queue.join()
 - [ ] Verify correct files generated
 - [ ] Check costs match estimate
 - [ ] Archive or organize outputs
-
----
-
-[Back to Documentation Index](../../index.md)

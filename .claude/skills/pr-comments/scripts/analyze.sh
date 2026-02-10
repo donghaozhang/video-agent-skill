@@ -8,7 +8,7 @@ TASKS_DIR=${1:-""}
 
 if [ -z "$TASKS_DIR" ]; then
     echo "Usage: ./analyze.sh tasks_dir"
-    echo "Example: ./analyze.sh docs/pr-comments/pr-102-tasks"
+    echo "Example: ./analyze.sh .github/pr-history/pr-102-tasks"
     exit 1
 fi
 

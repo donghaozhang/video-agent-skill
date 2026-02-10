@@ -743,7 +743,3 @@ If errors persist:
    - Configuration file (redact API keys)
    - Python version and OS
    - Steps to reproduce
-
----
-
-[Back to Documentation Index](../index.md)
