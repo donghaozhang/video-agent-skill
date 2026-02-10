@@ -527,7 +527,3 @@ schedule.every().day.at("06:00").do(daily_content)
 | Property Staging | $0.009 | 3 styles |
 | Architectural Render | $0.009 | 3 views |
 | Marketing A/B Test | $0.015 | 5 variations |
-
----
-
-[Back to Documentation Index](../index.md)

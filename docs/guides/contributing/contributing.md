@@ -444,7 +444,3 @@ For maintainers:
 - **Questions**: Open a GitHub Discussion
 - **Bugs**: Open an Issue
 - **Features**: Open an Issue first to discuss
-
----
-
-[Back to Documentation Index](../../index.md)

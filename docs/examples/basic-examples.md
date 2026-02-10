@@ -440,7 +440,3 @@ ai-content-pipeline run-chain \
   --config pipeline.yaml \
   --output-dir "output/$(date +%Y%m%d)"
 ```
-
----
-
-[Back to Documentation Index](../index.md) | [Next: Advanced Pipelines](advanced-pipelines.md)

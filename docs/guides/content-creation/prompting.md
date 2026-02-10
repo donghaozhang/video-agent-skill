@@ -407,7 +407,3 @@ soft clouds, vibrant colors, peaceful atmosphere"
 - Excessive length
 - Vague descriptions
 - Repeated keywords
-
----
-
-[Back to Documentation Index](../../index.md)

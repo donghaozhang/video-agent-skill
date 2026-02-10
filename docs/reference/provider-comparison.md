@@ -369,7 +369,3 @@ Typical project (10 images + 5 videos + narration):
 - You need voice synthesis
 - Voice quality is critical
 - You have specific voice requirements
-
----
-
-[Back to Documentation Index](../index.md)

@@ -444,7 +444,3 @@ ai-content-pipeline analyze-video -i video.mp4 -m gemini-2.5-flash
 # Estimate cost before analysis
 ai-content-pipeline estimate-cost --type video_analysis --input video.mp4
 ```
-
----
-
-[Back to Documentation Index](../../index.md)

@@ -477,7 +477,3 @@ Increase timeout:
 - type: "parallel_group"
   timeout: 600  # 10 minutes
 ```
-
----
-
-[Back to Documentation Index](../../index.md) | [Next: Cost Management](cost-management.md)

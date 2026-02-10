@@ -403,7 +403,3 @@ The dependency flow is:
 2. `providers` depend on `config` and `utils`
 3. `pipeline` depends on `providers`, `config`, and `utils`
 4. `cli` depends on `pipeline`
-
----
-
-[Back to Documentation Index](../index.md)

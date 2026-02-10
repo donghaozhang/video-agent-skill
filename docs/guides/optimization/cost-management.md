@@ -359,7 +359,3 @@ Some providers offer free tiers:
 | ElevenLabs | 10,000 characters/month free |
 
 Check each provider's current free tier offerings.
-
----
-
-[Back to Documentation Index](../../index.md)

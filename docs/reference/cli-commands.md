@@ -468,7 +468,3 @@ Combine with other tools:
 ```bash
 aicp list-models --json | jq '.[] | select(.category == "text-to-image")'
 ```
-
----
-
-[Back to Documentation Index](../index.md)

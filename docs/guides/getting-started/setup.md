@@ -385,7 +385,3 @@ pip install video-ai-studio
 
 ### Linux
 - May need `python3-venv` package: `sudo apt install python3-venv`
-
----
-
-[Back to Documentation Index](../../index.md) | [Next: Learning Path](learning-path.md)

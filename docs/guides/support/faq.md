@@ -365,7 +365,3 @@ Open an issue on GitHub with:
 2. Package version
 3. Steps to reproduce
 4. Full error message
-
----
-
-[Back to Documentation Index](../../index.md)

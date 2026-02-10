@@ -640,7 +640,3 @@ services:
     ports:
       - "6379:6379"
 ```
-
----
-
-[Back to Documentation Index](../index.md)

@@ -422,7 +422,3 @@ def test_with_debugger():
     result = some_function()
     assert result is not None
 ```
-
----
-
-[Back to Documentation Index](../../index.md)

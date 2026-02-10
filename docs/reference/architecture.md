@@ -371,7 +371,3 @@ tests/
     ├── configs/
     └── responses/
 ```
-
----
-
-[Back to Documentation Index](../index.md)
