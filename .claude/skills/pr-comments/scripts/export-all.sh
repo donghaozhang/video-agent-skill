@@ -15,6 +15,12 @@ if [ -z "$REPO" ] || [ -z "$PR" ]; then
     exit 1
 fi
 
+# Validate PR is numeric to prevent path traversal
+if ! [[ "$PR" =~ ^[0-9]+$ ]]; then
+    echo "Error: PR number must be numeric, got: $PR"
+    exit 1
+fi
+
 # Check dependencies
 if ! command -v gh &> /dev/null; then
     echo "Error: GitHub CLI (gh) is not installed"
