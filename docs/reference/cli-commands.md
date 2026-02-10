@@ -13,15 +13,41 @@ Both commands are identical in functionality.
 ## Global Options
 
 ```bash
-ai-content-pipeline [OPTIONS] COMMAND [ARGS]
+aicp [OPTIONS] COMMAND [ARGS]
 ```
 
-| Option | Description |
-|--------|-------------|
-| `--help` | Show help message and exit |
-| `--version` | Show version and exit |
-| `--verbose` | Enable verbose output |
-| `--quiet` | Suppress non-essential output |
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--help` | `-h` | Show help message and exit |
+| `--json` | | Emit machine-readable JSON output to stdout |
+| `--quiet` | `-q` | Suppress non-essential output (errors still go to stderr) |
+| `--debug` | | Enable debug output |
+| `--base-dir PATH` | | Base directory for operations (default: `.`) |
+| `--config-dir PATH` | | Override config directory (default: XDG_CONFIG_HOME/video-ai-studio) |
+| `--cache-dir PATH` | | Override cache directory (default: XDG_CACHE_HOME/video-ai-studio) |
+| `--state-dir PATH` | | Override state directory (default: XDG_STATE_HOME/video-ai-studio) |
+
+### Unix-Style Flags for Scripting
+
+All commands inherit the global `--json` and `--quiet` flags, making output suitable for piping and CI:
+
+```bash
+# Machine-readable JSON output
+aicp list-models --json | jq '.text_to_video[]'
+
+# Quiet mode — only errors go to stderr
+aicp create-video --text "sunset" --quiet
+
+# Read prompt from stdin or file
+echo "cinematic drone shot" | aicp create-video --input -
+aicp run-chain --config pipeline.yaml --input prompts.txt
+
+# Stream progress as JSONL events
+aicp run-chain --config pipeline.yaml --stream
+
+# Combine for CI usage
+aicp run-chain --config pipeline.yaml --json --quiet | jq -r '.outputs.final.path'
+```
 
 ---
 
@@ -32,7 +58,7 @@ ai-content-pipeline [OPTIONS] COMMAND [ARGS]
 List all available AI models.
 
 ```bash
-ai-content-pipeline list-models [OPTIONS]
+aicp list-models [OPTIONS]
 ```
 
 **Options:**
@@ -40,21 +66,20 @@ ai-content-pipeline list-models [OPTIONS]
 |--------|-------------|---------|
 | `--category TEXT` | Filter by category | All |
 | `--provider TEXT` | Filter by provider | All |
-| `--format TEXT` | Output format (table/json) | table |
 
 **Examples:**
 ```bash
 # List all models
-ai-content-pipeline list-models
+aicp list-models
 
 # List only image models
-ai-content-pipeline list-models --category text-to-image
+aicp list-models --category text-to-image
 
 # List FAL AI models only
-ai-content-pipeline list-models --provider fal
+aicp list-models --provider fal
 
-# Output as JSON
-ai-content-pipeline list-models --format json
+# JSON output
+aicp list-models --json
 ```
 
 ---
@@ -64,17 +89,15 @@ ai-content-pipeline list-models --format json
 Generate an image from text description.
 
 ```bash
-ai-content-pipeline generate-image [OPTIONS]
+aicp generate-image [OPTIONS]
 ```
 
 **Options:**
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--text TEXT` | Text prompt (required) | - |
-| `--model TEXT` | Model to use | flux_dev |
+| `--model TEXT` | Model to use | nano_banana_pro |
 | `--output TEXT` | Output file path | auto |
-| `--width INT` | Image width | 1024 |
-| `--height INT` | Image height | 1024 |
 | `--aspect-ratio TEXT` | Aspect ratio (e.g., 16:9) | - |
 | `--seed INT` | Random seed | random |
 | `--mock` | Test without API call | false |
@@ -82,21 +105,16 @@ ai-content-pipeline generate-image [OPTIONS]
 **Examples:**
 ```bash
 # Basic image generation
-ai-content-pipeline generate-image --text "a majestic dragon"
+aicp generate-image --text "a majestic dragon"
 
 # Specify model and output
-ai-content-pipeline generate-image \
-  --text "sunset over mountains" \
-  --model imagen4 \
-  --output sunset.png
+aicp generate-image --text "sunset over mountains" --model imagen4 --output sunset.png
 
 # Set aspect ratio
-ai-content-pipeline generate-image \
-  --text "cinematic landscape" \
-  --aspect-ratio 16:9
+aicp generate-image --text "cinematic landscape" --aspect-ratio 16:9
 
 # Test without API call
-ai-content-pipeline generate-image --text "test" --mock
+aicp generate-image --text "test" --mock
 ```
 
 ---
@@ -106,7 +124,7 @@ ai-content-pipeline generate-image --text "test" --mock
 Create a video from text (generates image first, then video).
 
 ```bash
-ai-content-pipeline create-video [OPTIONS]
+aicp create-video [OPTIONS]
 ```
 
 **Options:**
@@ -118,89 +136,18 @@ ai-content-pipeline create-video [OPTIONS]
 | `--duration INT` | Video duration (seconds) | 5 |
 | `--output TEXT` | Output file path | auto |
 | `--mock` | Test without API call | false |
+| `--input TEXT` | Read prompt from file or stdin (`-`) | - |
 
 **Examples:**
 ```bash
 # Basic video creation
-ai-content-pipeline create-video --text "ocean waves at sunset"
+aicp create-video --text "ocean waves at sunset"
 
 # Specify models
-ai-content-pipeline create-video \
-  --text "dancing robot" \
-  --image-model flux_dev \
-  --video-model kling_2_6_pro
+aicp create-video --text "dancing robot" --image-model flux_dev --video-model kling_3_pro
 
-# Set duration
-ai-content-pipeline create-video \
-  --text "flowing river" \
-  --duration 8
-```
-
----
-
-### image-to-video
-
-Convert an existing image to video.
-
-```bash
-ai-content-pipeline image-to-video [OPTIONS]
-```
-
-**Options:**
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--image PATH` | Input image path (required) | - |
-| `--model TEXT` | Video model to use | kling_2_6_pro |
-| `--prompt TEXT` | Motion description | - |
-| `--duration INT` | Video duration | 5 |
-| `--output TEXT` | Output file path | auto |
-
-**Examples:**
-```bash
-# Basic conversion
-ai-content-pipeline image-to-video --image photo.png
-
-# With motion prompt
-ai-content-pipeline image-to-video \
-  --image landscape.png \
-  --prompt "camera slowly panning right"
-
-# Specify model and duration
-ai-content-pipeline image-to-video \
-  --image portrait.png \
-  --model sora_2 \
-  --duration 8
-```
-
----
-
-### text-to-video
-
-Generate video directly from text.
-
-```bash
-ai-content-pipeline text-to-video [OPTIONS]
-```
-
-**Options:**
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--text TEXT` | Text prompt (required) | - |
-| `--model TEXT` | Model to use | hailuo_pro |
-| `--duration INT` | Video duration | 6 |
-| `--resolution TEXT` | Resolution (720p/1080p) | 720p |
-| `--output TEXT` | Output file path | auto |
-
-**Examples:**
-```bash
-# Basic text-to-video
-ai-content-pipeline text-to-video --text "a cat playing piano"
-
-# High quality
-ai-content-pipeline text-to-video \
-  --text "futuristic city" \
-  --model sora_2_pro \
-  --resolution 1080p
+# Read prompt from stdin
+echo "flowing river at dawn" | aicp create-video --input -
 ```
 
 ---
@@ -210,115 +157,60 @@ ai-content-pipeline text-to-video \
 Execute a custom pipeline from YAML configuration.
 
 ```bash
-ai-content-pipeline run-chain [OPTIONS]
+aicp run-chain [OPTIONS]
 ```
 
 **Options:**
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--config PATH` | YAML config file (required) | - |
-| `--input TEXT` | Input text/prompt | - |
-| `--input-file PATH` | Input from file | - |
+| `--input TEXT` | Input text/prompt or file (`-` for stdin) | - |
 | `--output-dir PATH` | Output directory | output/ |
 | `--parallel` | Enable parallel execution | false |
 | `--dry-run` | Show plan without executing | false |
+| `--stream` | Stream progress as JSONL events | false |
 
 **Examples:**
 ```bash
 # Run pipeline
-ai-content-pipeline run-chain --config pipeline.yaml --input "my prompt"
+aicp run-chain --config pipeline.yaml --input "my prompt"
 
 # With parallel execution
-PIPELINE_PARALLEL_ENABLED=true ai-content-pipeline run-chain \
-  --config pipeline.yaml
+PIPELINE_PARALLEL_ENABLED=true aicp run-chain --config pipeline.yaml
+
+# Stream progress
+aicp run-chain --config pipeline.yaml --stream
 
 # Dry run to see plan
-ai-content-pipeline run-chain --config pipeline.yaml --dry-run
+aicp run-chain --config pipeline.yaml --dry-run
 ```
 
 ---
 
-### estimate-cost
+### generate-avatar
 
-Estimate cost before running a pipeline.
+Generate avatar video with lip-sync from image and audio.
 
 ```bash
-ai-content-pipeline estimate-cost [OPTIONS]
+aicp generate-avatar [OPTIONS]
 ```
 
 **Options:**
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--config PATH` | YAML config file (required) | - |
-| `--format TEXT` | Output format (table/json) | table |
+| `--image-url TEXT` | Portrait image URL (required) | - |
+| `--audio-url TEXT` | Audio URL (required for audio models) | - |
+| `--text TEXT` | Text input (for fabric_1_0_text) | - |
+| `--model TEXT` | Avatar model to use | omnihuman_v1_5 |
+| `--resolution TEXT` | Output resolution | 720p |
 
 **Examples:**
 ```bash
-# Estimate pipeline cost
-ai-content-pipeline estimate-cost --config pipeline.yaml
+# Basic avatar generation
+aicp generate-avatar --image-url "https://..." --audio-url "https://..."
 
-# JSON output
-ai-content-pipeline estimate-cost --config pipeline.yaml --format json
-```
-
----
-
-### create-examples
-
-Generate example configuration files.
-
-```bash
-ai-content-pipeline create-examples [OPTIONS]
-```
-
-**Options:**
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--output-dir PATH` | Where to create files | examples/ |
-| `--overwrite` | Overwrite existing files | false |
-
-**Examples:**
-```bash
-# Create examples in default location
-ai-content-pipeline create-examples
-
-# Create in specific directory
-ai-content-pipeline create-examples --output-dir my-configs/
-```
-
----
-
-### analyze-image
-
-Analyze an image using AI.
-
-```bash
-ai-content-pipeline analyze-image [OPTIONS]
-```
-
-**Options:**
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--image PATH` | Input image (required) | - |
-| `--model TEXT` | Analysis model | gemini_describe |
-| `--question TEXT` | Question for QA model | - |
-| `--output TEXT` | Save result to file | - |
-
-**Examples:**
-```bash
-# Basic description
-ai-content-pipeline analyze-image --image photo.png
-
-# Detailed analysis
-ai-content-pipeline analyze-image \
-  --image photo.png \
-  --model gemini_detailed
-
-# Ask a question
-ai-content-pipeline analyze-image \
-  --image photo.png \
-  --model gemini_qa \
-  --question "What objects are in this image?"
+# Text-to-speech avatar
+aicp generate-avatar --image-url "https://..." --text "Hello world!" --model fabric_1_0_text
 ```
 
 ---
@@ -328,7 +220,7 @@ ai-content-pipeline analyze-image \
 Analyze a video using AI.
 
 ```bash
-ai-content-pipeline analyze-video [OPTIONS]
+aicp analyze-video [OPTIONS]
 ```
 
 **Options:**
@@ -347,52 +239,184 @@ ai-content-pipeline analyze-video [OPTIONS]
 **Examples:**
 ```bash
 # Timeline analysis
-ai-content-pipeline analyze-video -i video.mp4
+aicp analyze-video -i video.mp4
 
 # Description
-ai-content-pipeline analyze-video -i video.mp4 -t describe
+aicp analyze-video -i video.mp4 -t describe
 
 # Transcription
-ai-content-pipeline analyze-video -i video.mp4 -t transcribe
+aicp analyze-video -i video.mp4 -t transcribe
 ```
 
 ---
 
-### text-to-speech
+### transcribe
 
-Convert text to speech.
+Transcribe audio using ElevenLabs Scribe v2.
 
 ```bash
-ai-content-pipeline text-to-speech [OPTIONS]
+aicp transcribe [OPTIONS]
 ```
 
 **Options:**
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--text TEXT` | Text to convert (required) | - |
-| `--model TEXT` | TTS model | elevenlabs |
-| `--voice TEXT` | Voice name | Rachel |
-| `--output TEXT` | Output file path | auto |
+| `--input PATH` | Input audio file (required) | - |
+| `--raw-json` | Output raw JSON with word-level timestamps | false |
+| `--srt` | Generate SRT subtitle file | false |
 
 **Examples:**
 ```bash
-# Basic TTS
-ai-content-pipeline text-to-speech --text "Hello, world!"
+# Basic transcription
+aicp transcribe --input audio.mp3
 
-# Specific voice
-ai-content-pipeline text-to-speech \
-  --text "Welcome to our presentation" \
-  --voice "Josh"
+# With word-level timestamps
+aicp transcribe --input meeting.mp3 --raw-json
+
+# Generate subtitles
+aicp transcribe --input podcast.mp3 --srt
 ```
 
 ---
+
+### generate-grid
+
+Generate a grid of images from text.
+
+```bash
+aicp generate-grid [OPTIONS]
+```
+
+**Options:**
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--text TEXT` | Text prompt (required) | - |
+| `--layout TEXT` | Grid layout (e.g., 2x2, 3x3) | 2x2 |
+| `--model TEXT` | Image model to use | nano_banana_pro |
+
+---
+
+### upscale-image
+
+Upscale an image using AI.
+
+```bash
+aicp upscale-image [OPTIONS]
+```
+
+**Options:**
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--image PATH` | Input image (required) | - |
+| `--upscale INT` | Upscale factor (1-8) | 2 |
+
+---
+
+### transfer-motion
+
+Transfer motion from a reference video to a portrait image.
+
+```bash
+aicp transfer-motion [OPTIONS]
+```
+
+**Options:**
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--image-url TEXT` | Portrait image URL (required) | - |
+| `--video-url TEXT` | Reference video URL (required) | - |
+
+---
+
+## Discovery & Setup Commands
+
+### list-avatar-models
+
+List available avatar generation models.
+
+```bash
+aicp list-avatar-models
+```
 
 ### list-video-models
 
 List available video analysis models.
 
 ```bash
-ai-content-pipeline list-video-models
+aicp list-video-models
+```
+
+### list-motion-models
+
+List available motion transfer models.
+
+```bash
+aicp list-motion-models
+```
+
+### list-speech-models
+
+List available speech-to-text models.
+
+```bash
+aicp list-speech-models
+```
+
+### setup
+
+Create `.env` file with API key templates.
+
+```bash
+aicp setup
+```
+
+### create-examples
+
+Generate example configuration files.
+
+```bash
+aicp create-examples [OPTIONS]
+```
+
+---
+
+## Project Management Commands
+
+### init-project
+
+Initialize a new project structure.
+
+```bash
+aicp init-project [OPTIONS]
+```
+
+### organize-project
+
+Organize files into a standard project structure.
+
+```bash
+aicp organize-project [OPTIONS]
+```
+
+### structure-info
+
+Show current project structure information.
+
+```bash
+aicp structure-info
+```
+
+---
+
+## ViMax Subgroup
+
+Novel-to-video pipeline commands available under `aicp vimax`:
+
+```bash
+aicp vimax idea2video --idea "A samurai's journey at sunrise"
+aicp vimax script2video --script story.txt
+aicp vimax novel2movie --novel novel.txt
+aicp vimax novel2movie --novel novel.txt --storyboard-only
 ```
 
 ---
@@ -406,6 +430,9 @@ ai-content-pipeline list-video-models
 | `GEMINI_API_KEY` | Google Gemini API key |
 | `ELEVENLABS_API_KEY` | ElevenLabs API key |
 | `OPENROUTER_API_KEY` | OpenRouter API key |
+| `XDG_CONFIG_HOME` | Override config directory |
+| `XDG_CACHE_HOME` | Override cache directory |
+| `XDG_STATE_HOME` | Override state directory |
 
 ---
 
@@ -427,19 +454,19 @@ ai-content-pipeline list-video-models
 ### Using Mock Mode
 Test commands without using API credits:
 ```bash
-ai-content-pipeline generate-image --text "test" --mock
+aicp generate-image --text "test" --mock
 ```
 
-### Verbose Output
+### Debug Output
 Get detailed logging:
 ```bash
-ai-content-pipeline --verbose generate-image --text "test"
+aicp --debug generate-image --text "test"
 ```
 
 ### Piping Output
 Combine with other tools:
 ```bash
-ai-content-pipeline list-models --format json | jq '.[] | select(.category == "text-to-image")'
+aicp list-models --json | jq '.[] | select(.category == "text-to-image")'
 ```
 
 ---
