@@ -575,3 +575,93 @@ class TestCharacterReferenceFlow:
         """The screenplay prompt JSON template includes characters field."""
         from packages.core.ai_content_platform.vimax.agents.screenwriter import SCREENPLAY_PROMPT
         assert '"characters"' in SCREENPLAY_PROMPT
+
+
+# =============================================================================
+# Fuzzy name matching tests
+# =============================================================================
+
+class TestFuzzyNameMatching:
+    """Verify _find_portrait resolves LLM character names to registry keys."""
+
+    def _make_registry(self, names):
+        """Build a CharacterPortraitRegistry with named portraits."""
+        from packages.core.ai_content_platform.vimax.interfaces.character import (
+            CharacterPortrait,
+            CharacterPortraitRegistry,
+        )
+        registry = CharacterPortraitRegistry(project_id="test")
+        for name in names:
+            portrait = CharacterPortrait(
+                character_name=name,
+                front_view=f"/portraits/{name}/front.png",
+            )
+            registry.add_portrait(portrait)
+        return registry
+
+    def _find(self, char_name, registry):
+        """Call _find_portrait on the selector."""
+        from packages.core.ai_content_platform.vimax.agents.reference_selector import (
+            ReferenceImageSelector,
+        )
+        return ReferenceImageSelector._find_portrait(char_name, registry)
+
+    def test_exact_match(self):
+        """Exact name match returns the portrait."""
+        reg = self._make_registry(["Elena Vasquez"])
+        portrait, matched = self._find("Elena Vasquez", reg)
+        assert portrait is not None
+        assert matched == "Elena Vasquez"
+
+    def test_case_insensitive_match(self):
+        """Case differences resolve correctly."""
+        reg = self._make_registry(["Elena Vasquez"])
+        portrait, matched = self._find("elena vasquez", reg)
+        assert portrait is not None
+        assert matched == "Elena Vasquez"
+
+    def test_title_prefix_match(self):
+        """Title/rank prefix ('Captain Elena Vasquez') matches 'Elena Vasquez'."""
+        reg = self._make_registry(["Elena Vasquez"])
+        portrait, matched = self._find("Captain Elena Vasquez", reg)
+        assert portrait is not None
+        assert matched == "Elena Vasquez"
+
+    def test_rank_prefix_match(self):
+        """'Lieutenant James Park' matches 'James Park'."""
+        reg = self._make_registry(["James Park"])
+        portrait, matched = self._find("Lieutenant James Park", reg)
+        assert portrait is not None
+        assert matched == "James Park"
+
+    def test_parenthetical_match(self):
+        """'The Tessari (Sage)' matches 'Tessari'."""
+        reg = self._make_registry(["Tessari"])
+        portrait, matched = self._find("The Tessari (Sage)", reg)
+        assert portrait is not None
+        assert matched == "Tessari"
+
+    def test_word_overlap_match(self):
+        """Word overlap resolves when substring fails."""
+        reg = self._make_registry(["Dr. Sarah Chen"])
+        portrait, matched = self._find("Sarah Chen, PhD", reg)
+        assert portrait is not None
+        assert matched == "Dr. Sarah Chen"
+
+    def test_no_match_returns_none(self):
+        """Completely unknown name returns None."""
+        reg = self._make_registry(["Elena Vasquez"])
+        portrait, matched = self._find("Unknown Character", reg)
+        assert portrait is None
+        assert matched == "Unknown Character"
+
+    def test_multiple_characters_no_false_positive(self):
+        """With multiple registry entries, the correct one is matched."""
+        reg = self._make_registry(["Elena Vasquez", "James Park"])
+        portrait, matched = self._find("Captain Elena Vasquez", reg)
+        assert matched == "Elena Vasquez"
+        assert portrait.character_name == "Elena Vasquez"
+
+        portrait2, matched2 = self._find("Lieutenant James Park", reg)
+        assert matched2 == "James Park"
+        assert portrait2.character_name == "James Park"
