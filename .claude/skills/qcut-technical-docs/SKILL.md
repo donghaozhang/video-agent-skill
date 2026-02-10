@@ -1,96 +1,170 @@
 ---
-name: qcut-technical-docs
-description: QCut technical documentation and architecture reference. Use when understanding codebase structure, AI video workflows, testing infrastructure, terminal system, or finding specific implementation details.
+name: project-docs
+description: AI Content Pipeline documentation and architecture reference. Use when understanding codebase structure, AI models, CLI commands, YAML pipelines, provider APIs, error codes, or finding implementation details.
 user-invocable: false
 ---
 
-# QCut Technical Documentation
+# AI Content Pipeline — Documentation Index
 
-Reference documentation for QCut's architecture, workflows, and implementation details.
+73 AI models across 12 categories. Click-based CLI (`aicp`). Central model registry. YAML pipelines with parallel execution.
 
-## Documentation Index
+## Key Facts
 
-For full navigation, see [docs/technical/README.md](../../../docs/technical/README.md).
+- **Package**: `video-ai-studio` on PyPI, commands `aicp` / `ai-content-pipeline`
+- **Version**: 1.0.24, Python 3.10+
+- **Registry**: `packages/core/ai_content_pipeline/ai_content_pipeline/registry.py` + `registry_data.py`
+- **CLI**: Click framework in `cli/click_app.py`, commands in `cli/commands/` (6 modules, 19 commands + vimax subgroup)
+- **Providers**: FAL AI (primary, 30+ models), Google (Gemini/Veo), ElevenLabs (TTS), OpenRouter (prompts), Replicate
+- **API keys**: `FAL_KEY`, `GEMINI_API_KEY`, `ELEVENLABS_API_KEY`, `OPENROUTER_API_KEY` in `.env`
 
-## Quick Reference
+## Documentation Files
 
-### Architecture
-| Topic | File | Use When |
-|-------|------|----------|
-| Source Code Structure | [architecture/source-code-structure.md](../../../docs/technical/architecture/source-code-structure.md) | Finding files, understanding folder layout |
-| Terminal Architecture | [architecture/terminal-architecture.md](../../../docs/technical/architecture/terminal-architecture.md) | Understanding xterm.js integration |
-| Virtual Folder System | [architecture/virtual-folder-system.md](../../../docs/technical/architecture/virtual-folder-system.md) | Media organization, folder metadata |
+Load the specific file when Claude needs deeper information on that topic.
 
-### AI Video Generation
-| Topic | File | Use When |
-|-------|------|----------|
-| AI Workflow | [ai/workflow.md](../../../docs/technical/ai/workflow.md) | Working with AI video generation, FAL.ai |
-| Skills System | [ai/skills-system.md](../../../docs/technical/ai/skills-system.md) | How skills work in QCut |
+### Models & Providers
 
-### AI Models
-| Category | Folder | Models |
-|----------|--------|--------|
-| Text-to-Video | [ai/models/text-to-video/](../../../docs/technical/ai/models/text-to-video/) | Sora 2, Veo 3, Kling, MiniMax, Wan, LTX |
-| Image-to-Video | [ai/models/image-to-video/](../../../docs/technical/ai/models/image-to-video/) | Runway Gen-3, Kling, Luma, Veo 2 |
-| Avatar | [ai/models/avatar/](../../../docs/technical/ai/models/avatar/) | Hedra, Sync, Hailuo |
-| Transcription | [ai/models/transcription/](../../../docs/technical/ai/models/transcription/) | ElevenLabs Scribe, Whisper |
-| Text-to-Image | [ai/models/text-to-image/](../../../docs/technical/ai/models/text-to-image/) | Flux, SDXL, Ideogram |
-| Image Upscale | [ai/models/image-upscale/](../../../docs/technical/ai/models/image-upscale/) | Real-ESRGAN, Clarity |
-| Segmentation | [ai/models/segmentation/](../../../docs/technical/ai/models/segmentation/) | SAM, BiRefNet |
-| Adjustment Panel | [ai/models/adjustment-panel/](../../../docs/technical/ai/models/adjustment-panel/) | Color grading, filters |
+| File | Load When |
+|------|-----------|
+| [models.md](../../../docs/reference/models.md) | Selecting models, checking pricing, comparing options across 12 categories |
+| [provider-comparison.md](../../../docs/reference/provider-comparison.md) | Choosing between FAL AI, Google, ElevenLabs, OpenRouter, Replicate |
 
-### Testing
-| Topic | File | Use When |
-|-------|------|----------|
-| Test Infrastructure | [testing/infrastructure.md](../../../docs/technical/testing/infrastructure.md) | Writing tests, understanding test setup |
-| E2E Testing | [testing/e2e.md](../../../docs/technical/testing/e2e.md) | End-to-end testing with Playwright |
+### CLI & API
 
-### Workflows
-| Topic | File | Use When |
-|-------|------|----------|
-| Effects Workflow | [workflows/effects-sequence.md](../../../docs/technical/workflows/effects-sequence.md) | Video effects pipeline |
-| Drawing Canvas | [workflows/drawing-canvas-sequence.md](../../../docs/technical/workflows/drawing-canvas-sequence.md) | Canvas drawing implementation |
+| File | Load When |
+|------|-----------|
+| [cli-commands.md](../../../docs/reference/cli-commands.md) | CLI usage, command flags, global options (--json, --quiet, --stream, --input) |
+| [python-api.md](../../../docs/api/python-api.md) | Python API: AIPipelineManager methods, data classes, error handling |
+| [aicp-vimax-commands.md](../../../docs/aicp-vimax-commands.md) | ViMax subgroup: novel2movie, idea2video, script2video pipelines |
 
-### Guides
-| Topic | File | Use When |
-|-------|------|----------|
-| Build Commands | [guides/build-commands.md](../../../docs/technical/guides/build-commands.md) | Building, running, deploying |
+### Architecture & Code
 
-## Architecture Overview
+| File | Load When |
+|------|-----------|
+| [architecture.md](../../../docs/reference/architecture.md) | System design, data flow diagrams, component responsibilities |
+| [package-structure.md](../../../docs/reference/package-structure.md) | File locations, import paths, module dependencies |
 
-### Tech Stack
-- **Frontend**: Vite 7.0.6 + TanStack Router + React 18.3.1
-- **Desktop**: Electron 37.4.0 (100% TypeScript)
-- **State**: Zustand stores
-- **Video**: FFmpeg WebAssembly
-- **AI**: FAL.ai (40+ models)
-- **Testing**: Vitest 3.2.4 (200+ tests)
+### Pipelines
 
-### Key Directories
+| File | Load When |
+|------|-----------|
+| [yaml-pipelines.md](../../../docs/guides/pipelines/yaml-pipelines.md) | YAML config syntax, 10 step types, variable interpolation, dependencies |
+| [parallel-execution.md](../../../docs/guides/pipelines/parallel-execution.md) | Parallel groups, performance optimization, 2-3x speedup patterns |
+
+### Content Creation
+
+| File | Load When |
+|------|-----------|
+| [prompting.md](../../../docs/guides/content-creation/prompting.md) | Writing effective prompts, templates, model-specific tips |
+| [video-tips.md](../../../docs/guides/content-creation/video-tips.md) | Image-to-video vs text-to-video, motion prompts, model selection |
+| [video-analysis.md](../../../docs/guides/content-creation/video-analysis.md) | AI video analysis with Gemini, timeline/describe/transcribe modes |
+
+### Optimization
+
+| File | Load When |
+|------|-----------|
+| [cost-management.md](../../../docs/guides/optimization/cost-management.md) | Pricing tables, budget strategies, cost estimation CLI/API |
+| [performance.md](../../../docs/guides/optimization/performance.md) | Speed benchmarks, batching, caching, network optimization |
+| [best-practices.md](../../../docs/guides/optimization/best-practices.md) | Project organization, pipeline design patterns, QA workflows |
+
+### Troubleshooting
+
+| File | Load When |
+|------|-----------|
+| [error-codes.md](../../../docs/reference/error-codes.md) | Error codes AUTH/CFG/MDL/PIP/NET/FILE/RATE/COST/VAL with solutions |
+| [troubleshooting.md](../../../docs/guides/support/troubleshooting.md) | Diagnostic steps, common issues, installation/API/network problems |
+| [faq.md](../../../docs/guides/support/faq.md) | Frequently asked questions across 9 categories |
+
+### Development
+
+| File | Load When |
+|------|-----------|
+| [testing.md](../../../docs/guides/support/testing.md) | Test strategies, mocks, fixtures, CI/CD, running pytest |
+| [security.md](../../../docs/guides/support/security.md) | API key security, input validation, production deployment |
+| [contributing.md](../../../docs/guides/contributing/contributing.md) | Development workflow, coding standards, adding models/providers |
+| [migration.md](../../../docs/guides/contributing/migration.md) | Version upgrades, breaking changes, rollback instructions |
+
+### Setup & Learning
+
+| File | Load When |
+|------|-----------|
+| [setup.md](../../../docs/guides/getting-started/setup.md) | Installation (PyPI/source), venv, API keys, first pipeline |
+| [learning-path.md](../../../docs/guides/getting-started/learning-path.md) | Structured learning tracks: Quick Start, Comprehensive, Developer |
+
+### Examples
+
+| File | Load When |
+|------|-----------|
+| [basic-examples.md](../../../docs/examples/basic-examples.md) | Simple image/video generation, CLI examples |
+| [advanced-pipelines.md](../../../docs/examples/advanced-pipelines.md) | Multi-stage production, A/B testing, batch processing |
+| [use-cases.md](../../../docs/examples/use-cases.md) | Marketing, education, enterprise, gaming applications |
+| [integrations.md](../../../docs/examples/integrations.md) | Flask, FastAPI, Celery, webhook patterns |
+
+## Model Categories Quick Reference
+
+| Category | Count | Key Models | Cost Range |
+|----------|-------|------------|------------|
+| Text-to-Image | 8 | `flux_dev`, `flux_schnell`, `imagen4`, `nano_banana_pro` | $0.001-0.08 |
+| Image-to-Image | 8 | `photon`, `kontext`, `clarity`, `seededit` | $0.015-0.05 |
+| Text-to-Video | 10 | `veo3`, `kling_3_pro`, `sora_2`, `hailuo_pro` | $0.08-6.00 |
+| Image-to-Video | 15 | `veo_3_1_fast`, `kling_3_pro_i2v`, `sora_2_i2v` | $0.08-3.60 |
+| Video-to-Video | 4 | `kling_o3_pro_edit`, `kling_o3_standard_edit` | $0.25-0.34/s |
+| Avatar | 10 | `omnihuman_v1_5`, `fabric_1_0`, `multitalk` | $0.06-0.25/s |
+| Image Understanding | 7 | `gemini_describe`, `gemini_detailed`, `gemini_qa` | $0.001-0.002 |
+| Prompt Generation | 5 | `openrouter_video_prompt` + style variants | $0.002 |
+| Text-to-Speech | 3 | `elevenlabs`, `elevenlabs_turbo`, `elevenlabs_v3` | $0.03-0.08 |
+| Speech-to-Text | 1 | `scribe_v2` | $0.008/min |
+| Add Audio | 1 | `thinksound` | $0.001/s |
+| Upscale Video | 1 | `topaz` | ~$1.50/video |
+
+## CLI Commands Quick Reference
+
+```bash
+# Core generation
+aicp generate-image --text "prompt" --model flux_dev
+aicp create-video --text "prompt" --video-model kling_3_pro
+aicp run-chain --config pipeline.yaml [--parallel] [--stream] [--dry-run]
+
+# Media operations
+aicp generate-avatar --image-url URL --audio-url URL --model omnihuman_v1_5
+aicp analyze-video -i video.mp4 [-t timeline|describe|transcribe]
+aicp transcribe --input audio.mp3 [--srt] [--raw-json]
+aicp transfer-motion --image-url URL --video-url URL
+aicp upscale-image --image photo.png --upscale 2
+aicp generate-grid --text "prompt" --layout 2x2
+
+# Discovery
+aicp list-models [--category X] [--provider X] [--json]
+aicp list-avatar-models | list-video-models | list-motion-models | list-speech-models
+
+# Project
+aicp setup | init-project | organize-project | structure-info | create-examples
+
+# ViMax (novel-to-video)
+aicp vimax idea2video --idea "concept"
+aicp vimax novel2movie --novel novel.txt [--storyboard-only]
+aicp vimax script2video --script story.txt
 ```
-apps/web/src/
-├── routes/          # TanStack Router pages
-├── components/      # React components
-│   ├── ui/          # Radix UI primitives (73 files)
-│   └── editor/      # Video editor components
-├── stores/          # Zustand state stores
-├── hooks/           # Custom React hooks
-├── lib/             # Utilities and services
-│   └── ai-video/    # AI video generation
-└── types/           # TypeScript definitions
 
-electron/
-├── main.ts          # Electron main process
-├── preload.ts       # IPC bridge
-└── *-handler.ts     # IPC handlers (38 total)
+## Architecture Summary
+
+```
+CLI (Click) → Pipeline Manager → Providers → External APIs
+                    ↓                            ↑
+              Config (YAML)              FAL / Google / ElevenLabs / OpenRouter
+                    ↓
+              Executor → Parallel Engine → Results → Output Files
 ```
 
-## How Claude Uses This Skill
+- **Central Registry**: `registry.py` defines `ModelDefinition` + `ModelRegistry`, `registry_data.py` registers all 73 models
+- **Auto-Discovery**: Generator classes use `MODEL_KEY` class attributes
+- **CLI**: Root Click group in `cli/click_app.py`, commands auto-registered at import time
+- **Pipeline**: `manager.py` orchestrates, `executor.py` runs steps, `parallel.py` handles concurrency
 
-This skill is **model-invoked only** (`user-invocable: false`). Claude automatically loads relevant sections when:
+## Testing Quick Reference
 
-1. **Understanding code structure** → Loads architecture/source-code-structure.md
-2. **Working with AI video** → Loads ai/workflow.md + model docs
-3. **Writing/debugging tests** → Loads testing/*.md
-4. **Terminal features** → Loads architecture/terminal-architecture.md
-5. **Build/deploy questions** → Loads guides/build-commands.md
+```bash
+python -m pytest tests/ -v                    # Full suite (~844 tests)
+python -m pytest tests/test_registry.py -v    # Registry tests
+python -m pytest tests/test_click_app.py -v   # CLI tests
+python scripts/validate_registry.py           # Registry validation
+```

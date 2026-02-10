@@ -8,7 +8,7 @@ Common questions and answers about AI Content Generation Suite.
 
 ### What is AI Content Generation Suite?
 
-AI Content Generation Suite is a unified Python package that provides access to 40+ AI models for generating images, videos, and audio. It supports:
+AI Content Generation Suite is a unified Python package that provides access to 73 AI models across 12 categories for generating images, videos, and audio. It supports:
 - Text-to-image generation
 - Image-to-video conversion
 - Text-to-video generation
