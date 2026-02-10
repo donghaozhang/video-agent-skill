@@ -203,6 +203,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
         self,
         script: Script,
         portrait_registry: Optional[CharacterPortraitRegistry] = None,
+        chapter_index: Optional[int] = None,
     ) -> AgentResult[StoryboardResult]:
         """
         Generate storyboard from script.
@@ -210,6 +211,7 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
         Args:
             script: Script with scenes and shots
             portrait_registry: Optional registry of character portraits for consistency
+            chapter_index: Optional chapter number for per-chapter subfolder naming
 
         Returns:
             AgentResult containing StoryboardResult with images
@@ -256,12 +258,16 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
             images = []
             total_cost = 0.0
 
-            # Create output directory
-            output_dir = Path(self.config.output_dir) / self._safe_slug(script.title)
+            # Create output directory — per-chapter subfolder when chapter_index given
+            if chapter_index is not None:
+                dir_name = f"chapter_{chapter_index:03d}_{self._safe_slug(script.title)}"
+            else:
+                dir_name = self._safe_slug(script.title)
+            output_dir = Path(self.config.output_dir) / dir_name
             output_dir.mkdir(parents=True, exist_ok=True)
 
             shot_index = 0
-            for scene in script.scenes:
+            for scene_idx, scene in enumerate(script.scenes, 1):
                 self.logger.info(f"Processing scene: {scene.title}")
 
                 for shot in scene.shots:
@@ -270,7 +276,10 @@ class StoryboardArtist(BaseAgent[Script, StoryboardResult]):
 
                     # Build prompt (pass registry for character descriptions)
                     prompt = self._build_prompt(shot, scene, registry=registry)
-                    output_path = str(output_dir / f"{self._safe_slug(shot.shot_id)}.png")
+                    # Meaningful file name: scene_001_wide_the_discovery.png
+                    shot_type = self._safe_slug(shot.shot_type.value if hasattr(shot.shot_type, 'value') else str(shot.shot_type))
+                    scene_slug = self._safe_slug(scene.title)[:30]
+                    output_path = str(output_dir / f"scene_{scene_idx:03d}_{shot_type}_{scene_slug}.png")
 
                     # Use pre-resolved reference from shot.primary_reference_image
                     reference_image = shot.primary_reference_image if use_refs else None

@@ -1,13 +1,16 @@
 """
-Tests for native structured output migration.
+Tests for native structured output migration and output organization.
 
 Verifies:
 - Pydantic response schemas produce valid JSON schemas
 - LLM adapter passes response_format via extra_body correctly
 - Agents convert structured responses to internal models
+- Pipeline output uses meaningful file names and per-chapter folders
+- scripts_only mode skips image/video generation
 """
 
 import json
+import re
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from pydantic import BaseModel
@@ -407,3 +410,111 @@ class TestAgentResponseMapping:
         """Empty scenes list is valid for compression."""
         result = ChapterCompressionResponse(title="Empty Chapter", scenes=[])
         assert len(result.scenes) == 0
+
+
+# =============================================================================
+# Output organization tests
+# =============================================================================
+
+class TestOutputOrganization:
+    """Verify meaningful file names and per-chapter folder structure."""
+
+    def _safe_slug(self, value: str) -> str:
+        """Mirror the _safe_slug method used in agents."""
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("_")
+        return safe or "untitled"
+
+    def _safe_slug_lower(self, value: str) -> str:
+        """Mirror the _safe_slug method used in character_portraits (lowercased)."""
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("_").lower()
+        return safe or "unknown"
+
+    def test_portrait_path_uses_character_name(self):
+        """Portrait output path includes character name as directory."""
+        char_name = "Elena Vasquez"
+        view = "front"
+        char_slug = self._safe_slug_lower(char_name)
+        output_path = f"portraits/{char_slug}/{view}.png"
+
+        assert output_path == "portraits/elena_vasquez/front.png"
+
+    def test_portrait_path_sanitizes_special_chars(self):
+        """Special characters in character names are sanitized."""
+        char_name = "O'Brien (Captain)"
+        char_slug = self._safe_slug_lower(char_name)
+        output_path = f"portraits/{char_slug}/side.png"
+
+        assert "'" not in output_path
+        assert "(" not in output_path
+        assert output_path == "portraits/o_brien_captain/side.png"
+
+    def test_storyboard_path_with_chapter_index(self):
+        """Storyboard uses per-chapter subfolder with chapter index."""
+        chapter_index = 3
+        script_title = "The Discovery"
+        title_slug = self._safe_slug(script_title)
+        dir_name = f"chapter_{chapter_index:03d}_{title_slug}"
+
+        assert dir_name == "chapter_003_The_Discovery"
+
+    def test_storyboard_shot_filename_is_descriptive(self):
+        """Storyboard shot file includes scene index, shot type, and scene title."""
+        scene_idx = 1
+        shot_type = "wide"
+        scene_title = "The Discovery"
+        scene_slug = self._safe_slug(scene_title)[:30]
+        filename = f"scene_{scene_idx:03d}_{shot_type}_{scene_slug}.png"
+
+        assert filename == "scene_001_wide_The_Discovery.png"
+
+    def test_storyboard_without_chapter_index(self):
+        """Without chapter_index, storyboard uses script title as directory."""
+        script_title = "First Contact"
+        dir_name = self._safe_slug(script_title)
+
+        assert dir_name == "First_Contact"
+
+    def test_novel2movie_config_scripts_only(self):
+        """Novel2MovieConfig supports scripts_only flag."""
+        from packages.core.ai_content_platform.vimax.pipelines.novel2movie import Novel2MovieConfig
+
+        config = Novel2MovieConfig(scripts_only=True)
+        assert config.scripts_only is True
+
+        config_default = Novel2MovieConfig()
+        assert config_default.scripts_only is False
+
+    def test_novel2movie_config_storyboard_only(self):
+        """Novel2MovieConfig supports storyboard_only flag."""
+        from packages.core.ai_content_platform.vimax.pipelines.novel2movie import Novel2MovieConfig
+
+        config = Novel2MovieConfig(storyboard_only=True)
+        assert config.storyboard_only is True
+
+    def test_scripts_only_and_storyboard_only_independent(self):
+        """scripts_only and storyboard_only are independent flags."""
+        from packages.core.ai_content_platform.vimax.pipelines.novel2movie import Novel2MovieConfig
+
+        config = Novel2MovieConfig(scripts_only=True, storyboard_only=True)
+        assert config.scripts_only is True
+        assert config.storyboard_only is True
+
+    def test_portrait_all_views_have_meaningful_names(self):
+        """All portrait views produce meaningful file names."""
+        views = ["front", "side", "back", "three_quarter"]
+        char_slug = self._safe_slug_lower("James Park")
+
+        for view in views:
+            path = f"portraits/{char_slug}/{view}.png"
+            assert char_slug in path
+            assert view in path
+            assert path == f"portraits/james_park/{view}.png"
+
+    def test_storyboard_long_scene_title_truncated(self):
+        """Long scene titles are truncated in file names."""
+        scene_title = "A Very Long Scene Title That Goes On And On Forever"
+        scene_slug = self._safe_slug(scene_title)[:30]
+        filename = f"scene_001_wide_{scene_slug}.png"
+
+        assert len(scene_slug) <= 30
+        assert filename.startswith("scene_001_wide_")

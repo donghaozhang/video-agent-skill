@@ -155,16 +155,23 @@ def script2video(script, output, video_model, image_model, portraits, references
 @click.option("--video-model", default="kling", help="Video generation model")
 @click.option("--image-model", default="nano_banana_pro", help="Image generation model")
 @click.option("--storyboard-only", is_flag=True, default=False, help="Stop after storyboard (skip video generation)")
-def novel2movie(novel, title, output, max_scenes, video_model, image_model, storyboard_only):
+@click.option("--scripts-only", is_flag=True, default=False, help="LLM-only mode: generate scripts without images or video (saves cost)")
+def novel2movie(novel, title, output, max_scenes, video_model, image_model, storyboard_only, scripts_only):
     """
     Convert a novel to a movie.
 
     Example:
         aicp vimax novel2movie --novel my_novel.txt --title "Epic Adventure"
+        aicp vimax novel2movie --novel story.txt --scripts-only  # LLM-only, no images
     """
     from ..pipelines import Novel2MoviePipeline, Novel2MovieConfig
 
-    mode = "storyboard only (steps 1-5)" if storyboard_only else "full pipeline"
+    if scripts_only:
+        mode = "scripts only (LLM-only, no images)"
+    elif storyboard_only:
+        mode = "storyboard only (steps 1-5)"
+    else:
+        mode = "full pipeline"
     click.echo(f"Starting Novel2Movie pipeline ({mode})...")
     click.echo(f"   Novel: {novel}")
     click.echo(f"   Title: {title}")
@@ -181,6 +188,7 @@ def novel2movie(novel, title, output, max_scenes, video_model, image_model, stor
         video_model=video_model,
         image_model=image_model,
         storyboard_only=storyboard_only,
+        scripts_only=scripts_only,
     )
 
     pipeline = Novel2MoviePipeline(config)

@@ -50,6 +50,7 @@ class Novel2MovieConfig(BaseModel):
     max_characters: int = 5  # Limit portraits to main characters
 
     # Pipeline control
+    scripts_only: bool = False  # Stop after script generation (LLM-only, no images)
     storyboard_only: bool = False  # Stop after storyboard generation (skip video)
     save_intermediate: bool = True  # Save characters, scripts, chapters to disk
 
@@ -131,8 +132,14 @@ class Novel2MoviePipeline:
         self.logger = logging.getLogger("vimax.pipelines.novel2movie")
         self._init_components()
 
-    def _init_components(self):
-        """Initialize all components."""
+    def _init_components(self, output_dir: Optional[Path] = None):
+        """Initialize all components.
+
+        Args:
+            output_dir: Per-run output directory. When provided, portraits
+                and storyboard images are saved under this directory instead
+                of shared root-level folders.
+        """
         self._llm = LLMAdapter(LLMAdapterConfig(model=self.config.llm_model))
 
         self.screenwriter = Screenwriter(ScreenwriterConfig(
@@ -144,20 +151,23 @@ class Novel2MoviePipeline:
             model=self.config.llm_model,
         ))
 
+        # Route portraits and storyboard under per-run directory
+        base = str(output_dir) if output_dir else self.config.output_dir
+
         self.portraits_generator = CharacterPortraitsGenerator(PortraitsGeneratorConfig(
             image_model=self.config.image_model,
             llm_model=self.config.llm_model,
-            output_dir=f"{self.config.output_dir}/portraits",
+            output_dir=f"{base}/portraits",
         ))
 
         self.storyboard_artist = StoryboardArtist(StoryboardArtistConfig(
             image_model=self.config.image_model,
-            output_dir=f"{self.config.output_dir}/storyboard",
+            output_dir=f"{base}/storyboard",
         ))
 
         self.camera_generator = CameraImageGenerator(CameraGeneratorConfig(
             video_model=self.config.video_model,
-            output_dir=f"{self.config.output_dir}/videos",
+            output_dir=f"{base}/videos",
         ))
 
     def _safe_slug(self, value: str) -> str:
@@ -185,6 +195,9 @@ class Novel2MoviePipeline:
             output_dir = Path(self.config.output_dir) / safe_title
             output_dir.mkdir(parents=True, exist_ok=True)
 
+            # Re-init components so portraits/storyboard are under per-title dir
+            self._init_components(output_dir)
+
             # Initialize LLM
             await self._llm.initialize()
 
@@ -198,7 +211,7 @@ class Novel2MoviePipeline:
                     self._save_characters(result.characters, output_dir / "characters.json")
 
             # Step 1b: Generate character portraits for consistency
-            if self.config.generate_portraits and result.characters:
+            if self.config.generate_portraits and not self.config.scripts_only and result.characters:
                 self.logger.info("Step 1b: Generating character portraits...")
                 portraits_result = await self.portraits_generator.generate_batch(
                     result.characters[:self.config.max_characters]
@@ -218,6 +231,8 @@ class Novel2MoviePipeline:
                     )
                     if self.config.save_intermediate:
                         self._save_registry(result.portrait_registry, output_dir / "portrait_registry.json")
+            elif self.config.scripts_only:
+                self.logger.info("Step 1b: Skipped (scripts_only mode)")
 
             # Step 2: Compress novel into key scenes
             self.logger.info("Step 2: Compressing novel into scenes...")
@@ -249,10 +264,15 @@ class Novel2MoviePipeline:
                 if self.config.save_intermediate:
                     self._save_script(script_result.result, scripts_dir / f"chapter_{i+1:03d}.json")
 
+                # Skip image/video generation in scripts_only mode
+                if self.config.scripts_only:
+                    continue
+
                 # Generate storyboard with character references
                 storyboard_result = await self.storyboard_artist.process(
                     script_result.result,
                     portrait_registry=result.portrait_registry,
+                    chapter_index=i + 1,
                 )
                 if not storyboard_result.success:
                     continue
@@ -268,7 +288,7 @@ class Novel2MoviePipeline:
                     result.total_cost += video_result.metadata.get("cost", 0)
 
             # Step 4: Concatenate all chapter videos
-            if all_videos and not self.config.storyboard_only:
+            if all_videos and not self.config.storyboard_only and not self.config.scripts_only:
                 self.logger.info("Step 4: Assembling final video...")
                 final_path = str(output_dir / "final_movie.mp4")
 

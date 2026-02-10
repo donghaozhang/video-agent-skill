@@ -7,6 +7,8 @@ from character descriptions to ensure visual consistency.
 
 from typing import List, Optional, Dict
 import logging
+import re
+from pathlib import Path
 
 from .base import BaseAgent, AgentConfig, AgentResult
 from ..adapters import ImageGeneratorAdapter, ImageAdapterConfig, LLMAdapter, LLMAdapterConfig, Message
@@ -60,6 +62,11 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
         self._image_adapter: Optional[ImageGeneratorAdapter] = None
         self._llm: Optional[LLMAdapter] = None
         self.logger = logging.getLogger("vimax.agents.portraits_generator")
+
+    def _safe_slug(self, value: str) -> str:
+        """Sanitize a string for use in filesystem paths."""
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", value).strip("_").lower()
+        return safe or "unknown"
 
     async def _ensure_adapters(self):
         """Initialize adapters if needed."""
@@ -131,16 +138,22 @@ class CharacterPortraitsGenerator(BaseAgent[CharacterInNovel, CharacterPortrait]
                     + ", ".join(sorted(set(unknown_views)))
                 )
 
+            char_slug = self._safe_slug(character.name)
+            char_dir = Path(self.config.output_dir) / char_slug
+            char_dir.mkdir(parents=True, exist_ok=True)
+
             for view in self.config.views:
                 self.logger.info(f"Generating {view} view for {character.name}")
 
                 # Generate optimized prompt
                 prompt = await self._generate_prompt(character, view)
 
-                # Generate image
+                # Generate image with meaningful path: portraits/elena_vasquez/front.png
+                output_path = str(char_dir / f"{view}.png")
                 result = await self._image_adapter.generate(
                     prompt=prompt,
                     aspect_ratio="1:1",
+                    output_path=output_path,
                 )
 
                 total_cost += result.cost
