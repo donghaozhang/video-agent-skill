@@ -278,6 +278,10 @@ class Novel2MoviePipeline:
                     continue
                 result.total_cost += storyboard_result.metadata.get("cost", 0)
 
+                # Re-save script now that resolve_references has enriched shots
+                if self.config.save_intermediate:
+                    self._save_script(script_result.result, scripts_dir / f"chapter_{i+1:03d}.json")
+
                 if self.config.storyboard_only:
                     continue
 
