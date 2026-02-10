@@ -6,7 +6,7 @@ set -e
 
 REPO=${1:-""}
 PR=${2:-""}
-OUTPUT_DIR=${3:-"docs/pr-comments/pr-${PR}-all"}
+OUTPUT_DIR=${3:-".github/pr-history/pr-${PR}-all"}
 
 # Validate arguments
 if [ -z "$REPO" ] || [ -z "$PR" ]; then

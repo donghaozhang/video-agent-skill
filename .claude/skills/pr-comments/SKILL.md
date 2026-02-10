@@ -20,7 +20,7 @@ Export all review comments from a PR to individual markdown files.
 bash .claude/skills/pr-comments/scripts/export.sh $1 $2 $3
 ```
 
-**Output:** `docs/pr-comments/pr-{number}/` with one file per comment.
+**Output:** `.github/pr-history/pr-{number}/` with one file per comment.
 
 ### 2. Preprocess: `/pr-comments preprocess <input-dir>`
 
@@ -69,7 +69,7 @@ bash .claude/skills/pr-comments/scripts/resolve-thread.sh $1 $2 $3 $4
 
 **Example:**
 ```bash
-/pr-comments resolve donghaozhang/qcut 102 2742327370 docs/pr-comments/pr-102-tasks/comment.md
+/pr-comments resolve donghaozhang/qcut 102 2742327370 .github/pr-history/pr-102-tasks/comment.md
 ```
 
 **What it does:**
@@ -88,25 +88,25 @@ bash .claude/skills/pr-comments/scripts/resolve-thread.sh $1 $2 $3 $4
 /pr-comments export donghaozhang/qcut 102
 
 # Step 2: Preprocess into task files
-/pr-comments preprocess docs/pr-comments/pr-102
+/pr-comments preprocess .github/pr-history/pr-102
 
 # Step 3: Analyze (see file groupings)
-/pr-comments analyze docs/pr-comments/pr-102-tasks
+/pr-comments analyze .github/pr-history/pr-102-tasks
 
 # Step 4a: Fix single comment
-/pr-comments fix docs/pr-comments/pr-102-tasks/comment.md
+/pr-comments fix .github/pr-history/pr-102-tasks/comment.md
 
 # Step 4b: Or batch fix all
-/pr-comments batch docs/pr-comments/pr-102-tasks
+/pr-comments batch .github/pr-history/pr-102-tasks
 
 # Step 5: Resolve thread and move task to completed
-/pr-comments resolve donghaozhang/qcut 102 2742327370 docs/pr-comments/pr-102-tasks/comment.md
+/pr-comments resolve donghaozhang/qcut 102 2742327370 .github/pr-history/pr-102-tasks/comment.md
 ```
 
 ## Output Structure
 
 ```
-docs/pr-comments/
+.github/pr-history/
 ├── README.md
 ├── pr-102/                    # Raw exported comments
 │   ├── coderabbitai[bot]_file_L42_123.md

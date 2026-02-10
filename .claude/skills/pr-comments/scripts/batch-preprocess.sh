@@ -9,7 +9,7 @@ OUTPUT_DIR=${2:-""}
 
 if [ -z "$INPUT_DIR" ]; then
     echo "Usage: ./batch-preprocess.sh input_dir output_dir"
-    echo "Example: ./batch-preprocess.sh docs/pr-comments/pr-102 docs/pr-comments/pr-102-tasks"
+    echo "Example: ./batch-preprocess.sh .github/pr-history/pr-102 .github/pr-history/pr-102-tasks"
     exit 1
 fi
 

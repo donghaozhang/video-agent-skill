@@ -33,7 +33,7 @@ Extract from the task file:
 
 **Example:**
 ```bash
-bash .claude/skills/pr-comments/scripts/resolve-thread.sh donghaozhang/qcut 102 2742327370 docs/pr-comments/pr-102-tasks/comment.md
+bash .claude/skills/pr-comments/scripts/resolve-thread.sh donghaozhang/qcut 102 2742327370 .github/pr-history/pr-102-tasks/comment.md
 ```
 
 **What happens:**
