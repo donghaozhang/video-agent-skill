@@ -60,7 +60,7 @@ async def main():
     # Override portrait views to just 2 (instead of 4) to save cost
     pipeline.portraits_generator.config.views = ["front", "three_quarter"]
 
-    title = "Output Org Test"
+    title = "Ref Resolve Test"
     print(f"\nRunning pipeline: {title}")
     print(f"  max_scenes={config.max_scenes}")
     print(f"  max_characters={config.max_characters}")
@@ -128,6 +128,35 @@ async def main():
         print(f"  Has chapter folder (GOOD): {has_chapter_folder}")
     else:
         print("\n  No storyboard directory found!")
+
+    # Check character references resolved in script JSON
+    scripts_dir = output_dir / "scripts"
+    if scripts_dir.exists():
+        import json
+        for script_file in sorted(scripts_dir.glob("*.json")):
+            with open(script_file) as f:
+                script_data = json.load(f)
+            print(f"\nScript: {script_file.name}")
+            shots_with_chars = 0
+            shots_with_refs = 0
+            total_shots = 0
+            for scene in script_data.get("scenes", []):
+                for shot in scene.get("shots", []):
+                    total_shots += 1
+                    chars = shot.get("characters", [])
+                    refs = shot.get("character_references", {})
+                    primary_ref = shot.get("primary_reference_image")
+                    if chars:
+                        shots_with_chars += 1
+                    if refs or primary_ref:
+                        shots_with_refs += 1
+                    print(f"  {shot['shot_id']}: characters={chars}, "
+                          f"refs={refs}, primary_ref={primary_ref}")
+            print(f"\n  Total shots: {total_shots}")
+            print(f"  Shots with characters (GOOD if >0): {shots_with_chars}")
+            print(f"  Shots with references (GOOD if >0): {shots_with_refs}")
+            refs_resolved = shots_with_refs > 0
+            print(f"  REFERENCES RESOLVED: {refs_resolved}")
 
 
 if __name__ == "__main__":
