@@ -101,7 +101,7 @@ aicp create-video --text "serene mountain lake"
 
 ## Version Information
 
-- **Current Version**: 1.0.23
+- **Current Version**: 1.0.24
 - **Python**: 3.10+
 - **License**: MIT
 

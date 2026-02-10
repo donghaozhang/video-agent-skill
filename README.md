@@ -49,12 +49,12 @@ See [full models reference](docs/reference/models.md) for all 73 models with pri
 [![PyPI Version](https://img.shields.io/pypi/v/video-ai-studio)](https://pypi.org/project/video-ai-studio/)
 [![GitHub Release](https://img.shields.io/github/v/release/donghaozhang/video-agent-skill)](https://github.com/donghaozhang/video-agent-skill/releases)
 
-### What's New in v1.0.23
-- Click-based CLI with `aicp vimax` subgroup for novel-to-video pipelines
-- Unix-style flags: `--json`, `--quiet`, `--stream`, `--input` for scripting and CI
-- Cross-platform binary builds (Linux, macOS ARM64/x86_64, Windows)
-- Central model registry with 73 models across 12 categories
-- Automated releases via GitHub Actions on every merge to main
+### What's New in v1.0.24
+- Native structured output for LLM calls (eliminates JSON parsing fragility)
+- Character portrait registry for visual consistency across scenes
+- Per-chapter output organization with meaningful file names
+- Documentation overhaul: slimmed README, updated all 73 models reference
+- CI fix for optional `rich` dependency in vimax test suite
 
 ## Installation
 

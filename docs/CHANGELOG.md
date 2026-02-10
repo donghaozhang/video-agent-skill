@@ -5,6 +5,22 @@ All notable changes to the AI Content Generation Suite.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.24] - 2026-02-10
+
+### Added
+- Native structured output for LLM calls via `chat_with_structured_output` (Pydantic schemas)
+- Character portrait registry for cross-scene visual consistency
+- Per-chapter output folders with meaningful file names
+- `ChapterCompressionResponse` and `ShotResponse` Pydantic schemas for pipeline agents
+
+### Changed
+- Documentation overhaul: slimmed README (352→210 lines), updated models reference to 73 models
+- CLAUDE.md slimmed (407→259 lines), fixed test count and version references
+
+### Fixed
+- CI test failures: added `HAS_VIMAX` skip guard for optional `rich` dependency
+- `ShotResponse` missing `characters` field for portrait reference resolution
+
 ## [1.0.23] - 2026-02-06
 
 ### Added
