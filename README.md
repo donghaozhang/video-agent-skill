@@ -1,3 +1,5 @@
+📖 **DeepWiki Documentation:** <https://deepwiki.com/donghaozhang/video-agent-claude-skill>
+
 # AI Content Generation Suite
 
 A comprehensive AI content generation package with multiple providers and services, consolidated into a single installable package.
