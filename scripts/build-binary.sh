@@ -41,7 +41,7 @@ pyinstaller "$REPO_DIR/aicp.spec" \
 
 # Verify the binary works
 echo "[build] Verifying binary"
-"$DIST_DIR/aicp" -h > /dev/null
+"$DIST_DIR/aicp" --version
 "$DIST_DIR/aicp" --json list-models > /dev/null
 
 # Report

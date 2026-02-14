@@ -41,7 +41,7 @@ pyinstaller "$RepoDir\aicp.spec" `
 
 # Verify the binary works
 Write-Host "[build] Verifying binary"
-& "$DistDir\aicp.exe" -h | Out-Null
+& "$DistDir\aicp.exe" --version
 & "$DistDir\aicp.exe" --json list-models | Out-Null
 
 # Report

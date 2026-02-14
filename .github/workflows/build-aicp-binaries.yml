@@ -60,13 +60,13 @@ jobs:
         if: matrix.platform != 'windows'
         run: |
           chmod +x build/dist/aicp
-          build/dist/aicp -h
+          build/dist/aicp --version
           build/dist/aicp --json list-models | head -c 200
 
       - name: Verify binary (Windows)
         if: matrix.platform == 'windows'
         run: |
-          build\dist\aicp.exe -h
+          build\dist\aicp.exe --version
           build\dist\aicp.exe --json list-models | Out-String | Select-Object -First 5
         shell: pwsh
 
