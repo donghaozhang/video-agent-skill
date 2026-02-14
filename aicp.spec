@@ -108,7 +108,7 @@ a = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
-        # Exclude heavy optional deps to keep binary small
+        # Heavy optional deps not needed for core generation
         'matplotlib',
         'jupyter',
         'notebook',
@@ -117,6 +117,15 @@ a = Analysis(
         'numpy',
         'cv2',
         'tkinter',
+        # Server-side transcription (Modal + Whisper) — not needed client-side
+        'whisper', 'openai_whisper',
+        'torch', 'torchaudio', 'torchvision',
+        'modal',
+        # AWS SDK — only used by Modal deployments
+        'boto3', 'botocore', 's3transfer',
+        'cryptography',
+        # Dev/build deps
+        'pytest', 'setuptools', 'pip', 'wheel',
     ],
     noarchive=False,
     optimize=0,
@@ -134,8 +143,8 @@ exe = EXE(
     name='aicp',
     debug=False,
     bootloader_ignore_signals=False,
-    strip=False,
-    upx=False,
+    strip=True,
+    upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
     console=True,
