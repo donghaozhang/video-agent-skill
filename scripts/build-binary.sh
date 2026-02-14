@@ -9,13 +9,12 @@ DIST_DIR="$SCRIPT_DIR/dist"
 echo "[build] Building aicp standalone binary"
 echo "[build] Repo: $REPO_DIR"
 
-# Require Python 3.12+
+# Require Python 3.10+
 PYTHON="${PYTHON:-python3}"
 PY_VERSION=$("$PYTHON" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 echo "[build] Using Python $PY_VERSION ($("$PYTHON" --version 2>&1))"
 
-PY_MAJOR=$("$PYTHON" -c "import sys; print(sys.version_info.major)")
-PY_MINOR=$("$PYTHON" -c "import sys; print(sys.version_info.minor)")
+IFS='.' read -r PY_MAJOR PY_MINOR <<< "$PY_VERSION"
 if [ "$PY_MAJOR" -lt 3 ] || { [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -lt 10 ]; }; then
     echo "[build] ERROR: Python >= 3.10 required, got $PY_VERSION"
     exit 1
@@ -50,14 +49,19 @@ ARCH="$(uname -m)"
 [ "$ARCH" = "x86_64" ] && ARCH="x64"
 [ "$ARCH" = "aarch64" ] && ARCH="arm64"
 
-BINARY_SIZE=$(du -h "$DIST_DIR/aicp" | cut -f1)
-BINARY_SHA256=$(shasum -a 256 "$DIST_DIR/aicp" | cut -d' ' -f1)
+BINARY_BYTES=$(wc -c < "$DIST_DIR/aicp" | tr -d ' ')
+BINARY_SIZE_MB=$(awk "BEGIN {printf \"%.1f\", $BINARY_BYTES / 1048576}")
+if command -v sha256sum >/dev/null; then
+    BINARY_SHA256=$(sha256sum "$DIST_DIR/aicp" | cut -d' ' -f1)
+else
+    BINARY_SHA256=$(shasum -a 256 "$DIST_DIR/aicp" | cut -d' ' -f1)
+fi
 
 echo ""
 echo "========================================"
 echo "Build complete!"
 echo "Binary:   $DIST_DIR/aicp"
 echo "Platform: $PLATFORM-$ARCH"
-echo "Size:     $BINARY_SIZE"
+echo "Size:     ${BINARY_SIZE_MB}MB ($BINARY_BYTES bytes)"
 echo "SHA256:   $BINARY_SHA256"
 echo "========================================"

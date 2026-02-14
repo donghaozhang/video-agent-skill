@@ -14,8 +14,9 @@ $Python = if ($env:PYTHON) { $env:PYTHON } else { "python" }
 $PyVersion = & $Python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
 Write-Host "[build] Using Python $PyVersion"
 
-$PyMajor = & $Python -c "import sys; print(sys.version_info.major)"
-$PyMinor = & $Python -c "import sys; print(sys.version_info.minor)"
+$versionParts = $PyVersion.Split('.')
+$PyMajor = [int]$versionParts[0]
+$PyMinor = [int]$versionParts[1]
 if ([int]$PyMajor -lt 3 -or ([int]$PyMajor -eq 3 -and [int]$PyMinor -lt 10)) {
     Write-Error "[build] ERROR: Python >= 3.10 required, got $PyVersion"
     exit 1
@@ -24,17 +25,17 @@ if ([int]$PyMajor -lt 3 -or ([int]$PyMajor -eq 3 -and [int]$PyMinor -lt 10)) {
 # Create isolated venv
 Write-Host "[build] Creating virtual environment at $VenvDir"
 & $Python -m venv $VenvDir
-& "$VenvDir\Scripts\Activate.ps1"
+. "$VenvDir\Scripts\Activate.ps1"
 
 # Install the package + pyinstaller
 Write-Host "[build] Installing package and PyInstaller"
-pip install --upgrade pip
-pip install -e $RepoDir
-pip install pyinstaller
+python -m pip install --upgrade pip
+python -m pip install -e "$RepoDir"
+python -m pip install pyinstaller
 
 # Build standalone binary using spec at repo root
 Write-Host "[build] Running PyInstaller"
-pyinstaller "$RepoDir\aicp.spec" `
+python -m PyInstaller "$RepoDir\aicp.spec" `
     --distpath $DistDir `
     --workpath "$ScriptDir\build-temp" `
     --clean
