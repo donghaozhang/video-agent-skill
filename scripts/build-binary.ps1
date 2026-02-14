@@ -25,13 +25,17 @@ if ([int]$PyMajor -lt 3 -or ([int]$PyMajor -eq 3 -and [int]$PyMinor -lt 10)) {
 # Create isolated venv
 Write-Host "[build] Creating virtual environment at $VenvDir"
 & $Python -m venv $VenvDir
+if ($LASTEXITCODE -ne 0) { throw "[build] ERROR: venv creation failed" }
 . "$VenvDir\Scripts\Activate.ps1"
 
 # Install the package + pyinstaller
 Write-Host "[build] Installing package and PyInstaller"
 python -m pip install --upgrade pip
+if ($LASTEXITCODE -ne 0) { throw "[build] ERROR: pip upgrade failed" }
 python -m pip install -e "$RepoDir"
+if ($LASTEXITCODE -ne 0) { throw "[build] ERROR: package install failed" }
 python -m pip install pyinstaller
+if ($LASTEXITCODE -ne 0) { throw "[build] ERROR: PyInstaller install failed" }
 
 # Build standalone binary using spec at repo root
 Write-Host "[build] Running PyInstaller"
@@ -39,6 +43,7 @@ python -m PyInstaller "$RepoDir\aicp.spec" `
     --distpath $DistDir `
     --workpath "$ScriptDir\build-temp" `
     --clean
+if ($LASTEXITCODE -ne 0) { throw "[build] ERROR: PyInstaller build failed" }
 
 # Verify the binary works
 Write-Host "[build] Verifying binary"
