@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 block_cipher = None
+is_windows = sys.platform == 'win32'
 
 # Project root (where this spec file lives)
 PROJECT_ROOT = Path(SPECPATH)
@@ -151,9 +152,9 @@ exe = EXE(
     name='aicp',
     debug=False,
     bootloader_ignore_signals=False,
-    strip=True,
+    strip=not is_windows,
     upx=True,
-    upx_exclude=[],
+    upx_exclude=['python*.dll', 'vcruntime*.dll'] if is_windows else [],
     runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,
