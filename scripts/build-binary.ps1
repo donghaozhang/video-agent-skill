@@ -43,7 +43,14 @@ python -m PyInstaller "$RepoDir\aicp.spec" `
 # Verify the binary works
 Write-Host "[build] Verifying binary"
 & "$DistDir\aicp.exe" --version
-& "$DistDir\aicp.exe" --json list-models | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    throw "[build] ERROR: aicp --version failed"
+}
+
+$null = & "$DistDir\aicp.exe" --json list-models
+if ($LASTEXITCODE -ne 0) {
+    throw "[build] ERROR: aicp list-models failed"
+}
 
 # Report
 $BinaryPath = Join-Path $DistDir "aicp.exe"
