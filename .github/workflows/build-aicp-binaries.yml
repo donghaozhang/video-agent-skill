@@ -69,6 +69,8 @@ jobs:
           build\dist\aicp.exe --version
           build\dist\aicp.exe --json list-models | Out-String | Select-Object -First 5
         shell: pwsh
+        env:
+          PYTHONUTF8: "1"
 
       - name: Compute checksum
         id: checksum
