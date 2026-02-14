@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 block_cipher = None
+is_windows = sys.platform == 'win32'
 
 # Project root (where this spec file lives)
 PROJECT_ROOT = Path(SPECPATH)
@@ -108,7 +109,7 @@ a = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
-        # Exclude heavy optional deps to keep binary small
+        # Heavy optional deps not needed for core generation
         'matplotlib',
         'jupyter',
         'notebook',
@@ -117,6 +118,23 @@ a = Analysis(
         'numpy',
         'cv2',
         'tkinter',
+        # Server-side transcription (Modal + Whisper) — not needed client-side
+        'whisper',
+        'openai_whisper',
+        'torch',
+        'torchaudio',
+        'torchvision',
+        'modal',
+        # AWS SDK — only used by Modal deployments
+        'boto3',
+        'botocore',
+        's3transfer',
+        'cryptography',
+        # Dev/build deps
+        'pytest',
+        'setuptools',
+        'pip',
+        'wheel',
     ],
     noarchive=False,
     optimize=0,
@@ -134,9 +152,9 @@ exe = EXE(
     name='aicp',
     debug=False,
     bootloader_ignore_signals=False,
-    strip=False,
-    upx=False,
-    upx_exclude=[],
+    strip=not is_windows,
+    upx=True,
+    upx_exclude=['python*.dll', 'vcruntime*.dll'] if is_windows else [],
     runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,

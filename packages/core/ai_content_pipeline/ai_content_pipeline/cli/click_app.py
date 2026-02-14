@@ -14,6 +14,7 @@ import os
 import click
 
 from .output import CLIOutput
+from .._version import __version__
 
 
 @click.group(
@@ -30,6 +31,7 @@ Examples:
   aicp vimax idea2video --idea "A samurai's journey at sunrise"
 """,
 )
+@click.version_option(version=__version__, prog_name="aicp")
 @click.option("--json", "json_mode", is_flag=True, default=False,
               help="Emit machine-readable JSON output to stdout")
 @click.option("--quiet", "-q", is_flag=True, default=False,

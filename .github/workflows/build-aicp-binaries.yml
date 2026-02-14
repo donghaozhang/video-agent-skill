@@ -1,0 +1,138 @@
+name: Build AICP Binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            platform: macos
+            arch: arm64
+            artifact: aicp-macos-arm64
+          - os: macos-15-intel
+            platform: macos
+            arch: x64
+            artifact: aicp-macos-x64
+          - os: windows-latest
+            platform: windows
+            arch: x64
+            artifact: aicp-windows-x64.exe
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            artifact: aicp-linux-x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+          pip install pyinstaller
+
+      - name: Build binary
+        run: |
+          pyinstaller aicp.spec \
+            --distpath build/dist \
+            --workpath build/build-temp \
+            --clean
+        shell: bash
+
+      - name: Verify binary (Unix)
+        if: matrix.platform != 'windows'
+        run: |
+          chmod +x build/dist/aicp
+          build/dist/aicp --version
+          build/dist/aicp --json list-models | head -c 200
+
+      - name: Verify binary (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          build\dist\aicp.exe --version
+          build\dist\aicp.exe --json list-models | Out-String | Select-Object -First 5
+        shell: pwsh
+
+      - name: Compute checksum
+        id: checksum
+        run: |
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            BINARY="build/dist/aicp.exe"
+          else
+            BINARY="build/dist/aicp"
+          fi
+          SHA256=$(shasum -a 256 "$BINARY" | cut -d' ' -f1)
+          SIZE=$(wc -c < "$BINARY" | tr -d ' ')
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+          echo "size=$SIZE" >> "$GITHUB_OUTPUT"
+          echo "Binary: $BINARY"
+          echo "SHA256: $SHA256"
+          echo "Size: $SIZE bytes"
+        shell: bash
+
+      - name: Rename artifact
+        run: |
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            mv build/dist/aicp.exe "build/dist/${{ matrix.artifact }}"
+          else
+            mv build/dist/aicp "build/dist/${{ matrix.artifact }}"
+          fi
+        shell: bash
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: build/dist/${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          echo "## Checksums (SHA256)" > checksums.md
+          echo '```' >> checksums.md
+          for dir in */; do
+            file=$(ls "$dir")
+            sha=$(shasum -a 256 "$dir$file" | cut -d' ' -f1)
+            size=$(wc -c < "$dir$file" | tr -d ' ')
+            echo "$sha  $file  (${size} bytes)" >> checksums.md
+          done
+          echo '```' >> checksums.md
+          cat checksums.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: artifacts/checksums.md
+          files: |
+            artifacts/aicp-macos-arm64/aicp-macos-arm64
+            artifacts/aicp-macos-x64/aicp-macos-x64
+            artifacts/aicp-windows-x64.exe/aicp-windows-x64.exe
+            artifacts/aicp-linux-x64/aicp-linux-x64
