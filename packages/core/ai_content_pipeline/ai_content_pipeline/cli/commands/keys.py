@@ -93,7 +93,6 @@ def set_key(ctx, key_name, use_stdin):
         if sys.stdin.isatty():
             out.error("--stdin requires piped input (stdin is a terminal)")
             ctx.exit(1)
-            return
         value = sys.stdin.read().strip()
     else:
         value = click.prompt(f"Enter value for {key_name}", hide_input=True)
@@ -101,7 +100,6 @@ def set_key(ctx, key_name, use_stdin):
     if not value:
         out.error("Empty value — key not saved.")
         ctx.exit(1)
-        return
 
     path = save_key(key_name, value)
     out.info(f"{key_name} saved to {path}")
@@ -131,7 +129,6 @@ def get_key(ctx, key_name, reveal):
       aicp get-key FAL_KEY --reveal   # full value
     """
     out = ctx.obj["output"]
-    value = load_key(key_name)
     env_value = os.environ.get(key_name)
     source = _key_source(key_name)
 
@@ -139,19 +136,16 @@ def get_key(ctx, key_name, reveal):
         out.result(
             {
                 "key": key_name,
-                "set": bool(value or env_value),
+                "set": bool(env_value),
                 "source": source,
             },
             command="get-key",
         )
         return
 
-    if value:
-        display = value if reveal else _mask(value)
-        out.info(f"{key_name}={display}  (source: credentials)")
-    elif env_value:
+    if env_value:
         display = env_value if reveal else _mask(env_value)
-        out.info(f"{key_name}={display}  (source: environment)")
+        out.info(f"{key_name}={display}  (source: {source})")
     else:
         out.info(f"{key_name} is not set")
 
@@ -172,8 +166,18 @@ def check_keys(ctx):
     """
     out = ctx.obj["output"]
     rows = []
+    all_cred_keys = load_all_keys()
     for key_name in KNOWN_KEYS:
-        source = _key_source(key_name)
+        cred_value = all_cred_keys.get(key_name)
+        env_value = os.environ.get(key_name)
+        if cred_value and env_value and cred_value == env_value:
+            source = "credentials"
+        elif env_value:
+            source = "environment"
+        elif cred_value:
+            source = "credentials"
+        else:
+            source = "not set"
         is_set = source != "not set"
         rows.append({"name": key_name, "set": is_set, "source": source})
 

@@ -175,7 +175,7 @@ Make the stored credentials available to all downstream services transparently.
 6. **`test_set_key_cli_interactive`** — invoke `aicp set-key FAL_KEY` with simulated prompt input via Click test runner
 7. **`test_set_key_cli_stdin`** — invoke `aicp set-key FAL_KEY --stdin` with piped input via Click test runner
 8. **`test_get_key_cli_masked`** — invoke `aicp get-key FAL_KEY`, verify output is masked
-8. **`test_check_keys_cli_json`** — invoke `aicp check-keys --json`, verify JSON structure
+9. **`test_check_keys_cli_json`** — invoke `aicp check-keys --json`, verify JSON structure
 10. **`test_credentials_file_permissions`** — verify file has `0o600` permissions (Unix only)
 11. **`test_set_key_unknown_warns`** — set an unknown key name, verify warning in output
 12. **`test_set_key_no_positional_value`** — verify that passing a value as a positional arg is rejected

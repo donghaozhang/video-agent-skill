@@ -169,8 +169,9 @@ class TestSetKeyCLI:
 
 
 class TestGetKeyCLI:
-    def test_get_key_masked(self, runner):
+    def test_get_key_masked(self, runner, monkeypatch):
         """get-key masks the value by default."""
+        monkeypatch.delenv("FAL_KEY", raising=False)
         save_key("FAL_KEY", "fal_abcdefghijklmnop")
         result = runner.invoke(cli, ["get-key", "FAL_KEY"])
         assert result.exit_code == 0
@@ -179,8 +180,9 @@ class TestGetKeyCLI:
         # The full value should NOT appear
         assert "fal_abcdefghijklmnop" not in result.output
 
-    def test_get_key_reveal(self, runner):
+    def test_get_key_reveal(self, runner, monkeypatch):
         """get-key --reveal shows the full value."""
+        monkeypatch.delenv("FAL_KEY", raising=False)
         save_key("FAL_KEY", "fal_abcdefghijklmnop")
         result = runner.invoke(cli, ["get-key", "FAL_KEY", "--reveal"])
         assert result.exit_code == 0

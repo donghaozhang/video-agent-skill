@@ -48,10 +48,15 @@ def _write_lines(lines: list[str]) -> None:
     """Write lines to the credentials file with restricted permissions."""
     path = credentials_path()
     ensure_dir(path.parent)
-    path.write_text("\n".join(lines) + "\n" if lines else "")
-    # Reason: restrict to owner-only on Unix to prevent other users reading keys.
+    content = "\n".join(lines) + "\n" if lines else ""
     if sys.platform != "win32":
-        path.chmod(0o600)
+        # Reason: create with 0o600 from the start to avoid a race window
+        # where another user could read the file before chmod.
+        fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w") as f:
+            f.write(content)
+    else:
+        path.write_text(content)
 
 
 def load_all_keys() -> Dict[str, str]:
@@ -81,7 +86,13 @@ def load_key(key_name: str) -> Optional[str]:
     Returns:
         The stored value, or ``None`` if not found.
     """
-    return load_all_keys().get(key_name)
+    for line in _read_lines():
+        stripped = line.strip()
+        if stripped and not stripped.startswith("#") and "=" in stripped:
+            name, _, value = stripped.partition("=")
+            if name.strip() == key_name:
+                return value.strip()
+    return None
 
 
 def save_key(key_name: str, key_value: str) -> Path:
@@ -93,7 +104,12 @@ def save_key(key_name: str, key_value: str) -> Path:
 
     Returns:
         Path to the credentials file.
+
+    Raises:
+        ValueError: If key_name or key_value contains newlines.
     """
+    if "\n" in key_name or "\r" in key_name or "\n" in key_value or "\r" in key_value:
+        raise ValueError("Key name and value cannot contain newlines")
     lines = _read_lines()
     new_lines: list[str] = []
     found = False
