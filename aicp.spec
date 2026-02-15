@@ -31,6 +31,7 @@ a = Analysis(
         str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'image-to-image'),
         str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'video-to-video'),
         str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'avatar-generation'),
+        str(PROJECT_ROOT / 'packages' / 'providers' / 'fal' / 'text-to-image'),
     ],
     binaries=[],
     datas=[
@@ -92,6 +93,11 @@ a = Analysis(
         'fal_avatar',
         'fal_avatar.config',
         'fal_avatar.models',
+        'fal_text_to_image',
+        'fal_text_to_image_generator',
+        'unified_text_to_image_generator',
+        'replicate_text_to_image_generator',
+        'runway_gen4_generator',
         # Platform + ViMax subgroup
         'ai_content_platform',
         'ai_content_platform.vimax',

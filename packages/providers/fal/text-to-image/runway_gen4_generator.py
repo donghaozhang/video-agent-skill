@@ -23,9 +23,8 @@ from enum import Enum
 
 try:
     import replicate
-except ImportError:
-    print("❌ replicate not installed. Run: pip install replicate")
-    exit(1)
+except (ImportError, Exception):
+    replicate = None
 
 
 class RunwayGen4Model(Enum):

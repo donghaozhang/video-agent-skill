@@ -29,26 +29,39 @@ class UnifiedTextToImageGenerator(BaseContentModel):
     
     def _initialize_generators(self):
         """Initialize available text-to-image generators."""
+        # Try direct import first (works in PyInstaller frozen builds where
+        # modules are bundled via hiddenimports but filesystem paths don't exist).
+        if self._try_import_generators():
+            return
+
+        # Fallback: add provider source directory to sys.path (dev mode)
         try:
-            # Try to import unified generator (supports FAL + Replicate)
             fal_path = Path(__file__).parent.parent.parent.parent.parent / "providers" / "fal" / "text-to-image"
             if fal_path.exists():
                 sys.path.insert(0, str(fal_path))
-                
-                # Try unified generator first (supports multiple providers)
-                try:
-                    from unified_text_to_image_generator import UnifiedTextToImageGenerator
-                    self._unified_generator = UnifiedTextToImageGenerator(verbose=False)
-                    print("✅ Unified Text-to-Image generator initialized (FAL + Replicate)")
-                except ImportError:
-                    # Fallback to FAL-only generator
-                    from fal_text_to_image_generator import FALTextToImageGenerator
-                    self._fal_generator = FALTextToImageGenerator()
-                    print("✅ FAL Text-to-Image generator initialized")
-            else:
-                print(f"⚠️  Text-to-Image directory not found at: {fal_path}")
-        except ImportError as e:
+                if self._try_import_generators():
+                    return
+            print(f"⚠️  Text-to-Image providers not found")
+        except Exception as e:
             print(f"⚠️  Text-to-Image generators not available: {e}")
+
+    def _try_import_generators(self) -> bool:
+        """Attempt to import text-to-image generators. Returns True on success."""
+        try:
+            from unified_text_to_image_generator import UnifiedTextToImageGenerator
+            self._unified_generator = UnifiedTextToImageGenerator(verbose=False)
+            print("✅ Unified Text-to-Image generator initialized (FAL + Replicate)")
+            return True
+        except ImportError:
+            pass
+        try:
+            from fal_text_to_image_generator import FALTextToImageGenerator
+            self._fal_generator = FALTextToImageGenerator()
+            print("✅ FAL Text-to-Image generator initialized")
+            return True
+        except ImportError:
+            pass
+        return False
     
     def generate(self, prompt: str, model: str = "auto", **kwargs) -> ModelResult:
         """
