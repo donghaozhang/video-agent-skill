@@ -78,7 +78,7 @@ jobs:
           else
             BINARY="build/dist/aicp"
           fi
-          SHA256=$(sha256sum "$BINARY" | cut -d' ' -f1)
+          SHA256=$(python -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" "$BINARY")
           SIZE=$(wc -c < "$BINARY" | tr -d ' ')
           echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
           echo "size=$SIZE" >> "$GITHUB_OUTPUT"
@@ -120,7 +120,7 @@ jobs:
           echo '```' >> checksums.md
           for dir in */; do
             file=$(ls "$dir")
-            sha=$(sha256sum "$dir$file" | cut -d' ' -f1)
+            sha=$(python3 -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" "$dir$file")
             size=$(wc -c < "$dir$file" | tr -d ' ')
             echo "$sha  $file  (${size} bytes)" >> checksums.md
           done
