@@ -13,7 +13,7 @@ When users download the `aicp` binary (built via PyInstaller), there is no `.env
 - The `aicp setup` command creates a `.env` template, but this only works in a dev/source context
 - API keys are read from `os.getenv()` — users must `export FAL_KEY=...` every shell session
 - The binary has XDG directory support (`~/.config/video-ai-studio/`) but nothing writes credentials there
-- No `set-key`, `get-key`, or `check-keys` commands exist
+- No `set-key`, `get-key`, `check-keys`, or `delete-key` commands exist
 
 ## Security Threat Model
 
@@ -67,7 +67,7 @@ Create a new module that handles reading/writing API keys to the XDG config dire
 
 ---
 
-### Subtask 2: Add `set-key`, `get-key`, `check-keys` CLI Commands (~8 min)
+### Subtask 2: Add `set-key`, `get-key`, `check-keys`, `delete-key` CLI Commands (~8 min)
 
 Add a new command module for key management commands.
 
@@ -123,6 +123,18 @@ aicp check-keys --json
 ```
 - Checks all known API keys
 - Shows source: `credentials`, `environment`, or `not set`
+- Supports `--json` output
+
+#### `aicp delete-key <KEY_NAME>`
+```bash
+aicp delete-key FAL_KEY
+# Output: ✓ FAL_KEY removed from credentials store
+
+aicp delete-key NONEXISTENT_KEY
+# Output: FAL_KEY not found in credentials store
+```
+- Removes a key from the credentials file
+- Reports success or "not found"
 - Supports `--json` output
 
 **Registration:** Add `register_key_commands` to `cli/commands/__init__.py`

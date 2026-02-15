@@ -130,7 +130,7 @@ class TestSetKeyCLI:
         assert "saved" in result.output
         assert load_key("FAL_KEY") == "fal_secret_value"
 
-    def test_set_key_stdin(self, runner, tmp_path, monkeypatch):
+    def test_set_key_stdin(self, runner):
         """set-key --stdin reads value from piped input."""
         result = runner.invoke(
             cli, ["set-key", "FAL_KEY", "--stdin"],
