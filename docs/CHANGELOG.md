@@ -5,10 +5,11 @@ All notable changes to the AI Content Generation Suite.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.27] - 2026-02-15
+## [1.0.28] - 2026-02-15
 
 ### Fixed
 - Windows binary crash: force UTF-8 encoding for stdout/stderr in entry points to handle emoji characters on Windows cp1252
+- Windows CI: replace `shasum` with `sha256sum` in build-aicp-binaries workflow (shasum unavailable on Windows Git Bash)
 
 ## [1.0.26] - 2026-02-15
 
