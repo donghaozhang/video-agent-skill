@@ -63,6 +63,8 @@ a = Analysis(
         'ai_content_pipeline.cli.commands.audio',
         'ai_content_pipeline.cli.commands.imaging',
         'ai_content_pipeline.cli.commands.project',
+        'ai_content_pipeline.cli.commands.keys',
+        'ai_content_pipeline.cli.credentials',
         'ai_content_pipeline.registry',
         'ai_content_pipeline.registry_data',
         'ai_content_pipeline.video_analysis',
