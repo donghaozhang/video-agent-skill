@@ -14,6 +14,7 @@ import os
 import click
 
 from .output import CLIOutput
+from .credentials import inject_keys
 from .._version import __version__
 
 
@@ -58,6 +59,10 @@ def cli(ctx, json_mode, quiet, debug, base_dir, config_dir, cache_dir, state_dir
         os.environ["XDG_CACHE_HOME"] = cache_dir
     if state_dir:
         os.environ["XDG_STATE_HOME"] = state_dir
+
+    # Inject stored credentials before any subcommand runs.
+    # Only sets keys not already present in the environment.
+    inject_keys()
 
     # Store shared state for subcommands
     ctx.obj["output"] = CLIOutput(json_mode=json_mode, quiet=quiet, debug=debug)

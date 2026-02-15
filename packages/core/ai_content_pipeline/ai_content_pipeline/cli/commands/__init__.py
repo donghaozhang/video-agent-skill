@@ -10,6 +10,7 @@ from .motion import register_motion_commands
 from .audio import register_audio_commands
 from .imaging import register_imaging_commands
 from .project import register_project_commands
+from .keys import register_key_commands
 
 
 def register_all_commands(cli):
@@ -20,3 +21,4 @@ def register_all_commands(cli):
     register_audio_commands(cli)
     register_imaging_commands(cli)
     register_project_commands(cli)
+    register_key_commands(cli)
