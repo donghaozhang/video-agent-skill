@@ -15,9 +15,24 @@ When users download the `aicp` binary (built via PyInstaller), there is no `.env
 - The binary has XDG directory support (`~/.config/video-ai-studio/`) but nothing writes credentials there
 - No `set-key`, `get-key`, or `check-keys` commands exist
 
+## Security Threat Model
+
+**Leak vectors addressed:**
+
+| Vector | Risk | Mitigation |
+|--------|------|------------|
+| **Shell history** | `aicp set-key FAL_KEY val` saves key in `~/.zsh_history` | Key value is **never** a CLI argument — always prompted interactively or piped via `--stdin` |
+| **Process listing** | `ps aux` shows command args to all users on the machine | Same — value never appears in argv |
+| **Credentials file on disk** | Plaintext file readable by owner | `0o600` permissions (owner-only); stored in `~/.config/` outside project tree |
+| **Git commit** | Accidental commit of credentials | File lives in `~/.config/`, not in the repo |
+| **Debug/log output** | Keys printed during `--debug` | Keys are never logged; `get-key` masks values by default |
+| **Shoulder surfing** | Someone sees terminal output | `set-key` uses hidden prompt (`click.prompt(hide_input=True)`); `get-key` masks by default |
+
 ## Solution
 
 Add three new CLI commands (`set-key`, `get-key`, `check-keys`) that store and retrieve API keys from a persistent credentials file at `~/.config/video-ai-studio/credentials.env`. Then wire the key resolution chain so every service checks this file before falling back to environment variables.
+
+**Critical security rule:** The `set-key` command **never accepts the key value as a CLI argument**. Values are entered via interactive hidden prompt (default) or piped via `--stdin` for automation. This prevents leakage through shell history and process listing.
 
 **Key Resolution Order (after implementation):**
 1. Environment variable (e.g., `FAL_KEY`) — always wins for CI/scripting
@@ -60,14 +75,22 @@ Add a new command module for key management commands.
 
 **Commands:**
 
-#### `aicp set-key <KEY_NAME> <KEY_VALUE>`
+#### `aicp set-key <KEY_NAME>`
 ```bash
-# Set a single key
-aicp set-key FAL_KEY fal_abc123...
+# Interactive hidden prompt (default — safe, nothing in history or ps)
+aicp set-key FAL_KEY
+Enter value for FAL_KEY: ••••••••••
+✓ FAL_KEY saved to ~/.config/video-ai-studio/credentials.env
 
-# Set interactively (prompt hides input)
-aicp set-key FAL_KEY --interactive
+# Piped input for automation (no shell history leak)
+echo "$FAL_KEY" | aicp set-key FAL_KEY --stdin
+
+# From a file
+aicp set-key FAL_KEY --stdin < /path/to/secret.txt
 ```
+- **KEY_VALUE is never a positional argument** — prevents shell history and `ps` leaks
+- Default: `click.prompt(hide_input=True)` for hidden interactive input
+- `--stdin` flag: reads value from stdin (for piping/automation)
 - Validates key name against known keys: `FAL_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `ELEVENLABS_API_KEY`
 - Warns (but allows) unknown key names
 - Stores to `~/.config/video-ai-studio/credentials.env`
@@ -149,11 +172,13 @@ Make the stored credentials available to all downstream services transparently.
 3. **`test_delete_key`** — save a key, delete it, verify gone
 4. **`test_inject_keys_respects_env`** — set `FAL_KEY` in env, inject from credentials, verify env value wins
 5. **`test_inject_keys_fills_missing`** — don't set env, inject from credentials, verify it appears in env
-6. **`test_set_key_cli_command`** — invoke `aicp set-key FAL_KEY test123` via Click test runner
-7. **`test_get_key_cli_masked`** — invoke `aicp get-key FAL_KEY`, verify output is masked
+6. **`test_set_key_cli_interactive`** — invoke `aicp set-key FAL_KEY` with simulated prompt input via Click test runner
+7. **`test_set_key_cli_stdin`** — invoke `aicp set-key FAL_KEY --stdin` with piped input via Click test runner
+8. **`test_get_key_cli_masked`** — invoke `aicp get-key FAL_KEY`, verify output is masked
 8. **`test_check_keys_cli_json`** — invoke `aicp check-keys --json`, verify JSON structure
-9. **`test_credentials_file_permissions`** — verify file has `0o600` permissions (Unix only)
-10. **`test_set_key_unknown_warns`** — set an unknown key name, verify warning in output
+10. **`test_credentials_file_permissions`** — verify file has `0o600` permissions (Unix only)
+11. **`test_set_key_unknown_warns`** — set an unknown key name, verify warning in output
+12. **`test_set_key_no_positional_value`** — verify that passing a value as a positional arg is rejected
 
 **Test strategy:**
 - Use `tmp_path` fixture to isolate credentials file (monkeypatch `config_dir()`)
@@ -182,7 +207,7 @@ Make the stored credentials available to all downstream services transparently.
 
 ## Long-Term Considerations
 
-- **Security:** Credentials file uses `0o600` permissions; keys are never logged or shown in `--debug` output
+- **Security:** Key values never appear in CLI arguments (prevents shell history + `ps` leaks); credentials file uses `0o600` permissions; keys are never logged or shown in `--debug` output
 - **Extensibility:** New API keys can be added by updating the `KNOWN_KEYS` list in `credentials.py`
 - **Backward compatible:** Zero changes to existing provider code; env vars and `.env` still work
 - **Cross-platform:** Uses XDG paths module which already handles Windows (`%APPDATA%`) and Unix (`~/.config/`)
