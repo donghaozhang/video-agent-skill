@@ -36,20 +36,32 @@ class UnifiedImageToImageGenerator:
     
     def _initialize_generator(self):
         """Initialize the FAL Image-to-Image generator."""
+        # Try direct import first (works in PyInstaller frozen builds where
+        # modules are bundled via hiddenimports but filesystem paths don't exist).
+        if self._try_import_generator():
+            return
+
+        # Fallback: add provider source directory to sys.path (dev mode)
         try:
-            # Add the fal_image_to_image directory to Python path
-            fal_image_to_image_path = Path(__file__).parent.parent.parent.parent.parent / "providers" / "fal" / "image-to-image"
-            if fal_image_to_image_path.exists():
-                sys.path.insert(0, str(fal_image_to_image_path))
-                from fal_image_to_image.generator import FALImageToImageGenerator
-                self.generator = FALImageToImageGenerator()
-                print("✅ FAL Image-to-Image generator initialized")
-            else:
-                print("❌ FAL Image-to-Image directory not found at:", fal_image_to_image_path)
-                self.generator = None
+            fal_path = Path(__file__).parent.parent.parent.parent.parent / "providers" / "fal" / "image-to-image"
+            if fal_path.exists():
+                sys.path.insert(0, str(fal_path))
+                if self._try_import_generator():
+                    return
+            print("❌ FAL Image-to-Image providers not found")
         except Exception as e:
             print(f"❌ Failed to initialize FAL Image-to-Image generator: {e}")
             self.generator = None
+
+    def _try_import_generator(self) -> bool:
+        """Attempt to import the FAL Image-to-Image generator. Returns True on success."""
+        try:
+            from fal_image_to_image.generator import FALImageToImageGenerator
+            self.generator = FALImageToImageGenerator()
+            print("✅ FAL Image-to-Image generator initialized")
+            return True
+        except ImportError:
+            return False
     
     def get_available_models(self) -> list:
         """Get list of available models."""
