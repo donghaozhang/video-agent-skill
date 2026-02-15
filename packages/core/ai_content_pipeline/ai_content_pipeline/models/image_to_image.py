@@ -79,7 +79,7 @@ class UnifiedImageToImageGenerator:
     def generate(self, 
                  source_image: str,
                  prompt: str,
-                 model: str = "photon_flash",
+                 model: str = "nano_banana_pro_edit",
                  output_dir: str = "output",
                  **kwargs) -> ImageToImageResult:
         """
