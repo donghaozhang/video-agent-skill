@@ -5,6 +5,14 @@ All notable changes to the AI Content Generation Suite.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.26] - 2026-02-15
+
+### Added
+- `set-key`, `get-key`, `check-keys`, `delete-key` CLI commands for credential management
+- Persistent credential storage at `~/.config/video-ai-studio/credentials.env` (XDG-compliant)
+- Automatic key injection into `os.environ` at CLI startup (`inject_keys()`)
+- Security: hidden prompt input, `--stdin` for automation, `0o600` file permissions, masked output
+
 ## [1.0.24] - 2026-02-10
 
 ### Added
