@@ -69,6 +69,7 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
         "flux_schnell": "fal-ai/flux/schnell",
         "imagen4": "google/imagen-4",
         "nano_banana_pro": "fal-ai/nano-banana-pro",
+        "nano_banana_2": "fal-ai/nano-banana-2",
         "gpt_image_1_5": "fal-ai/gpt-image-1-5",
         "seedream_v3": "fal-ai/seedream-v3",
     }
@@ -76,6 +77,7 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
     # Model mapping for image-to-image with reference (character consistency)
     REFERENCE_MODEL_MAP = {
         "nano_banana_pro": "fal-ai/nano-banana-pro/edit",  # Default, uses image_urls array
+        "nano_banana_2": "fal-ai/nano-banana-2/edit",  # Google's latest, uses image_urls array
         "flux_kontext": "fal-ai/flux-kontext/max/image-to-image",
         "flux_redux": "fal-ai/flux-pro/v1.1-ultra/redux",
         "seededit_v3": "fal-ai/seededit-v3",
@@ -83,10 +85,10 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
     }
 
     # Models that use image_urls array instead of image_url
-    ARRAY_IMAGE_MODELS = {"nano_banana_pro"}
+    ARRAY_IMAGE_MODELS = {"nano_banana_pro", "nano_banana_2"}
 
     # Models that use aspect_ratio param directly (not image_size)
-    ASPECT_RATIO_MODELS = {"nano_banana_pro", "gpt_image_1_5", "seedream_v3", "imagen4"}
+    ASPECT_RATIO_MODELS = {"nano_banana_pro", "nano_banana_2", "gpt_image_1_5", "seedream_v3", "imagen4"}
 
     # Cost estimates per image
     COST_MAP = {
@@ -94,10 +96,12 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
         "flux_schnell": 0.001,
         "imagen4": 0.004,
         "nano_banana_pro": 0.002,
+        "nano_banana_2": 0.08,
         "gpt_image_1_5": 0.003,
         "seedream_v3": 0.002,
         # Reference models (image-to-image costs)
         "nano_banana_pro_edit": 0.15,  # nano-banana-pro/edit costs $0.15/image
+        "nano_banana_2_edit": 0.08,  # nano-banana-2/edit costs $0.08/image (1K)
         "flux_kontext": 0.025,
         "flux_redux": 0.020,
         "seededit_v3": 0.025,
@@ -110,6 +114,7 @@ class ImageGeneratorAdapter(BaseAdapter[str, ImageOutput]):
         "flux_schnell": 4,  # flux_schnell is fast, max 12 but 4 is recommended
         "imagen4": 50,
         "nano_banana_pro": 50,
+        "nano_banana_2": 50,
         "gpt_image_1_5": 50,
         "seedream_v3": 50,
         # Reference models
