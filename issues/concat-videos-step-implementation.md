@@ -310,7 +310,7 @@ if __name__ == "__main__":
 
 ### Subtask 6: Update Documentation (5 min)
 
-**File:** `.claude/skills/ai-content-pipeline/Skill.md`
+**File:** `.claude/skills/qcut-toolkit/ai-content-pipeline/SKILL.md`
 
 Add example:
 ```yaml
@@ -365,7 +365,7 @@ steps:
 | `pipeline/step_executors/__init__.py` | Export `ConcatVideosExecutor` |
 | `pipeline/executor.py` | Register executor, update `_get_next_step_input()` |
 | `tests/test_concat_videos.py` | Unit tests |
-| `.claude/skills/ai-content-pipeline/Skill.md` | Documentation |
+| `.claude/skills/qcut-toolkit/ai-content-pipeline/SKILL.md` | Documentation |
 
 ---
 
